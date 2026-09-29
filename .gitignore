@@ -1,0 +1,28 @@
+# Dépendances et artefacts de construction
+node_modules/
+dist/
+build/
+coverage/
+target/
+.nx/
+*.tsbuildinfo
+
+# Environnement local et secrets (RI-SCR-01)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
+# Journaux
+*.log
+logs/
+
+# Éditeurs et systèmes
+.idea/
+.vscode/*
+!.vscode/extensions.json
+.DS_Store
+Thumbs.db
+desktop.ini
