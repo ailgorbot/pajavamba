@@ -1,0 +1,51 @@
+{
+  "name": "pajavamba",
+  "version": "0.4.0",
+  "private": true,
+  "description": "PajaVamba — plateforme de gestion de projets agiles",
+  "license": "Apache-2.0",
+  "type": "module",
+  "packageManager": "pnpm@10.34.6",
+  "engines": {
+    "node": ">=24.0.0"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p tsconfig.fonctionnel.json --noEmit && tsc -p packages/ui/tsconfig.json --noEmit && pnpm --filter @pajavamba/web typecheck",
+    "lint": "eslint .",
+    "layers": "depcruise --config .dependency-cruiser.cjs packages services apps deploy/units",
+    "test": "vitest run --project unit",
+    "test:integration": "vitest run --project integration",
+    "build:web": "pnpm --filter @pajavamba/web build",
+    "dev": "node --watch deploy/units/pv-app/src/main.ts",
+    "start": "node deploy/units/pv-app/src/main.ts",
+    "migrate": "node deploy/units/pv-app/src/migrate.ts",
+    "reference": "node tools/reference/generate-actions-reference.ts",
+    "reference:check": "node tools/reference/generate-actions-reference.ts --check",
+    "smoke": "node tools/smoke/smoke-test.ts"
+  },
+  "devDependencies": {
+    "@eslint/js": "10.0.1",
+    "@testcontainers/postgresql": "12.2.0",
+    "@types/node": "24.19.0",
+    "@types/pg": "8.23.1",
+    "dependency-cruiser": "18.4.0",
+    "eslint": "10.11.0",
+    "eslint-plugin-sonarjs": "4.2.2",
+    "fast-check": "4.10.2",
+    "prettier": "3.9.9",
+    "typescript": "6.0.3",
+    "typescript-eslint": "8.71.0",
+    "vitest": "5.0.2"
+  },
+  "dependencies": {
+    "@pajavamba/identity-structure": "workspace:*",
+    "@pajavamba/portfolio-structure": "workspace:*",
+    "@pajavamba/workflow-structure": "workspace:*",
+    "@pajavamba/workitem-structure": "workspace:*",
+    "@pajavamba/query-structure": "workspace:*",
+    "@pajavamba/audit-structure": "workspace:*",
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/kernel": "workspace:*",
+    "pg": "8.23.0"
+  }
+}

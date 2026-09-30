@@ -1,0 +1,9 @@
+**/node_modules
+**/dist
+.git
+.nx
+coverage
+Documents Chat
+*.log
+.env
+.env.*

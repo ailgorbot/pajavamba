@@ -1,0 +1,17 @@
+{
+  "name": "@pajavamba/api-gateway-structure",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Service technique api-gateway : routes générées depuis le registre d'actions, authentification, CSRF",
+  "exports": {
+    ".": "./src/composition/root.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.1.2",
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/kernel": "workspace:*",
+    "@pajavamba/ops": "workspace:*",
+    "fastify": "5.12.5"
+  }
+}
