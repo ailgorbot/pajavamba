@@ -51,6 +51,36 @@ function mapProject(row: ProjectRow): Project {
 const CONCURRENT_UPDATE = new HttpProblem({ status: 412, code: 'portfolio.concurrent_update', title: 'Version périmée', detail: 'Ce projet a été modifié entre-temps. Rechargez-le puis réessayez.' });
 
 /**
+ * Liste, champs dérivés et purge des projets.
+ * @param tx transaction
+ * @returns opérations
+ */
+function projectMaintenance(tx: SqlExecutor): Pick<ProjectRepository, 'list' | 'updateDerived' | 'listDueForPurge' | 'delete'> {
+  return {
+    async list(filter) {
+      const statuses = filter.includeArchived ? ['draft', 'active', 'closed', 'archived', 'pending_deletion'] : ['draft', 'active', 'closed'];
+      const rows = filter.projectIds === 'all'
+        ? await tx.query<ProjectRow>(`SELECT ${COLUMNS} FROM projects WHERE status = ANY($1) ORDER BY name`, [statuses])
+        : await tx.query<ProjectRow>(`SELECT ${COLUMNS} FROM projects WHERE status = ANY($1) AND id = ANY($2) ORDER BY name`, [statuses, filter.projectIds]);
+      return rows.map(mapProject);
+    },
+    async updateDerived(id, fields) {
+      await tx.query(
+        'UPDATE projects SET configuration_ready = coalesce($2, configuration_ready), open_item_count = greatest(0, open_item_count + $3) WHERE id = $1',
+        [id, fields.configurationReady ?? null, fields.openItemDelta ?? 0],
+      );
+    },
+    async listDueForPurge(now) {
+      const rows = await tx.query<ProjectRow>(`SELECT ${COLUMNS} FROM projects WHERE status = 'pending_deletion' AND deletion_scheduled_for <= $1`, [new Date(now)]);
+      return rows.map(mapProject);
+    },
+    async delete(id) {
+      await tx.query('DELETE FROM projects WHERE id = $1', [id]);
+    },
+  };
+}
+
+/**
  * Crée le dépôt des projets.
  * @param tx transaction
  * @returns dépôt
@@ -63,13 +93,6 @@ export function projectRepository(tx: SqlExecutor): ProjectRepository {
   return {
     findById: async (id) => findOne('id', id),
     findByKey: async (key) => findOne('key', key),
-    async list(filter) {
-      const statuses = filter.includeArchived ? ['draft', 'active', 'closed', 'archived', 'pending_deletion'] : ['draft', 'active', 'closed'];
-      const rows = filter.projectIds === 'all'
-        ? await tx.query<ProjectRow>(`SELECT ${COLUMNS} FROM projects WHERE status = ANY($1) ORDER BY name`, [statuses])
-        : await tx.query<ProjectRow>(`SELECT ${COLUMNS} FROM projects WHERE status = ANY($1) AND id = ANY($2) ORDER BY name`, [statuses, filter.projectIds]);
-      return rows.map(mapProject);
-    },
     async insert(project) {
       await tx.query(
         `INSERT INTO projects (organisation_id, id, key, name, description, status, visibility, methodology_pack_key, time_zone, created_by, version)
@@ -86,18 +109,6 @@ export function projectRepository(tx: SqlExecutor): ProjectRepository {
       );
       if (rows.length === 0) throw CONCURRENT_UPDATE;
     },
-    async updateDerived(id, fields) {
-      await tx.query(
-        'UPDATE projects SET configuration_ready = coalesce($2, configuration_ready), open_item_count = greatest(0, open_item_count + $3) WHERE id = $1',
-        [id, fields.configurationReady ?? null, fields.openItemDelta ?? 0],
-      );
-    },
-    async listDueForPurge(now) {
-      const rows = await tx.query<ProjectRow>(`SELECT ${COLUMNS} FROM projects WHERE status = 'pending_deletion' AND deletion_scheduled_for <= $1`, [new Date(now)]);
-      return rows.map(mapProject);
-    },
-    async delete(id) {
-      await tx.query('DELETE FROM projects WHERE id = $1', [id]);
-    },
+    ...projectMaintenance(tx),
   };
 }

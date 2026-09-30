@@ -13,6 +13,7 @@ import type { PortfolioDependencies } from '../ports/portfolio.ports.ts';
 
 /** Exigence d'accès au projet. */
 export interface ProjectAccess {
+  readonly ref: ProjectRef;
   readonly permission: string;
   readonly risk: RiskLevel;
   /** Refuse l'action si le projet est en lecture seule. */
@@ -23,11 +24,11 @@ export interface ProjectAccess {
  * Charge un projet visible par l'acteur puis vérifie la permission demandée.
  * @param dependencies dépendances
  * @param context contexte
- * @param ref référence du projet
- * @param access exigence
+ * @param access projet et exigence
  * @returns projet ou erreur
  */
-export async function loadProject(dependencies: PortfolioDependencies, context: ExecutionContext, ref: ProjectRef, access: ProjectAccess): Promise<Result<Project, DomainError>> {
+export async function loadProject(dependencies: PortfolioDependencies, context: ExecutionContext, access: ProjectAccess): Promise<Result<Project, DomainError>> {
+  const { ref } = access;
   const project = 'id' in ref ? await dependencies.projects.findById(ref.id) : await dependencies.projects.findByKey(ref.key);
   if (project === undefined) return err(NOT_FOUND);
   const visible = await requireAccess(dependencies.policy, context, { permission: 'project:read', risk: 'R0', projectId: project.id });

@@ -37,6 +37,32 @@ function mapTeam(row: TeamRow): Team {
 }
 
 /**
+ * Appartenances aux équipes.
+ * @param tx transaction
+ * @param organisationId paramètre
+ * @returns opérations
+ */
+function teamMembers(tx: SqlExecutor, organisationId: OrganisationId): Pick<TeamRepository, 'listMembers' | 'upsertMember' | 'removeMember'> {
+  return {
+    async listMembers(teamId) {
+      const rows = await tx.query<MemberRow>('SELECT team_id, user_id, team_role, allocation_percent FROM team_memberships WHERE team_id = $1 ORDER BY user_id', [teamId]);
+      return rows.map((row) => ({ teamId: row.team_id, userId: toEntityId(row.user_id), teamRole: row.team_role, allocationPercent: row.allocation_percent }));
+    },
+    async upsertMember(membership) {
+      await tx.query(
+        `INSERT INTO team_memberships (organisation_id, team_id, user_id, team_role, allocation_percent) VALUES ($1, $2, $3, $4, $5)
+         ON CONFLICT (organisation_id, team_id, user_id) DO UPDATE SET team_role = EXCLUDED.team_role, allocation_percent = EXCLUDED.allocation_percent`,
+        [organisationId, membership.teamId, membership.userId, membership.teamRole, membership.allocationPercent],
+      );
+    },
+    async removeMember(teamId, userId) {
+      const rows = await tx.query('DELETE FROM team_memberships WHERE team_id = $1 AND user_id = $2 RETURNING user_id', [teamId, userId]);
+      return rows.length > 0;
+    },
+  };
+}
+
+/**
  * Crée le dépôt des équipes.
  * @param tx transaction
  * @param organisationId organisation courante
@@ -67,20 +93,6 @@ export function teamRepository(tx: SqlExecutor, organisationId: OrganisationId):
       const rows = await tx.query('SELECT 1 FROM project_teams WHERE project_id = $1 AND team_id = $2', [projectId, teamId]);
       return rows.length > 0;
     },
-    async listMembers(teamId) {
-      const rows = await tx.query<MemberRow>('SELECT team_id, user_id, team_role, allocation_percent FROM team_memberships WHERE team_id = $1 ORDER BY user_id', [teamId]);
-      return rows.map((row) => ({ teamId: row.team_id, userId: toEntityId(row.user_id), teamRole: row.team_role, allocationPercent: row.allocation_percent }));
-    },
-    async upsertMember(membership) {
-      await tx.query(
-        `INSERT INTO team_memberships (organisation_id, team_id, user_id, team_role, allocation_percent) VALUES ($1, $2, $3, $4, $5)
-         ON CONFLICT (organisation_id, team_id, user_id) DO UPDATE SET team_role = EXCLUDED.team_role, allocation_percent = EXCLUDED.allocation_percent`,
-        [organisationId, membership.teamId, membership.userId, membership.teamRole, membership.allocationPercent],
-      );
-    },
-    async removeMember(teamId, userId) {
-      const rows = await tx.query('DELETE FROM team_memberships WHERE team_id = $1 AND user_id = $2 RETURNING user_id', [teamId, userId]);
-      return rows.length > 0;
-    },
+    ...teamMembers(tx, organisationId),
   };
 }

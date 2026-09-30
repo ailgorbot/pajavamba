@@ -80,17 +80,17 @@ function lifecycleAction(runtime: PortfolioRuntime, declaration: LifecycleDeclar
     handle: async (call) => {
       const input = parseInput(TextInput, call.body);
       const ref = projectRefOf(call.params['projectRef']);
-      return projectWrite(runtime, call, { actionId: `project.${declaration.action}`, changedFields: ['status'], status: 200, execute: async (dependencies, context) => changeLifecycle(dependencies, context, ref, { action: declaration.action, text: input.text }) });
+      return projectWrite(runtime, call, { actionId: `project.${declaration.action}`, changedFields: ['status'], status: 200, execute: async (dependencies, context) => changeLifecycle(dependencies, context, { ref, action: declaration.action, text: input.text }) });
     },
   };
 }
 
 /**
- * Déclare les actions des projets.
+ * Déclare les lectures des projets.
  * @param runtime environnement portfolio
- * @returns actions enregistrées
+ * @returns actions
  */
-export function projectActions(runtime: PortfolioRuntime): RegisteredAction[] {
+function readActions(runtime: PortfolioRuntime): RegisteredAction[] {
   return [
     {
       definition: defineAction({ id: 'project.list', permission: 'project:read', risk: 'R0', method: 'GET', path: '/projects', reversible: true, description: 'Liste les projets accessibles (archivés masqués par défaut).', rules: [] }),
@@ -102,19 +102,29 @@ export function projectActions(runtime: PortfolioRuntime): RegisteredAction[] {
       },
     },
     {
-      definition: defineAction({ id: 'project.create', permission: 'project:create', risk: 'R1', method: 'POST', path: '/projects', reversible: true, description: 'Crée un projet en brouillon.', rules: ['RG-PRJ-001', 'RG-PRJ-002'] }),
-      handle: async (call) => {
-        const input = parseInput(CreateInput, call.body);
-        return projectWrite(runtime, call, { actionId: 'project.create', changedFields: Object.keys(input), status: 201, execute: async (dependencies, context) => createProject(dependencies, context, input) });
-      },
-    },
-    {
       definition: defineAction({ id: 'project.get', permission: 'project:read', risk: 'R0', method: 'GET', path: '/projects/:projectRef', reversible: true, description: "Lit un projet et les points bloquants de sa clôture.", rules: ['RG-PRJ-005'] }),
       handle: async (call) => {
         const context = requireContext(call.context);
         const ref = projectRefOf(call.params['projectRef']);
         const project = await serviceRead(runtime.forOrganisation(context.organisationId), context.organisationId, async (dependencies) => getProject(dependencies, context, ref));
         return { status: 200, body: { ...projectBody(project), closureBlockers: closureBlockers(project) }, etag: project.version };
+      },
+    },
+  ];
+}
+
+/**
+ * Déclare la création et la modification des projets.
+ * @param runtime environnement portfolio
+ * @returns actions
+ */
+function writeActions(runtime: PortfolioRuntime): RegisteredAction[] {
+  return [
+    {
+      definition: defineAction({ id: 'project.create', permission: 'project:create', risk: 'R1', method: 'POST', path: '/projects', reversible: true, description: 'Crée un projet en brouillon.', rules: ['RG-PRJ-001', 'RG-PRJ-002'] }),
+      handle: async (call) => {
+        const input = parseInput(CreateInput, call.body);
+        return projectWrite(runtime, call, { actionId: 'project.create', changedFields: Object.keys(input), status: 201, execute: async (dependencies, context) => createProject(dependencies, context, input) });
       },
     },
     {
@@ -128,11 +138,19 @@ export function projectActions(runtime: PortfolioRuntime): RegisteredAction[] {
           execute: async (dependencies, context) => {
             const current = await getProject(dependencies, context, ref);
             if (current.ok) checkIfMatch(call.headers.ifMatch, current.value.version);
-            return updateProject(dependencies, context, ref, changes);
+            return updateProject(dependencies, context, { ref, changes });
           },
         });
       },
     },
-    ...LIFECYCLE.map((declaration) => lifecycleAction(runtime, declaration)),
   ];
+}
+
+/**
+ * Déclare les actions des projets.
+ * @param runtime environnement portfolio
+ * @returns actions enregistrées
+ */
+export function projectActions(runtime: PortfolioRuntime): RegisteredAction[] {
+  return [...readActions(runtime), ...writeActions(runtime), ...LIFECYCLE.map((declaration) => lifecycleAction(runtime, declaration))];
 }

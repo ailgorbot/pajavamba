@@ -13,6 +13,7 @@ import { loadProject, type ProjectRef } from './project-access.ts';
 
 /** Entrée de la création d'une équipe. */
 export interface CreateTeamInput {
+  readonly ref: ProjectRef;
   readonly key: string;
   readonly name: string;
   readonly kind: TeamKind;
@@ -28,12 +29,11 @@ const MEMBER_NOT_FOUND = domainError('portfolio.team_member_not_found', 'not_fou
  * Crée une équipe et la rattache au projet (`team.create`).
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param input équipe
+ * @param input projet et équipe
  * @returns équipe créée
  */
-export async function createTeam(dependencies: PortfolioDependencies, context: ExecutionContext, ref: ProjectRef, input: CreateTeamInput): Promise<Result<UseCaseOutput<Team>, DomainError>> {
-  const project = await loadProject(dependencies, context, ref, { permission: 'team:manage', risk: 'R1', writable: true });
+export async function createTeam(dependencies: PortfolioDependencies, context: ExecutionContext, input: CreateTeamInput): Promise<Result<UseCaseOutput<Team>, DomainError>> {
+  const project = await loadProject(dependencies, context, { ref: input.ref, permission: 'team:manage', risk: 'R1', writable: true });
   if (!project.ok) return project;
   const key = validateTeamKey(input.key);
   if (!key.ok) return key;
@@ -56,7 +56,7 @@ export async function createTeam(dependencies: PortfolioDependencies, context: E
  * @returns équipes et membres
  */
 export async function listTeams(dependencies: PortfolioDependencies, context: ExecutionContext, ref: ProjectRef): Promise<Result<readonly { readonly team: Team; readonly members: readonly TeamMembership[] }[], DomainError>> {
-  const project = await loadProject(dependencies, context, ref, { permission: 'team:read', risk: 'R0', writable: false });
+  const project = await loadProject(dependencies, context, { ref, permission: 'team:read', risk: 'R0', writable: false });
   if (!project.ok) return project;
   const teams = await dependencies.teams.listForProject(project.value.id);
   return ok(await Promise.all(teams.map(async (team) => ({ team, members: await dependencies.teams.listMembers(team.id) }))));
@@ -64,6 +64,7 @@ export async function listTeams(dependencies: PortfolioDependencies, context: Ex
 
 /** Entrée de l'ajout d'un membre. */
 export interface TeamMemberInput {
+  readonly ref: ProjectRef;
   readonly teamId: string;
   readonly userId: UserId;
   readonly teamRole: TeamRole;
@@ -74,12 +75,11 @@ export interface TeamMemberInput {
  * Ajoute ou modifie un membre d'équipe (`team.add_member`).
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param input membre
+ * @param input projet et membre
  * @returns appartenance
  */
-export async function addTeamMember(dependencies: PortfolioDependencies, context: ExecutionContext, ref: ProjectRef, input: TeamMemberInput): Promise<Result<UseCaseOutput<TeamMembership>, DomainError>> {
-  const project = await loadProject(dependencies, context, ref, { permission: 'team:manage_members', risk: 'R3', writable: true });
+export async function addTeamMember(dependencies: PortfolioDependencies, context: ExecutionContext, input: TeamMemberInput): Promise<Result<UseCaseOutput<TeamMembership>, DomainError>> {
+  const project = await loadProject(dependencies, context, { ref: input.ref, permission: 'team:manage_members', risk: 'R3', writable: true });
   if (!project.ok) return project;
   if (!(await dependencies.teams.isAttached(project.value.id, input.teamId))) return err(TEAM_NOT_FOUND);
   const allocation = validateAllocation(input.allocationPercent);
@@ -93,13 +93,12 @@ export async function addTeamMember(dependencies: PortfolioDependencies, context
  * Retire un membre d'équipe (`team.remove_member`).
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param teamId équipe
- * @param userId membre
+ * @param input projet, équipe et membre
  * @returns événements
  */
-export async function removeTeamMember(dependencies: PortfolioDependencies, context: ExecutionContext, ref: ProjectRef, teamId: string, userId: UserId): Promise<Result<UseCaseOutput<null>, DomainError>> {
-  const project = await loadProject(dependencies, context, ref, { permission: 'team:manage_members', risk: 'R3', writable: true });
+export async function removeTeamMember(dependencies: PortfolioDependencies, context: ExecutionContext, input: { readonly ref: ProjectRef; readonly teamId: string; readonly userId: UserId }): Promise<Result<UseCaseOutput<null>, DomainError>> {
+  const { teamId, userId } = input;
+  const project = await loadProject(dependencies, context, { ref: input.ref, permission: 'team:manage_members', risk: 'R3', writable: true });
   if (!project.ok) return project;
   if (!(await dependencies.teams.isAttached(project.value.id, teamId))) return err(TEAM_NOT_FOUND);
   if (!(await dependencies.teams.removeMember(teamId, userId))) return err(MEMBER_NOT_FOUND);

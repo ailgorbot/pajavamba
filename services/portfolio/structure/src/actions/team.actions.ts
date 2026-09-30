@@ -44,11 +44,11 @@ function idParam(value: string | undefined): string {
 }
 
 /**
- * Déclare les actions des équipes.
+ * Déclare la liste et la création des équipes.
  * @param runtime environnement portfolio
- * @returns actions enregistrées
+ * @returns actions
  */
-export function teamActions(runtime: PortfolioRuntime): RegisteredAction[] {
+function teamLifecycleActions(runtime: PortfolioRuntime): RegisteredAction[] {
   return [
     {
       definition: defineAction({ id: 'team.list', permission: 'team:read', risk: 'R0', method: 'GET', path: '/projects/:projectRef/teams', reversible: true, description: "Liste les équipes d'un projet et leurs membres.", rules: [] }),
@@ -65,9 +65,19 @@ export function teamActions(runtime: PortfolioRuntime): RegisteredAction[] {
         const context = requireContext(call.context);
         const input = parseInput(TeamInput, call.body);
         const ref = projectRefOf(call.params['projectRef']);
-        return serviceWrite(runtime.forOrganisation(context.organisationId), call, { actionId: 'team.create', resourceType: 'team', context, replayable: true, changedFields: Object.keys(input), execute: async (dependencies) => createTeam(dependencies, context, ref, input), respond: (team) => ({ status: 201, body: teamBody(team) }), resourceId: (team) => team.id });
+        return serviceWrite(runtime.forOrganisation(context.organisationId), call, { actionId: 'team.create', resourceType: 'team', context, replayable: true, changedFields: Object.keys(input), execute: async (dependencies) => createTeam(dependencies, context, { ...input, ref }), respond: (team) => ({ status: 201, body: teamBody(team) }), resourceId: (team) => team.id });
       },
     },
+  ];
+}
+
+/**
+ * Déclare la gestion des membres d’équipe.
+ * @param runtime environnement portfolio
+ * @returns actions
+ */
+function teamMemberActions(runtime: PortfolioRuntime): RegisteredAction[] {
+  return [
     {
       definition: defineAction({ id: 'team.add_member', permission: 'team:manage_members', risk: 'R3', method: 'POST', path: '/projects/:projectRef/teams/:teamId/members', reversible: true, description: 'Ajoute ou modifie un membre d’équipe.', rules: ['RG-IA-002'] }),
       handle: async (call) => {
@@ -75,7 +85,7 @@ export function teamActions(runtime: PortfolioRuntime): RegisteredAction[] {
         const input = parseInput(MemberInput, call.body);
         const ref = projectRefOf(call.params['projectRef']);
         const teamId = idParam(call.params['teamId']);
-        return serviceWrite(runtime.forOrganisation(context.organisationId), call, { actionId: 'team.add_member', resourceType: 'team', context, replayable: true, changedFields: ['teamRole', 'allocationPercent'], execute: async (dependencies) => addTeamMember(dependencies, context, ref, { teamId, userId: toEntityId(input.userId), teamRole: input.teamRole, allocationPercent: input.allocationPercent }), respond: (membership) => ({ status: 201, body: membership }), resourceId: () => teamId });
+        return serviceWrite(runtime.forOrganisation(context.organisationId), call, { actionId: 'team.add_member', resourceType: 'team', context, replayable: true, changedFields: ['teamRole', 'allocationPercent'], execute: async (dependencies) => addTeamMember(dependencies, context, { ref, teamId, userId: toEntityId(input.userId), teamRole: input.teamRole, allocationPercent: input.allocationPercent }), respond: (membership) => ({ status: 201, body: membership }), resourceId: () => teamId });
       },
     },
     {
@@ -85,8 +95,17 @@ export function teamActions(runtime: PortfolioRuntime): RegisteredAction[] {
         const ref = projectRefOf(call.params['projectRef']);
         const teamId = idParam(call.params['teamId']);
         const userId = toEntityId<'user'>(idParam(call.params['userId']));
-        return serviceWrite(runtime.forOrganisation(context.organisationId), call, { actionId: 'team.remove_member', resourceType: 'team', context, replayable: true, execute: async (dependencies) => removeTeamMember(dependencies, context, ref, teamId, userId), respond: () => ({ status: 204, body: null }), resourceId: () => teamId });
+        return serviceWrite(runtime.forOrganisation(context.organisationId), call, { actionId: 'team.remove_member', resourceType: 'team', context, replayable: true, execute: async (dependencies) => removeTeamMember(dependencies, context, { ref, teamId, userId }), respond: () => ({ status: 204, body: null }), resourceId: () => teamId });
       },
     },
   ];
+}
+
+/**
+ * Déclare les actions des équipes.
+ * @param runtime environnement portfolio
+ * @returns actions enregistrées
+ */
+export function teamActions(runtime: PortfolioRuntime): RegisteredAction[] {
+  return [...teamLifecycleActions(runtime), ...teamMemberActions(runtime)];
 }

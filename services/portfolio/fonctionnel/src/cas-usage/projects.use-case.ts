@@ -4,11 +4,11 @@
  * Couche : basse (portfolio/fonctionnel). Règles : RG-PRJ-001, RG-PRJ-002, RG-PRJ-004, §2.4 (création
  * en brouillon), RI-SEC-03.
  */
-import { actorUserId, domainError, err, ok, requireAccess, toEntityId, type DomainError, type ExecutionContext, type Result, type UseCaseOutput } from '@pajavamba/kernel';
+import { actorUserId, domainError, err, ok, requireAccess, toEntityId, type DomainError, type ExecutionContext, type ProjectRef, type Result, type UseCaseOutput } from '@pajavamba/kernel';
 import { PORTFOLIO_EVENTS, projectEvent } from '../domaine/portfolio.events.ts';
 import { validateProjectKey, validateProjectName, validateText, type MethodologyPackKey, type Project, type ProjectVisibility } from '../domaine/project.ts';
 import type { PortfolioDependencies } from '../ports/portfolio.ports.ts';
-import { loadProject, type ProjectRef } from './project-access.ts';
+import { loadProject } from './project-access.ts';
 
 /** Entrée de la création d'un projet. */
 export interface CreateProjectInput {
@@ -59,12 +59,12 @@ export interface UpdateProjectInput {
  * Modifie les informations d'un projet (`project.update`) ; la clé est immuable (RG-PRJ-001).
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param input champs modifiés
+ * @param request projet et champs modifiés
  * @returns projet modifié
  */
-export async function updateProject(dependencies: PortfolioDependencies, context: ExecutionContext, ref: ProjectRef, input: UpdateProjectInput): Promise<Result<UseCaseOutput<Project>, DomainError>> {
-  const loaded = await loadProject(dependencies, context, ref, { permission: 'project:update', risk: 'R1', writable: true });
+export async function updateProject(dependencies: PortfolioDependencies, context: ExecutionContext, request: { readonly ref: ProjectRef; readonly changes: UpdateProjectInput }): Promise<Result<UseCaseOutput<Project>, DomainError>> {
+  const input = request.changes;
+  const loaded = await loadProject(dependencies, context, { ref: request.ref, permission: 'project:update', risk: 'R1', writable: true });
   if (!loaded.ok) return loaded;
   const name = input.name === undefined ? ok(loaded.value.name) : validateProjectName(input.name);
   if (!name.ok) return name;
@@ -83,7 +83,7 @@ export async function updateProject(dependencies: PortfolioDependencies, context
  * @returns projet
  */
 export async function getProject(dependencies: PortfolioDependencies, context: ExecutionContext, ref: ProjectRef): Promise<Result<Project, DomainError>> {
-  return loadProject(dependencies, context, ref, { permission: 'project:read', risk: 'R0', writable: false });
+  return loadProject(dependencies, context, { ref, permission: 'project:read', risk: 'R0', writable: false });
 }
 
 /**

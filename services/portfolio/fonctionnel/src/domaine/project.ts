@@ -111,14 +111,12 @@ export const READ_ONLY = domainError('portfolio.project_read_only', 'conflict', 
 /**
  * Applique une transition si le statut courant la permet.
  * @param project projet
- * @param action libellé de l'action
- * @param from statuts d'origine admis
- * @param change modifications
+ * @param request libellé de l'action, statuts d'origine admis et modifications
  * @returns projet modifié ou erreur
  */
-export function transition(project: Project, action: string, from: readonly ProjectStatus[], change: Partial<Project>): Result<Project, DomainError> {
-  if (!from.includes(project.status)) return err(forbiddenTransition(action, project.status));
-  return ok({ ...project, ...change, version: project.version + 1 });
+export function transition(project: Project, request: { readonly action: string; readonly from: readonly ProjectStatus[]; readonly change: Partial<Project> }): Result<Project, DomainError> {
+  if (!request.from.includes(project.status)) return err(forbiddenTransition(request.action, project.status));
+  return ok({ ...project, ...request.change, version: project.version + 1 });
 }
 
 /** Point bloquant de la clôture (assistant de clôture). */
