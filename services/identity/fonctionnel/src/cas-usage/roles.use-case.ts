@@ -108,11 +108,11 @@ export async function listProjectMembers(dependencies: IdentityDependencies, con
  * Attribue le rôle d'administrateur de projet au créateur d'un projet (réaction à `project.created`).
  * @param dependencies dépendances
  * @param context contexte système de l'organisation
- * @param projectId projet créé
- * @param creatorId créateur
+ * @param request projet créé et créateur
  * @returns attribution et événement
  */
-export async function grantCreatorRole(dependencies: IdentityDependencies, context: ExecutionContext, projectId: ProjectId, creatorId: UserId): Promise<Result<UseCaseOutput<RoleAssignment>, DomainError>> {
+export async function grantCreatorRole(dependencies: IdentityDependencies, context: ExecutionContext, request: { readonly projectId: ProjectId; readonly creatorId: UserId }): Promise<Result<UseCaseOutput<RoleAssignment>, DomainError>> {
+  const { projectId, creatorId } = request;
   const existing = await dependencies.assignments.listForProject(context.organisationId, projectId);
   const already = existing.find((assignment) => assignment.userId === creatorId && assignment.roleKey === 'project_admin');
   if (already !== undefined) return ok({ result: already, events: [] });

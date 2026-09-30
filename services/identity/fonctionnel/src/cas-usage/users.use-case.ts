@@ -38,7 +38,7 @@ export async function updateProfile(dependencies: IdentityDependencies, userId: 
   if (!name.ok) return name;
   const updated: User = { ...user, displayName: name.value, theme: input.theme ?? user.theme, version: user.version + 1 };
   await dependencies.users.update(updated);
-  return ok({ result: updated, events: [identityEvent(IDENTITY_EVENTS.userUpdated, user.id, { fields: Object.keys(input) }, updated.version)] });
+  return ok({ result: updated, events: [identityEvent(IDENTITY_EVENTS.userUpdated, { id: user.id, version: updated.version }, { fields: Object.keys(input) })] });
 }
 
 /** Entrée d'une invitation. */
@@ -111,7 +111,7 @@ export async function deactivateUser(dependencies: IdentityDependencies, context
   await dependencies.users.update({ ...user, status: 'deactivated', version: user.version + 1 });
   await dependencies.sessions.revokeAllOf(userId, now);
   await dependencies.credentials.revokeKeysOf(userId, now);
-  return ok({ result: null, events: [identityEvent(IDENTITY_EVENTS.userDeactivated, userId, { organisationId: context.organisationId }, user.version + 1)] });
+  return ok({ result: null, events: [identityEvent(IDENTITY_EVENTS.userDeactivated, { id: userId, version: user.version + 1 }, { organisationId: context.organisationId })] });
 }
 
 /**
@@ -128,5 +128,5 @@ export async function reactivateUser(dependencies: IdentityDependencies, context
   const membership = await dependencies.organisations.findMembership(context.organisationId, userId);
   if (user?.status !== 'deactivated' || membership === undefined) return err(USER_NOT_FOUND);
   await dependencies.users.update({ ...user, status: 'active', version: user.version + 1 });
-  return ok({ result: null, events: [identityEvent(IDENTITY_EVENTS.userReactivated, userId, { organisationId: context.organisationId, source: 'admin' }, user.version + 1)] });
+  return ok({ result: null, events: [identityEvent(IDENTITY_EVENTS.userReactivated, { id: userId, version: user.version + 1 }, { organisationId: context.organisationId, source: 'admin' })] });
 }

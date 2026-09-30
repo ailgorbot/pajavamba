@@ -5,7 +5,7 @@
  * stocké pour rejeu), RI-CNX-03, §8.4.
  */
 import { defineAction, type ActionCall, type RegisteredAction } from '@pajavamba/contracts';
-import { confirmTotpEnrollment, createApiKey, findSystemRole, revokeApiKey, startTotpEnrollment, updateProfile, type IdentityDependencies } from '@pajavamba/identity-fonctionnel';
+import { confirmTotpEnrollment, createApiKey, findSystemRole, revokeApiKey, startTotpEnrollment, updateProfile, type ApiKey, type IdentityDependencies } from '@pajavamba/identity-fonctionnel';
 import { domainError, err, ok, type ExecutionContext, type UserId } from '@pajavamba/kernel';
 import { parseInput, requireContext, UNAUTHENTICATED } from '@pajavamba/ops';
 import { z } from 'zod';
@@ -43,6 +43,24 @@ async function organisationPermissions(dependencies: IdentityDependencies, conte
 }
 
 /**
+ * Date ISO 8601 ou `null`.
+ * @param value instant en millisecondes
+ * @returns date ISO ou `null`
+ */
+function isoOrNull(value: number | null): string | null {
+  return value === null ? null : new Date(value).toISOString();
+}
+
+/**
+ * Métadonnées publiques de la clé API (jamais le secret).
+ * @param key clé active éventuelle
+ * @returns représentation API ou `null`
+ */
+function apiKeyBody(key: ApiKey | undefined): Record<string, unknown> | null {
+  return key === undefined ? null : { publicId: key.publicId, name: key.name, readOnly: key.readOnly, createdAt: new Date(key.createdAt).toISOString(), lastUsedAt: isoOrNull(key.lastUsedAt) };
+}
+
+/**
  * Lit le profil courant, son organisation et ses permissions d'organisation.
  * @param runtime environnement
  * @param call appel
@@ -62,19 +80,19 @@ async function readMe(runtime: IdentityRuntime, call: ActionCall): Promise<unkno
       user: { id: user.id, email: user.email, displayName: user.displayName, theme: user.theme },
       organisation: { id: organisation.id, slug: organisation.slug, name: organisation.name },
       permissions: await organisationPermissions(dependencies, context),
-      mfa: { enrolled: totp?.confirmed === true, verifiedAt: mfaVerifiedAt === null ? null : new Date(mfaVerifiedAt).toISOString() },
-      apiKey: apiKey === undefined ? null : { publicId: apiKey.publicId, name: apiKey.name, readOnly: apiKey.readOnly, createdAt: new Date(apiKey.createdAt).toISOString(), lastUsedAt: apiKey.lastUsedAt === null ? null : new Date(apiKey.lastUsedAt).toISOString() },
+      mfa: { enrolled: totp?.confirmed === true, verifiedAt: isoOrNull(mfaVerifiedAt) },
+      apiKey: apiKeyBody(apiKey),
       csrfToken: session?.csrfToken ?? null,
     });
   });
 }
 
 /**
- * Déclare les actions du profil.
- * @param runtime environnement identity
- * @returns actions enregistrées
+ * Déclare les actions (partie 1).
+ * @param runtime environnement
+ * @returns actions
  */
-export function meActions(runtime: IdentityRuntime): RegisteredAction[] {
+function meActionsPart1(runtime: IdentityRuntime): RegisteredAction[] {
   return [
     {
       definition: defineAction({ id: 'me.get', permission: 'self', risk: 'R0', method: 'GET', path: '/me', reversible: true, description: 'Retourne mon profil, mon organisation et mes permissions.', rules: [] }),
@@ -89,6 +107,16 @@ export function meActions(runtime: IdentityRuntime): RegisteredAction[] {
         return identityWrite(runtime, call, { actionId: 'me.update', resourceType: 'user', context, replayable: true, changedFields: Object.keys(changes), execute: async (dependencies) => updateProfile(dependencies, userOf(context), changes), respond: (user) => ({ status: 200, body: { id: user.id, displayName: user.displayName, theme: user.theme }, etag: user.version }), resourceId: (user) => user.id });
       },
     },
+  ];
+}
+
+/**
+ * Déclare les actions (partie 2).
+ * @param runtime environnement
+ * @returns actions
+ */
+function meActionsPart2(runtime: IdentityRuntime): RegisteredAction[] {
+  return [
     {
       definition: defineAction({ id: 'mfa.totp_start', permission: 'self', risk: 'R1', method: 'POST', path: '/me/mfa/totp', reversible: true, description: "Démarre l'enrôlement d'une application d'authentification (TOTP).", rules: [] }),
       handle: async (call) => {
@@ -104,6 +132,16 @@ export function meActions(runtime: IdentityRuntime): RegisteredAction[] {
         return identityWrite(runtime, call, { actionId: 'mfa.totp_confirm', resourceType: 'mfa_factor', context, replayable: false, execute: async (dependencies) => confirmTotpEnrollment(dependencies, userOf(context), input.code), respond: (result) => ({ status: 200, body: result }), resourceId: () => userOf(context) });
       },
     },
+  ];
+}
+
+/**
+ * Déclare les actions (partie 3).
+ * @param runtime environnement
+ * @returns actions
+ */
+function meActionsPart3(runtime: IdentityRuntime): RegisteredAction[] {
+  return [
     {
       definition: defineAction({ id: 'api_key.create', permission: 'api_key:manage_own', risk: 'R3', method: 'POST', path: '/me/api-key', reversible: false, description: 'Crée ou régénère ma clé API personnelle (affichée une seule fois).', rules: ['RG-IAM-003'] }),
       handle: async (call) => {
@@ -120,4 +158,13 @@ export function meActions(runtime: IdentityRuntime): RegisteredAction[] {
       },
     },
   ];
+}
+
+/**
+ * Déclare les actions du profil.
+ * @param runtime environnement identity
+ * @returns actions enregistrées
+ */
+export function meActions(runtime: IdentityRuntime): RegisteredAction[] {
+  return [...meActionsPart1(runtime), ...meActionsPart2(runtime), ...meActionsPart3(runtime)];
 }

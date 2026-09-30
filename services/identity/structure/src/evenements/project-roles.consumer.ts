@@ -39,7 +39,7 @@ export function createProjectRolesConsumer(runtime: IdentityRuntime): EventConsu
         }
         const creator = event.pvactor;
         if (creator === null) return [];
-        const outcome = await grantCreatorRole(runtime.dependenciesOf(tx), systemContext(event), toEntityId(event.subject), toEntityId(creator));
+        const outcome = await grantCreatorRole(runtime.dependenciesOf(tx), systemContext(event), { projectId: toEntityId(event.subject), creatorId: toEntityId(creator) });
         if (!outcome.ok) return [];
         return outcome.value.events.map((domainEvent) => ({ kind: 'event', type: domainEvent.type, aggregateId: domainEvent.aggregateId, aggregateVersion: domainEvent.aggregateVersion, payload: domainEvent.data }));
       });

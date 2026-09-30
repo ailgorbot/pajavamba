@@ -73,7 +73,7 @@ export function createAccessPolicy(pool: pg.Pool, clock: Clock): AccessPolicy {
     async authorize(context, request) {
       if (context.actor.kind === 'system') return { allowed: true };
       const rows = await read(context, context.actor.userId);
-      return decide(context, request, grantsFor(rows, request.projectId), clock.now());
+      return decide(context, request, { grants: grantsFor(rows, request.projectId), now: clock.now() });
     },
     async projectsWith(context, permission) {
       if (context.actor.kind === 'system') return { all: true };

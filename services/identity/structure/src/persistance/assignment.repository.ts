@@ -38,6 +38,32 @@ function mapAssignment(row: AssignmentRow): RoleAssignment {
 }
 
 /**
+ * Listes et comptages des attributions.
+ * @param tx transaction
+ * @returns opérations
+ */
+function assignmentQueries(tx: SqlExecutor): Pick<AssignmentRepository, 'listForProject' | 'listForUser' | 'countOwners'> {
+  return {
+    async listForProject(organisationId, projectId) {
+      const rows = await tx.query<AssignmentRow>(`SELECT ${COLUMNS} FROM role_assignments WHERE organisation_id = $1 AND scope_type = 'project' AND scope_id = $2 ORDER BY created_at`, [organisationId, projectId]);
+      return rows.map(mapAssignment);
+    },
+    async listForUser(organisationId, userId) {
+      const rows = await tx.query<AssignmentRow>(`SELECT ${COLUMNS} FROM role_assignments WHERE organisation_id = $1 AND user_id = $2 ORDER BY created_at`, [organisationId, userId]);
+      return rows.map(mapAssignment);
+    },
+    async countOwners(organisationId) {
+      const rows = await tx.query<{ readonly total: string }>(
+        `SELECT count(*) AS total FROM role_assignments a JOIN users u ON u.id = a.user_id
+         WHERE a.organisation_id = $1 AND a.role_key = 'owner' AND a.effect = 'allow' AND u.status = 'active'`,
+        [organisationId],
+      );
+      return Number(rows[0]?.total ?? 0);
+    },
+  };
+}
+
+/**
  * Crée le dépôt des attributions.
  * @param tx transaction
  * @returns dépôt
@@ -58,21 +84,6 @@ export function assignmentRepository(tx: SqlExecutor): AssignmentRepository {
     async delete(organisationId, id) {
       await tx.query('DELETE FROM role_assignments WHERE organisation_id = $1 AND id = $2', [organisationId, id]);
     },
-    async listForProject(organisationId, projectId) {
-      const rows = await tx.query<AssignmentRow>(`SELECT ${COLUMNS} FROM role_assignments WHERE organisation_id = $1 AND scope_type = 'project' AND scope_id = $2 ORDER BY created_at`, [organisationId, projectId]);
-      return rows.map(mapAssignment);
-    },
-    async listForUser(organisationId, userId) {
-      const rows = await tx.query<AssignmentRow>(`SELECT ${COLUMNS} FROM role_assignments WHERE organisation_id = $1 AND user_id = $2 ORDER BY created_at`, [organisationId, userId]);
-      return rows.map(mapAssignment);
-    },
-    async countOwners(organisationId) {
-      const rows = await tx.query<{ readonly total: string }>(
-        `SELECT count(*) AS total FROM role_assignments a JOIN users u ON u.id = a.user_id
-         WHERE a.organisation_id = $1 AND a.role_key = 'owner' AND a.effect = 'allow' AND u.status = 'active'`,
-        [organisationId],
-      );
-      return Number(rows[0]?.total ?? 0);
-    },
+    ...assignmentQueries(tx),
   };
 }

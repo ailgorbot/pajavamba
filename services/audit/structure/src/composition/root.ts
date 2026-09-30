@@ -68,11 +68,10 @@ function toEntry(row: EntryRow): ChainedEntry {
 /**
  * Ajoute une entrée en fin de chaîne (verrou transactionnel par organisation).
  * @param tx transaction
- * @param organisationId organisation
- * @param eventId entrée d'origine
- * @param content contenu
+ * @param entry organisation, entrée d'origine et contenu
  */
-async function append(tx: SqlExecutor, organisationId: string, eventId: string, content: AuditContent): Promise<void> {
+async function append(tx: SqlExecutor, entry: { readonly organisationId: string; readonly eventId: string; readonly content: AuditContent }): Promise<void> {
+  const { organisationId, eventId, content } = entry;
   await tx.query('SELECT pg_advisory_xact_lock(hashtext($1))', [`audit:${organisationId}`]);
   const last = await tx.query<{ readonly seq: string; readonly hash: string }>('SELECT seq, hash FROM audit_entries WHERE organisation_id = $1 ORDER BY seq DESC LIMIT 1', [organisationId]);
   const prevHash = last[0]?.hash ?? GENESIS_HASH;
@@ -101,7 +100,7 @@ function chainConsumer(settings: AuditSettings): EventConsumer {
         decision: data['decision'] === 'deny' ? 'deny' : 'allow', correlationId: textOf(data['correlationId']), changedFields: Array.isArray(data['changedFields']) ? data['changedFields'].map(String) : [],
       };
       await consumeOnce({ pool: settings.pool, scope: { ...SCOPE, organisationId }, consumer: CONSUMER, eventId: event.id, correlationId: event.pvcorrelation }, async (tx) => {
-        await append(tx, organisationId, event.id, content);
+        await append(tx, { organisationId, eventId: event.id, content });
         return [];
       });
     },

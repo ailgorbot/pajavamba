@@ -40,6 +40,27 @@ function mapSession(row: SessionRow): Session {
 }
 
 /**
+ * Sessions actives et révocation globale.
+ * @param tx transaction
+ * @returns opérations
+ */
+function sessionQueries(tx: SqlExecutor): Pick<SessionRepository, 'listActiveOf' | 'revokeAllOf'> {
+  return {
+    async listActiveOf(userId, now) {
+      const rows = await tx.query<SessionRow>(
+        `SELECT ${COLUMNS} FROM sessions WHERE user_id = $1 AND revoked_at IS NULL AND created_at > $2 AND last_seen_at > $3 ORDER BY last_seen_at DESC`,
+        [userId, new Date(now - SESSION_ABSOLUTE_TTL_MS), new Date(now - SESSION_IDLE_TTL_MS)],
+      );
+      return rows.map(mapSession);
+    },
+    async revokeAllOf(userId, now) {
+      const rows = await tx.query('UPDATE sessions SET revoked_at = $2 WHERE user_id = $1 AND revoked_at IS NULL RETURNING id', [userId, new Date(now)]);
+      return rows.length;
+    },
+  };
+}
+
+/**
  * Crée le dépôt des sessions.
  * @param tx transaction
  * @returns dépôt
@@ -62,16 +83,6 @@ export function sessionRepository(tx: SqlExecutor): SessionRepository {
     async update(session) {
       await tx.query('UPDATE sessions SET last_seen_at = $2, mfa_verified_at = $3, revoked_at = $4 WHERE id = $1', [session.id, new Date(session.lastSeenAt), toDate(session.mfaVerifiedAt), toDate(session.revokedAt)]);
     },
-    async listActiveOf(userId, now) {
-      const rows = await tx.query<SessionRow>(
-        `SELECT ${COLUMNS} FROM sessions WHERE user_id = $1 AND revoked_at IS NULL AND created_at > $2 AND last_seen_at > $3 ORDER BY last_seen_at DESC`,
-        [userId, new Date(now - SESSION_ABSOLUTE_TTL_MS), new Date(now - SESSION_IDLE_TTL_MS)],
-      );
-      return rows.map(mapSession);
-    },
-    async revokeAllOf(userId, now) {
-      const rows = await tx.query('UPDATE sessions SET revoked_at = $2 WHERE user_id = $1 AND revoked_at IS NULL RETURNING id', [userId, new Date(now)]);
-      return rows.length;
-    },
+    ...sessionQueries(tx),
   };
 }

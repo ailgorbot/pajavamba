@@ -70,19 +70,29 @@ async function accept(runtime: IdentityRuntime, call: ActionCall): Promise<{ rea
 }
 
 /**
- * Déclare les actions d'administration des utilisateurs.
+ * Déclare la désactivation ou la réactivation d'un utilisateur (R3).
  * @param runtime environnement identity
- * @returns actions enregistrées
+ * @param id identifiant de l'action
+ * @param verb sens
+ * @returns action
  */
-export function userActions(runtime: IdentityRuntime): RegisteredAction[] {
-  const status = (id: string, verb: 'deactivate' | 'reactivate'): RegisteredAction => ({
+function statusAction(runtime: IdentityRuntime, id: string, verb: 'deactivate' | 'reactivate'): RegisteredAction {
+  return {
     definition: defineAction({ id, permission: 'user:manage', risk: 'R3', method: 'POST', path: `/users/:userId/actions/${verb}`, reversible: true, description: verb === 'deactivate' ? 'Désactive un utilisateur et révoque ses accès.' : 'Réactive un utilisateur.', rules: ['RG-IAM-005', 'RG-ORG-001'] }),
     handle: async (call) => {
       const context = requireContext(call.context);
       const userId = userIdOf(call.params['userId']);
       return identityWrite(runtime, call, { actionId: id, resourceType: 'user', context, replayable: true, changedFields: ['status'], execute: async (dependencies) => (verb === 'deactivate' ? deactivateUser(dependencies, context, userId) : reactivateUser(dependencies, context, userId)), respond: () => ({ status: 204, body: null }), resourceId: () => userId });
     },
-  });
+  };
+}
+
+/**
+ * Déclare les actions (partie 1).
+ * @param runtime environnement
+ * @returns actions
+ */
+function userActionsPart1(runtime: IdentityRuntime): RegisteredAction[] {
   return [
     {
       definition: defineAction({ id: 'user.list', permission: 'organisation:read', risk: 'R0', method: 'GET', path: '/users', reversible: true, description: "Liste les membres de l'organisation.", rules: [] }),
@@ -107,15 +117,35 @@ export function userActions(runtime: IdentityRuntime): RegisteredAction[] {
       definition: defineAction({ id: 'invitation.accept', permission: 'public', risk: 'R1', method: 'POST', path: '/invitations/accept', reversible: false, description: 'Accepte une invitation en choisissant son mot de passe.', rules: [] }),
       handle: async (call) => accept(runtime, call),
     },
-    status('user.deactivate', 'deactivate'),
-    status('user.reactivate', 'reactivate'),
+  ];
+}
+
+/**
+ * Déclare les actions (partie 2).
+ * @param runtime environnement
+ * @returns actions
+ */
+function userActionsPart2(runtime: IdentityRuntime): RegisteredAction[] {
+  return [
+    statusAction(runtime, 'user.deactivate', 'deactivate'),
+    statusAction(runtime, 'user.reactivate', 'reactivate'),
     {
       definition: defineAction({ id: 'role.list', permission: 'organisation:read', risk: 'R0', method: 'GET', path: '/roles', reversible: true, description: 'Liste les rôles disponibles et leurs permissions.', rules: [] }),
-      handle: async (call) => {
+      handle: (call) => {
         requireContext(call.context);
-        return { status: 200, body: { data: SYSTEM_ROLES, page: { nextCursor: null, limit: SYSTEM_ROLES.length } } };
+        return Promise.resolve({ status: 200, body: { data: SYSTEM_ROLES, page: { nextCursor: null, limit: SYSTEM_ROLES.length } } });
       },
     },
+  ];
+}
+
+/**
+ * Déclare les actions (partie 3).
+ * @param runtime environnement
+ * @returns actions
+ */
+function userActionsPart3(runtime: IdentityRuntime): RegisteredAction[] {
+  return [
     {
       definition: defineAction({ id: 'role.assign', permission: 'role:manage', risk: 'R3', method: 'POST', path: '/role-assignments', reversible: true, description: 'Attribue ou refuse explicitement un rôle (organisation ou projet).', rules: ['RG-IAM-002'] }),
       handle: async (call) => {
@@ -143,4 +173,13 @@ export function userActions(runtime: IdentityRuntime): RegisteredAction[] {
       },
     },
   ];
+}
+
+/**
+ * Déclare les actions d'administration des utilisateurs.
+ * @param runtime environnement identity
+ * @returns actions enregistrées
+ */
+export function userActions(runtime: IdentityRuntime): RegisteredAction[] {
+  return [...userActionsPart1(runtime), ...userActionsPart2(runtime), ...userActionsPart3(runtime)];
 }

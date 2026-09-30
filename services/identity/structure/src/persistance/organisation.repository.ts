@@ -37,24 +37,12 @@ function mapMembership(row: MembershipRow): Membership {
 }
 
 /**
- * Crée le dépôt des organisations.
+ * Appartenances des utilisateurs aux organisations.
  * @param tx transaction
- * @returns dépôt
+ * @returns opérations
  */
-export function organisationRepository(tx: SqlExecutor): OrganisationRepository {
+function memberships(tx: SqlExecutor): Pick<OrganisationRepository, 'findMembership' | 'firstActiveMembership' | 'upsertMembership' | 'listMembers'> {
   return {
-    async count() {
-      const rows = await tx.query<{ readonly total: string }>('SELECT count(*) AS total FROM organisations');
-      return Number(rows[0]?.total ?? 0);
-    },
-    async findById(id) {
-      const rows = await tx.query<OrganisationRow>('SELECT id, slug, name, status FROM organisations WHERE id = $1', [id]);
-      const row = rows[0];
-      return row === undefined ? undefined : { id: toEntityId(row.id), slug: row.slug, name: row.name, status: row.status };
-    },
-    async insert(organisation) {
-      await tx.query('INSERT INTO organisations (id, slug, name, status) VALUES ($1, $2, $3, $4)', [organisation.id, organisation.slug, organisation.name, organisation.status]);
-    },
     async findMembership(organisationId, userId) {
       const rows = await tx.query<MembershipRow>('SELECT organisation_id, user_id, org_role, status FROM memberships WHERE organisation_id = $1 AND user_id = $2', [organisationId, userId]);
       return rows[0] === undefined ? undefined : mapMembership(rows[0]);
@@ -78,5 +66,28 @@ export function organisationRepository(tx: SqlExecutor): OrganisationRepository 
         membership: { organisationId, userId: toEntityId(row.id), orgRole: row.org_role, status: row.membership_status },
       }));
     },
+  };
+}
+
+/**
+ * Crée le dépôt des organisations.
+ * @param tx transaction
+ * @returns dépôt
+ */
+export function organisationRepository(tx: SqlExecutor): OrganisationRepository {
+  return {
+    async count() {
+      const rows = await tx.query<{ readonly total: string }>('SELECT count(*) AS total FROM organisations');
+      return Number(rows[0]?.total ?? 0);
+    },
+    async findById(id) {
+      const rows = await tx.query<OrganisationRow>('SELECT id, slug, name, status FROM organisations WHERE id = $1', [id]);
+      const row = rows[0];
+      return row === undefined ? undefined : { id: toEntityId(row.id), slug: row.slug, name: row.name, status: row.status };
+    },
+    async insert(organisation) {
+      await tx.query('INSERT INTO organisations (id, slug, name, status) VALUES ($1, $2, $3, $4)', [organisation.id, organisation.slug, organisation.name, organisation.status]);
+    },
+    ...memberships(tx),
   };
 }

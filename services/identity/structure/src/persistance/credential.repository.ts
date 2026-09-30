@@ -62,6 +62,27 @@ function mapKey(row: KeyRow): ApiKey {
 const KEY_COLUMNS = 'id, owner_id, public_id, name, read_only, created_at, last_used_at, revoked_at, secret_hash';
 
 /**
+ * Invitations à usage unique.
+ * @param tx transaction
+ * @returns opérations
+ */
+function invitations(tx: SqlExecutor): Pick<CredentialRepository, 'insertInvitation' | 'consumeInvitation'> {
+  return {
+    async insertInvitation(invitation) {
+      await tx.query('INSERT INTO invitations (code_hash, user_id, organisation_id, expires_at) VALUES ($1, $2, $3, $4)', [invitation.codeHash, invitation.userId, invitation.organisationId, new Date(invitation.expiresAt)]);
+    },
+    async consumeInvitation(codeHash, now) {
+      const rows = await tx.query<{ readonly user_id: string; readonly organisation_id: string }>(
+        'UPDATE invitations SET used_at = $2 WHERE code_hash = $1 AND used_at IS NULL AND expires_at > $2 RETURNING user_id, organisation_id',
+        [codeHash, new Date(now)],
+      );
+      const row = rows[0];
+      return row === undefined ? undefined : { userId: toEntityId(row.user_id), organisationId: toEntityId(row.organisation_id) };
+    },
+  };
+}
+
+/**
  * Crée le dépôt des clés et invitations.
  * @param tx transaction
  * @returns dépôt
@@ -88,16 +109,6 @@ export function credentialRepository(tx: SqlExecutor): CredentialRepository {
     async touchKey(id, now) {
       await tx.query('UPDATE api_keys SET last_used_at = $2 WHERE id = $1', [id, new Date(now)]);
     },
-    async insertInvitation(invitation) {
-      await tx.query('INSERT INTO invitations (code_hash, user_id, organisation_id, expires_at) VALUES ($1, $2, $3, $4)', [invitation.codeHash, invitation.userId, invitation.organisationId, new Date(invitation.expiresAt)]);
-    },
-    async consumeInvitation(codeHash, now) {
-      const rows = await tx.query<{ readonly user_id: string; readonly organisation_id: string }>(
-        'UPDATE invitations SET used_at = $2 WHERE code_hash = $1 AND used_at IS NULL AND expires_at > $2 RETURNING user_id, organisation_id',
-        [codeHash, new Date(now)],
-      );
-      const row = rows[0];
-      return row === undefined ? undefined : { userId: toEntityId(row.user_id), organisationId: toEntityId(row.organisation_id) };
-    },
+    ...invitations(tx),
   };
 }

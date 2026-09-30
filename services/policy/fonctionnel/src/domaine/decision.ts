@@ -41,11 +41,11 @@ function credentialDenial(context: ExecutionContext, request: AccessRequest, now
  * Décide si l'acteur peut exécuter l'action demandée.
  * @param context contexte d'exécution
  * @param request permission, niveau de risque et portée
- * @param grants attributions applicables (organisation et projet)
- * @param now instant courant en millisecondes
+ * @param state attributions applicables (organisation et projet) et instant courant
  * @returns décision
  */
-export function decide(context: ExecutionContext, request: AccessRequest, grants: readonly EffectiveGrant[], now: number): AccessDecision {
+export function decide(context: ExecutionContext, request: AccessRequest, state: { readonly grants: readonly EffectiveGrant[]; readonly now: number }): AccessDecision {
+  const { grants, now } = state;
   if (context.actor.kind === 'system') {
     return { allowed: true };
   }

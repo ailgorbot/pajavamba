@@ -26,11 +26,10 @@ export const IDENTITY_EVENTS = {
 /**
  * Construit un événement identity.
  * @param type type d'événement
- * @param aggregateId identifiant de l'agrégat
+ * @param aggregate identifiant de l'agrégat, ou identifiant et version
  * @param data données non sensibles
- * @param aggregateVersion version de l'agrégat
  * @returns événement du domaine
  */
-export function identityEvent(type: string, aggregateId: string, data: Readonly<Record<string, EventValue>>, aggregateVersion = 1): DomainEvent {
-  return { type, aggregateId, aggregateVersion, data };
+export function identityEvent(type: string, aggregate: string | { readonly id: string; readonly version: number }, data: Readonly<Record<string, EventValue>>): DomainEvent {
+  return typeof aggregate === 'string' ? { type, aggregateId: aggregate, aggregateVersion: 1, data } : { type, aggregateId: aggregate.id, aggregateVersion: aggregate.version, data };
 }

@@ -5,7 +5,7 @@
  * Couche : moyenne (identity/structure). Règles : RI-API-01, RI-SEC-04 (seules l'initialisation et
  * la connexion sont publiques), RI-CNX-04 (cookie `__Host-pv_session`), RI-CNX-09.
  */
-import { defineAction, type RegisteredAction } from '@pajavamba/contracts';
+import { defineAction, type ActionCall, type RegisteredAction } from '@pajavamba/contracts';
 import { initializeInstance, INVALID_CREDENTIALS, listMySessions, openSession, revokeMySession, SESSION_ABSOLUTE_TTL_MS, verifyRecentMfa } from '@pajavamba/identity-fonctionnel';
 import { ok, toEntityId } from '@pajavamba/kernel';
 import { parseInput, problemFromDomainError, requireContext, UNAUTHENTICATED, uuidv7, withTransaction } from '@pajavamba/ops';
@@ -33,11 +33,11 @@ const LoginInput = z.strictObject({
 const MfaInput = z.strictObject({ code: z.string().min(6).max(10).describe('Code à usage unique') });
 
 /**
- * Déclare les actions de session.
- * @param runtime environnement identity
- * @returns actions enregistrées
+ * Déclare les actions (partie 1).
+ * @param runtime environnement
+ * @returns actions
  */
-export function sessionActions(runtime: IdentityRuntime): RegisteredAction[] {
+function sessionActionsPart1(runtime: IdentityRuntime): RegisteredAction[] {
   return [
     {
       definition: defineAction({ id: 'instance.status', permission: 'public', risk: 'R0', method: 'GET', path: '/setup', reversible: true, description: "Indique si l'instance est initialisée.", rules: [] }),
@@ -59,6 +59,30 @@ export function sessionActions(runtime: IdentityRuntime): RegisteredAction[] {
         });
       },
     },
+  ];
+}
+
+/**
+ * Révoque la session courante, si le cookie en désigne une (déconnexion).
+ * @param runtime environnement identity
+ * @param call appel
+ */
+async function closeCurrentSession(runtime: IdentityRuntime, call: ActionCall): Promise<void> {
+  const context = requireContext(call.context);
+  const secret = call.sessionSecret;
+  if (secret === null) return;
+  const session = await withTransaction(runtime.pool, IDENTITY_SCOPE, (tx) => runtime.dependenciesOf(tx).sessions.findBySecretHash(runtime.secrets.hashSecret(secret)));
+  if (session === undefined) return;
+  await identityWrite(runtime, call, { actionId: 'session.close', resourceType: 'session', context, replayable: false, execute: async (dependencies) => revokeMySession(dependencies, context, session.id), respond: () => ({ status: 204, body: null }), resourceId: () => session.id });
+}
+
+/**
+ * Déclare les actions (partie 2).
+ * @param runtime environnement
+ * @returns actions
+ */
+function sessionActionsPart2(runtime: IdentityRuntime): RegisteredAction[] {
+  return [
     {
       definition: defineAction({ id: 'session.open', permission: 'public', risk: 'R1', method: 'POST', path: '/sessions', reversible: true, description: 'Ouvre une session avec un compte local.', rules: [] }),
       handle: async (call) => {
@@ -78,14 +102,20 @@ export function sessionActions(runtime: IdentityRuntime): RegisteredAction[] {
     {
       definition: defineAction({ id: 'session.close', permission: 'self', risk: 'R1', method: 'DELETE', path: '/sessions/current', reversible: false, description: 'Ferme la session courante (déconnexion).', rules: [] }),
       handle: async (call) => {
-        const context = requireContext(call.context);
-        const session = call.sessionSecret === null ? undefined : await withTransaction(runtime.pool, IDENTITY_SCOPE, (tx) => runtime.dependenciesOf(tx).sessions.findBySecretHash(runtime.secrets.hashSecret(call.sessionSecret ?? '')));
-        if (session !== undefined) {
-          await identityWrite(runtime, call, { actionId: 'session.close', resourceType: 'session', context, replayable: false, execute: async (dependencies) => revokeMySession(dependencies, context, session.id), respond: () => ({ status: 204, body: null }), resourceId: () => session.id });
-        }
+        await closeCurrentSession(runtime, call);
         return { status: 204, body: null, sessionCookie: { clear: true } };
       },
     },
+  ];
+}
+
+/**
+ * Déclare les actions (partie 3).
+ * @param runtime environnement
+ * @returns actions
+ */
+function sessionActionsPart3(runtime: IdentityRuntime): RegisteredAction[] {
+  return [
     {
       definition: defineAction({ id: 'session.list', permission: 'self', risk: 'R0', method: 'GET', path: '/me/sessions', reversible: true, description: 'Liste mes sessions actives.', rules: [] }),
       handle: async (call) => {
@@ -103,6 +133,16 @@ export function sessionActions(runtime: IdentityRuntime): RegisteredAction[] {
         return identityWrite(runtime, call, { actionId: 'session.revoke', resourceType: 'session', context, replayable: true, execute: async (dependencies) => revokeMySession(dependencies, context, sessionId), respond: () => ({ status: 204, body: null }), resourceId: () => sessionId });
       },
     },
+  ];
+}
+
+/**
+ * Déclare les actions (partie 4).
+ * @param runtime environnement
+ * @returns actions
+ */
+function sessionActionsPart4(runtime: IdentityRuntime): RegisteredAction[] {
+  return [
     {
       definition: defineAction({ id: 'mfa.verify', permission: 'self', risk: 'R1', method: 'POST', path: '/me/mfa/verify', reversible: true, description: 'Vérifie un code MFA pour la session courante (MFA récente).', rules: ['RG-IAM-003'] }),
       handle: async (call) => {
@@ -114,4 +154,13 @@ export function sessionActions(runtime: IdentityRuntime): RegisteredAction[] {
       },
     },
   ];
+}
+
+/**
+ * Déclare les actions de session.
+ * @param runtime environnement identity
+ * @returns actions enregistrées
+ */
+export function sessionActions(runtime: IdentityRuntime): RegisteredAction[] {
+  return [...sessionActionsPart1(runtime), ...sessionActionsPart2(runtime), ...sessionActionsPart3(runtime), ...sessionActionsPart4(runtime)];
 }
