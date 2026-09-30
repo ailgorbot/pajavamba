@@ -106,6 +106,8 @@ async function projectJourney(api: ApiClient): Promise<void> {
 const anonymous = createApiClient(baseUrl);
 await securityChecks(anonymous);
 const api = createApiClient(baseUrl);
-if (await login(api)) await projectJourney(api);
+const canLogin = setupCodeFile !== '-' || process.env['PV_SMOKE_PASSWORD_FILE'] !== undefined;
+if (!canLogin) console.log('—  parcours complet ignoré : ni code d’initialisation ni compte de recette fournis');
+else if (await login(api)) await projectJourney(api);
 console.log(failures === 0 ? 'Tests de fumée : tous les contrôles sont passés.' : `Tests de fumée : ${String(failures)} contrôle(s) en échec.`);
 process.exitCode = failures === 0 ? 0 : 1;
