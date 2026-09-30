@@ -1,0 +1,18 @@
+{
+  "name": "@pajavamba/workitem-structure",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Couche moyenne du service workitem",
+  "exports": {
+    ".": "./src/composition/root.ts"
+  },
+  "dependencies": {
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/kernel": "workspace:*",
+    "@pajavamba/ops": "workspace:*",
+    "@pajavamba/workitem-fonctionnel": "workspace:*",
+    "pg": "8.23.0",
+    "zod": "4.6.5"
+  }
+}

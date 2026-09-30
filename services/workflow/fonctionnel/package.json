@@ -1,0 +1,13 @@
+{
+  "name": "@pajavamba/workflow-fonctionnel",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Couche basse du service workflow : workflows versionnés et packs méthodologiques",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@pajavamba/kernel": "workspace:*"
+  }
+}

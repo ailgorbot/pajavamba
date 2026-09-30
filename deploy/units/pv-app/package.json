@@ -1,0 +1,30 @@
+{
+  "name": "@pajavamba/unit-pv-app",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Unité de déploiement pv-app : passerelle, services du MVP, relais d'événements, audit, interface",
+  "scripts": {
+    "start": "node src/main.ts",
+    "migrate": "node src/migrate.ts",
+    "init-secrets": "node src/init-secrets.ts"
+  },
+  "dependencies": {
+    "@fastify/cookie": "11.1.2",
+    "@fastify/static": "10.1.5",
+    "@pajavamba/api-gateway-structure": "workspace:*",
+    "@pajavamba/audit-structure": "workspace:*",
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/event-relay-structure": "workspace:*",
+    "@pajavamba/identity-structure": "workspace:*",
+    "@pajavamba/kernel": "workspace:*",
+    "@pajavamba/ops": "workspace:*",
+    "@pajavamba/policy-structure": "workspace:*",
+    "@pajavamba/portfolio-structure": "workspace:*",
+    "@pajavamba/query-structure": "workspace:*",
+    "@pajavamba/workflow-structure": "workspace:*",
+    "@pajavamba/workitem-structure": "workspace:*",
+    "fastify": "5.12.5",
+    "zod": "4.6.5"
+  }
+}
