@@ -13,12 +13,23 @@ import { ApiError, setCsrfToken } from '../adaptateurs/api.ts';
 import { useWrite } from '../adaptateurs/requetes.ts';
 import { ErrorMessage } from '../composants/retours.tsx';
 
+/** Propriétés d'un champ. */
+export interface FieldProps {
+  readonly label: string;
+  readonly value: string;
+  readonly type?: string;
+  readonly hint?: string;
+  readonly required?: boolean;
+  readonly autoComplete?: string;
+  readonly onChange: (value: string) => void;
+}
+
 /**
  * Champ de formulaire contrôlé.
  * @param props libellé, valeur, type, aide
  * @returns élément React
  */
-export function Field(props: { readonly label: string; readonly value: string; readonly type?: string; readonly hint?: string; readonly required?: boolean; readonly autoComplete?: string; onChange(value: string): void }): ReactNode {
+export function Field(props: Readonly<FieldProps>): ReactNode {
   return (
     <Input
       label={`${props.label}${props.required === false ? '' : ' (obligatoire)'}`}
@@ -28,44 +39,58 @@ export function Field(props: { readonly label: string; readonly value: string; r
   );
 }
 
+/** Identifiants saisis. */
+interface Identifiants {
+  readonly email: string;
+  readonly password: string;
+  readonly totpCode: string;
+}
+
+/**
+ * Formulaire de connexion (le code MFA n'apparaît que s'il est requis).
+ * @param props identifiants, besoin de MFA, envoi
+ * @returns élément React
+ */
+function FormulaireConnexion(props: Readonly<{ form: Identifiants; needsMfa: boolean; pending: boolean; onChange: (form: Identifiants) => void; onSubmit: () => void }>): ReactNode {
+  const { form, onChange } = props;
+  return (
+    <form onSubmit={(event) => { event.preventDefault(); props.onSubmit(); }}>
+      <Field label="Adresse électronique" type="email" autoComplete="username" value={form.email} onChange={(email) => onChange({ ...form, email })} />
+      <Field label="Mot de passe" type="password" autoComplete="current-password" value={form.password} onChange={(password) => onChange({ ...form, password })} />
+      {props.needsMfa && <Field label="Code à usage unique" hint="Code à 6 chiffres de votre application d'authentification" autoComplete="one-time-code" value={form.totpCode} onChange={(totpCode) => onChange({ ...form, totpCode })} />}
+      <Button type="submit" disabled={props.pending}>Se connecter</Button>
+    </form>
+  );
+}
+
 /**
  * Page de connexion.
  * @returns élément React
  */
 export function ConnexionPage(): ReactNode {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [totpCode, setTotpCode] = useState('');
+  const [form, setForm] = useState<Identifiants>({ email: '', password: '', totpCode: '' });
   const [needsMfa, setNeedsMfa] = useState(false);
   const write = useWrite<{ readonly csrfToken: string }>();
   const navigate = useNavigate();
   const client = useQueryClient();
-  const submit = (event: SubmitEvent<HTMLFormElement>): void => {
-    event.preventDefault();
-    write.mutate({ method: 'POST', path: '/sessions', body: { email, password, ...(needsMfa ? { totpCode } : {}) } }, {
-      onSuccess: async (result) => {
+  const submit = (): void => {
+    write.mutate({ method: 'POST', path: '/sessions', body: { email: form.email, password: form.password, ...(needsMfa ? { totpCode: form.totpCode } : {}) } }, {
+      onSuccess: (result) => {
         setCsrfToken(result.csrfToken);
-        await client.invalidateQueries();
-        void navigate({ to: '/' });
+        void client.invalidateQueries().then(() => navigate({ to: '/' }));
       },
       onError: (error) => {
         if (error instanceof ApiError && error.code === 'identity.mfa_required') setNeedsMfa(true);
       },
     });
   };
+  const mfaPrompt = write.error instanceof ApiError && write.error.code === 'identity.mfa_required';
   return (
     <div className="fr-grid-row fr-grid-row--center">
       <div className="fr-col-12 fr-col-md-6">
         <h1>Connexion à PajaVamba</h1>
-        {!(write.error instanceof ApiError && write.error.code === 'identity.mfa_required') && <ErrorMessage error={write.error} />}
-        <form onSubmit={submit} noValidate={false}>
-          <div>
-            <Field label="Adresse électronique" type="email" autoComplete="username" value={email} onChange={setEmail} />
-            <Field label="Mot de passe" type="password" autoComplete="current-password" value={password} onChange={setPassword} />
-            {needsMfa && <Field label="Code à usage unique" hint="Code à 6 chiffres de votre application d'authentification" autoComplete="one-time-code" value={totpCode} onChange={setTotpCode} />}
-          </div>
-          <Button type="submit" disabled={write.isPending}>Se connecter</Button>
-        </form>
+        {!mfaPrompt && <ErrorMessage error={write.error} />}
+        <FormulaireConnexion form={form} needsMfa={needsMfa} pending={write.isPending} onChange={setForm} onSubmit={submit} />
       </div>
     </div>
   );
@@ -83,7 +108,7 @@ export function InitialisationPage(): ReactNode {
   const set = (name: keyof typeof form) => (value: string): void => setForm({ ...form, [name]: value });
   const submit = (event: SubmitEvent<HTMLFormElement>): void => {
     event.preventDefault();
-    write.mutate({ method: 'POST', path: '/setup', body: form }, { onSuccess: async () => { await client.invalidateQueries(); void navigate({ to: '/connexion' }); } });
+    write.mutate({ method: 'POST', path: '/setup', body: form }, { onSuccess: () => void client.invalidateQueries().then(() => navigate({ to: '/connexion' })) });
   };
   return (
     <div className="fr-grid-row fr-grid-row--center">

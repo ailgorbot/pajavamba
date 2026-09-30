@@ -103,7 +103,7 @@ function actions(settings: WorkflowSettings): RegisteredAction[] {
       handle: async (call) => {
         const context = requireContext(call.context);
         const input = parseInput(DraftInput, call.body);
-        return serviceWrite(runtimeFor(settings, context.organisationId), call, { actionId: 'workflow.draft', resourceType: 'workflow_version', context, replayable: true, changedFields: ['definition'], execute: async (dependencies) => draftWorkflow(dependencies, context, refOf(call), input), respond: (version) => ({ status: 201, body: versionBody(version) }), resourceId: (version) => version.id });
+        return serviceWrite(runtimeFor(settings, context.organisationId), call, { actionId: 'workflow.draft', resourceType: 'workflow_version', context, replayable: true, changedFields: ['definition'], execute: async (dependencies) => draftWorkflow(dependencies, context, { ...input, ref: refOf(call) }), respond: (version) => ({ status: 201, body: versionBody(version) }), resourceId: (version) => version.id });
       },
     },
     {
@@ -111,7 +111,7 @@ function actions(settings: WorkflowSettings): RegisteredAction[] {
       handle: async (call) => {
         const context = requireContext(call.context);
         const versionId = call.params['versionId'] ?? '';
-        return serviceWrite(runtimeFor(settings, context.organisationId), call, { actionId: 'workflow.publish', resourceType: 'workflow_version', context, replayable: true, changedFields: ['status'], execute: async (dependencies) => publishWorkflowVersion(dependencies, context, refOf(call), versionId), respond: (version) => ({ status: 200, body: versionBody(version) }), resourceId: (version) => version.id });
+        return serviceWrite(runtimeFor(settings, context.organisationId), call, { actionId: 'workflow.publish', resourceType: 'workflow_version', context, replayable: true, changedFields: ['status'], execute: async (dependencies) => publishWorkflowVersion(dependencies, context, { ref: refOf(call), versionId }), respond: (version) => ({ status: 200, body: versionBody(version) }), resourceId: (version) => version.id });
       },
     },
   ];

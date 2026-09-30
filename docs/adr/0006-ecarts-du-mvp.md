@@ -37,7 +37,7 @@ Portefeuilles, trains et produits (L2-14), politique de clés par projet (L2-15)
 
 ## Dette connue au moment de la PR
 
-- Seuils RI-COD-03 : certaines fonctions dépassent 30 lignes ou 3 paramètres (cas d'usage recevant dépendances, contexte, projet et entrée) ; le lint bloquant les signale. Refactorisation suivie dans une story dédiée.
+- Seuils RI-COD-03 : résorbés (story ailgorbot/pajavamba#254) ; les cas d'usage reçoivent désormais (dépendances, contexte, requête) et le lint est vert.
 - Tests : décision d'autorisation et tests de fumée de bout en bout ; tests de propriétés, de contrat des ports, de mutation et Gherkin exécutés à compléter (RI-TST-01 à RI-TST-07).
 
 ## Conséquences

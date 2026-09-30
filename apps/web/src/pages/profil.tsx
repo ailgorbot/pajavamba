@@ -13,38 +13,44 @@ import { ConfirmButton, ErrorMessage, Loading } from '../composants/retours.tsx'
 import { Field } from './acces.tsx';
 
 /**
- * Bloc MFA : enrôlement TOTP et vérification récente.
- * @param props profil
+ * Enrôlement d'une application d'authentification (TOTP) et remise des codes de récupération.
  * @returns élément React
  */
-function Mfa(props: { readonly me: Me }): ReactNode {
+function EnrolementTotp(): ReactNode {
   const start = useWrite<{ readonly otpauthUri: string; readonly secret: string }>();
   const confirm = useWrite<{ readonly recoveryCodes: readonly string[] }>();
-  const verify = useWrite();
   const [code, setCode] = useState('');
-  const submitConfirm = (event: SubmitEvent<HTMLFormElement>): void => { event.preventDefault(); confirm.mutate({ method: 'POST', path: '/me/mfa/totp/confirm', body: { code } }); };
-  const submitVerify = (event: SubmitEvent<HTMLFormElement>): void => { event.preventDefault(); verify.mutate({ method: 'POST', path: '/me/mfa/verify', body: { code } }, { onSuccess: () => setCode('') }); };
   if (confirm.data !== undefined) {
     return <Alert severity="success" title="Application d’authentification enrôlée" description={<><p>Conservez ces codes de récupération : ils ne seront plus jamais affichés.</p><ul>{confirm.data.recoveryCodes.map((recovery) => <li key={recovery}><code>{recovery}</code></li>)}</ul></>} />;
   }
-  if (!props.me.mfa.enrolled) {
-    return (
-      <>
-        <ErrorMessage error={start.error ?? confirm.error} />
-        {start.data === undefined
-          ? <Button onClick={() => start.mutate({ method: 'POST', path: '/me/mfa/totp' })}>Activer une application d’authentification (TOTP)</Button>
-          : (
-            <form onSubmit={submitConfirm}>
-              <CallOut title="Ajoutez le compte dans votre application" >Saisissez la clé <code>{start.data.secret}</code> (type TOTP, 6 chiffres, 30 secondes) ou ouvrez <a href={start.data.otpauthUri}>ce lien otpauth</a> sur votre téléphone.</CallOut>
-              <Field label="Code affiché par l’application" autoComplete="one-time-code" value={code} onChange={setCode} />
-              <Button type="submit">Confirmer l’enrôlement</Button>
-            </form>
-          )}
-      </>
-    );
-  }
+  const submit = (event: SubmitEvent<HTMLFormElement>): void => { event.preventDefault(); confirm.mutate({ method: 'POST', path: '/me/mfa/totp/confirm', body: { code } }); };
   return (
-    <form onSubmit={submitVerify}>
+    <>
+      <ErrorMessage error={start.error ?? confirm.error} />
+      {start.data === undefined
+        ? <Button onClick={() => start.mutate({ method: 'POST', path: '/me/mfa/totp' })}>Activer une application d’authentification (TOTP)</Button>
+        : (
+          <form onSubmit={submit}>
+            <CallOut title="Ajoutez le compte dans votre application">Saisissez la clé <code>{start.data.secret}</code> (type TOTP, 6 chiffres, 30 secondes) ou ouvrez <a href={start.data.otpauthUri}>ce lien otpauth</a> sur votre téléphone.</CallOut>
+            <Field label="Code affiché par l’application" autoComplete="one-time-code" value={code} onChange={setCode} />
+            <Button type="submit">Confirmer l’enrôlement</Button>
+          </form>
+        )}
+    </>
+  );
+}
+
+/**
+ * Vérification MFA récente, exigée par les actions sensibles (R3).
+ * @param props profil
+ * @returns élément React
+ */
+function VerificationMfa(props: Readonly<{ me: Me }>): ReactNode {
+  const verify = useWrite();
+  const [code, setCode] = useState('');
+  const submit = (event: SubmitEvent<HTMLFormElement>): void => { event.preventDefault(); verify.mutate({ method: 'POST', path: '/me/mfa/verify', body: { code } }, { onSuccess: () => setCode('') }); };
+  return (
+    <form onSubmit={submit}>
       <p>MFA activée. Dernière vérification : {formatDate(props.me.mfa.verifiedAt)}. Les actions sensibles (gestion des accès, clé API, suppression) exigent une vérification de moins de 15 minutes.</p>
       <ErrorMessage error={verify.error} />
       {verify.isSuccess && <p aria-live="polite" className="fr-valid-text">Vérification enregistrée.</p>}
@@ -55,11 +61,20 @@ function Mfa(props: { readonly me: Me }): ReactNode {
 }
 
 /**
+ * Bloc MFA : enrôlement TOTP ou vérification récente.
+ * @param props profil
+ * @returns élément React
+ */
+function Mfa(props: Readonly<{ me: Me }>): ReactNode {
+  return props.me.mfa.enrolled ? <VerificationMfa me={props.me} /> : <EnrolementTotp />;
+}
+
+/**
  * Bloc clé API personnelle.
  * @param props profil
  * @returns élément React
  */
-function CleApi(props: { readonly me: Me }): ReactNode {
+function CleApi(props: Readonly<{ me: Me }>): ReactNode {
   const create = useWrite<{ readonly token: string }>();
   const revoke = useWrite();
   const [name, setName] = useState('Ma clé');

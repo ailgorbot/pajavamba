@@ -81,19 +81,13 @@ function discussion(tx: SqlExecutor, organisationId: OrganisationId): Pick<WorkI
 }
 
 /**
- * Crée le dépôt des éléments.
+ * Écritures des éléments (insertion et mise à jour avec verrouillage optimiste).
  * @param tx transaction
  * @param organisationId organisation courante
- * @returns dépôt
+ * @returns opérations
  */
-export function workItemRepository(tx: SqlExecutor, organisationId: OrganisationId): WorkItemRepository {
-  const findOne = async (column: 'id' | 'key', value: string): Promise<WorkItem | undefined> => {
-    const rows = await tx.query<ItemRow>(`SELECT ${COLUMNS} FROM work_items WHERE ${column} = $1`, [value]);
-    return rows[0] === undefined ? undefined : mapItem(rows[0]);
-  };
+function itemWrites(tx: SqlExecutor, organisationId: OrganisationId): Pick<WorkItemRepository, 'insert' | 'update'> {
   return {
-    findById: async (id) => findOne('id', id),
-    findByKey: async (key) => findOne('key', key),
     async insert(item) {
       await tx.query(
         `INSERT INTO work_items (organisation_id, id, project_id, number, key, type_key, title, description, acceptance_criteria, state_key, state_category, workflow_version_id, workflow_key,
@@ -111,6 +105,16 @@ export function workItemRepository(tx: SqlExecutor, organisationId: Organisation
       );
       if (rows.length === 0) throw CONCURRENT_UPDATE;
     },
+  };
+}
+
+/**
+ * Requêtes de rang, de comptage et de sous-éléments.
+ * @param tx transaction
+ * @returns opérations
+ */
+function itemQueries(tx: SqlExecutor): Pick<WorkItemRepository, 'lastRank' | 'neighbourRanks' | 'countOpenChildren' | 'countInState' | 'listChildren'> {
+  return {
     async lastRank(projectId) {
       const rows = await tx.query<{ readonly rank: string }>('SELECT rank FROM work_items WHERE project_id = $1 ORDER BY rank DESC LIMIT 1', [projectId]);
       return rows[0]?.rank ?? null;
@@ -134,6 +138,25 @@ export function workItemRepository(tx: SqlExecutor, organisationId: Organisation
       const rows = await tx.query<ItemRow>(`SELECT ${COLUMNS} FROM work_items WHERE parent_id = $1 ORDER BY rank`, [parentId]);
       return rows.map(mapItem);
     },
+  };
+}
+
+/**
+ * Crée le dépôt des éléments.
+ * @param tx transaction
+ * @param organisationId organisation courante
+ * @returns dépôt
+ */
+export function workItemRepository(tx: SqlExecutor, organisationId: OrganisationId): WorkItemRepository {
+  const findOne = async (column: 'id' | 'key', value: string): Promise<WorkItem | undefined> => {
+    const rows = await tx.query<ItemRow>(`SELECT ${COLUMNS} FROM work_items WHERE ${column} = $1`, [value]);
+    return rows[0] === undefined ? undefined : mapItem(rows[0]);
+  };
+  return {
+    findById: async (id) => findOne('id', id),
+    findByKey: async (key) => findOne('key', key),
+    ...itemWrites(tx, organisationId),
+    ...itemQueries(tx),
     ...discussion(tx, organisationId),
   };
 }

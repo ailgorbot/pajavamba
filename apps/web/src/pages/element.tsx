@@ -12,18 +12,59 @@ import { useItem, useMembers, useWrite } from '../adaptateurs/requetes.ts';
 import { CATEGORY_LABELS, formatDate, PRIORITY_LABELS, type ItemDetail } from '../domaine/modeles.ts';
 import { ConfirmButton, ErrorMessage, Loading } from '../composants/retours.tsx';
 
+/** Saisie de l'édition. */
+interface Saisie {
+  readonly title: string;
+  readonly description: string;
+  readonly acceptanceCriteria: string;
+  readonly priority: string;
+  readonly estimate: string;
+  readonly confidentiality: 'normal' | 'restricted';
+}
+
 /**
- * Formulaire d'édition d'un élément.
+ * Saisie initiale à partir de l'élément.
+ * @param item élément
+ * @returns saisie
+ */
+function saisieDe(item: ItemDetail): Saisie {
+  return { title: item.title, description: item.description, acceptanceCriteria: item.acceptanceCriteria, priority: item.priority, estimate: item.estimate === null ? '' : String(item.estimate), confidentiality: item.confidentiality };
+}
+
+/**
+ * Priorité, estimation et confidentialité.
+ * @param props saisie et modification
+ * @returns élément React
+ */
+function Attributs(props: Readonly<{ form: Saisie; onChange: (form: Saisie) => void }>): ReactNode {
+  const { form, onChange } = props;
+  return (
+    <div className="fr-grid-row fr-grid-row--gutters">
+      <div className="fr-col-12 fr-col-md-4">
+        <Select label="Priorité" nativeSelectProps={{ value: form.priority, onChange: (event) => onChange({ ...form, priority: event.target.value }) }}>
+          {Object.entries(PRIORITY_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
+        </Select>
+      </div>
+      <div className="fr-col-12 fr-col-md-4"><Input label="Estimation" nativeInputProps={{ value: form.estimate, inputMode: 'decimal', onChange: (event) => onChange({ ...form, estimate: event.target.value }) }} /></div>
+      <div className="fr-col-12 fr-col-md-4">
+        <Select label="Confidentialité" nativeSelectProps={{ value: form.confidentiality, onChange: (event) => onChange({ ...form, confidentiality: event.target.value === 'restricted' ? 'restricted' : 'normal' }) }}>
+          <option value="normal">Normale</option><option value="restricted">Confidentiel</option>
+        </Select>
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Formulaire d'édition d'un élément (verrouillage optimiste par `If-Match`).
  * @param props projet et élément
  * @returns élément React
  */
-function Edition(props: { readonly projectKey: string; readonly item: ItemDetail }): ReactNode {
+function Edition(props: Readonly<{ projectKey: string; item: ItemDetail }>): ReactNode {
   const { item } = props;
   const write = useWrite();
-  const [form, setForm] = useState({ title: item.title, description: item.description, acceptanceCriteria: item.acceptanceCriteria, priority: item.priority, estimate: item.estimate === null ? '' : String(item.estimate), confidentiality: item.confidentiality });
-  useEffect(() => {
-    setForm({ title: item.title, description: item.description, acceptanceCriteria: item.acceptanceCriteria, priority: item.priority, estimate: item.estimate === null ? '' : String(item.estimate), confidentiality: item.confidentiality });
-  }, [item]);
+  const [form, setForm] = useState<Saisie>(saisieDe(item));
+  useEffect(() => setForm(saisieDe(item)), [item]);
   const submit = (event: SubmitEvent<HTMLFormElement>): void => {
     event.preventDefault();
     write.mutate({ method: 'PATCH', path: `/projects/${props.projectKey}/work-items/${item.key}`, ifMatch: item.version, body: { ...form, estimate: form.estimate === '' ? null : Number(form.estimate.replace(',', '.')) } });
@@ -34,19 +75,7 @@ function Edition(props: { readonly projectKey: string; readonly item: ItemDetail
       <Input label="Titre (obligatoire)" nativeInputProps={{ value: form.title, required: true, maxLength: 255, onChange: (event) => setForm({ ...form, title: event.target.value }) }} />
       <Input label="Description (Markdown)" textArea nativeTextAreaProps={{ value: form.description, rows: 6, onChange: (event) => setForm({ ...form, description: event.target.value }) }} />
       <Input label="Critères d’acceptation (Gherkin ou Markdown)" textArea nativeTextAreaProps={{ value: form.acceptanceCriteria, rows: 5, onChange: (event) => setForm({ ...form, acceptanceCriteria: event.target.value }) }} />
-      <div className="fr-grid-row fr-grid-row--gutters">
-        <div className="fr-col-12 fr-col-md-4">
-          <Select label="Priorité" nativeSelectProps={{ value: form.priority, onChange: (event) => setForm({ ...form, priority: event.target.value }) }}>
-            {Object.entries(PRIORITY_LABELS).map(([key, label]) => <option key={key} value={key}>{label}</option>)}
-          </Select>
-        </div>
-        <div className="fr-col-12 fr-col-md-4"><Input label="Estimation" nativeInputProps={{ value: form.estimate, inputMode: 'decimal', onChange: (event) => setForm({ ...form, estimate: event.target.value }) }} /></div>
-        <div className="fr-col-12 fr-col-md-4">
-          <Select label="Confidentialité" nativeSelectProps={{ value: form.confidentiality, onChange: (event) => setForm({ ...form, confidentiality: event.target.value === 'restricted' ? 'restricted' : 'normal' }) }}>
-            <option value="normal">Normale</option><option value="restricted">Confidentiel</option>
-          </Select>
-        </div>
-      </div>
+      <Attributs form={form} onChange={setForm} />
       <Button type="submit" disabled={write.isPending}>Enregistrer</Button>
     </form>
   );
@@ -57,7 +86,7 @@ function Edition(props: { readonly projectKey: string; readonly item: ItemDetail
  * @param props projet et élément
  * @returns élément React
  */
-function Pilotage(props: { readonly projectKey: string; readonly item: ItemDetail }): ReactNode {
+function Pilotage(props: Readonly<{ projectKey: string; item: ItemDetail }>): ReactNode {
   const { item } = props;
   const write = useWrite();
   const members = useMembers();
@@ -89,7 +118,7 @@ function Pilotage(props: { readonly projectKey: string; readonly item: ItemDetai
  * @param props projet et élément
  * @returns élément React
  */
-function Commentaires(props: { readonly projectKey: string; readonly item: ItemDetail }): ReactNode {
+function Commentaires(props: Readonly<{ projectKey: string; item: ItemDetail }>): ReactNode {
   const write = useWrite();
   const members = useMembers();
   const [body, setBody] = useState('');

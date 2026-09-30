@@ -22,7 +22,7 @@ async function collect(): Promise<readonly ActionDefinition[]> {
   const pool = {} as pg.Pool;
   const clock = { now: () => 0 };
   const ids = { next: () => toEntityId<'x'>('00000000-0000-7000-8000-000000000000') };
-  const policy = { authorize: async () => ({ allowed: true as const }), projectsWith: async () => ({ all: true as const }) };
+  const policy = { authorize: () => Promise.resolve({ allowed: true as const }), projectsWith: () => Promise.resolve({ all: true as const }) };
   const notify = (): void => undefined;
   const { createIdentityRuntime, createIdentityService, createSecretService } = await import('@pajavamba/identity-structure');
   const { createPortfolioService } = await import('@pajavamba/portfolio-structure');
@@ -41,12 +41,23 @@ async function collect(): Promise<readonly ActionDefinition[]> {
 }
 
 /**
+ * Libellé de l'accès exigé par une action.
+ * @param action déclaration
+ * @returns libellé Markdown
+ */
+function accessLabel(action: ActionDefinition): string {
+  if (action.permission === 'public') return 'publique';
+  if (action.permission === 'self') return 'utilisateur authentifié';
+  return '`' + action.permission + '`';
+}
+
+/**
  * Produit le document Markdown.
  * @param actions déclarations
  * @returns contenu
  */
 function render(actions: readonly ActionDefinition[]): string {
-  const rows = actions.map((action) => `| \`${action.method} /api/v1${action.path}\` | \`${action.id}\` | ${action.permission === 'public' ? 'publique' : action.permission === 'self' ? 'utilisateur authentifié' : `\`${action.permission}\``} | ${RISK_LABELS[action.risk] ?? action.risk} | ${action.description} | ${action.rules.join(', ') || '—'} |`);
+  const rows = actions.map((action) => `| \`${action.method} /api/v1${action.path}\` | \`${action.id}\` | ${accessLabel(action)} | ${RISK_LABELS[action.risk] ?? action.risk} | ${action.description} | ${action.rules.join(', ') || '—'} |`);
   const permissions = Object.entries(PERMISSIONS).map(([name, definition]) => `| \`${name}\` | ${definition.risk} | ${definition.description} |`);
   return [
     '---',

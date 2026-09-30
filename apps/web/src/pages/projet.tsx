@@ -15,59 +15,118 @@ import { Field } from './acces.tsx';
 import { ActiviteProjet, EquipesProjet, MembresProjet, WorkflowsProjet } from './projet-onglets.tsx';
 import { StatusBadge } from './projets.tsx';
 
+/** Propriétés communes des actions du cycle de vie. */
+interface EtapeProps {
+  readonly project: Project;
+  readonly subject: string;
+  readonly pending: boolean;
+  readonly run: (action: string, body?: Record<string, string>) => void;
+}
+
+/**
+ * Brouillon : activation ou suppression.
+ * @param props projet et exécution
+ * @returns élément React
+ */
+function EtapeBrouillon(props: Readonly<EtapeProps>): ReactNode {
+  return (
+    <ul className="fr-btns-group fr-btns-group--inline">
+      <li><Button disabled={!props.project.configurationReady || props.pending} onClick={() => props.run('activate')}>Activer le projet</Button></li>
+      <li><ConfirmButton label="Supprimer le brouillon" subject={props.subject} onConfirm={() => props.run('request-deletion')} /></li>
+    </ul>
+  );
+}
+
+/**
+ * Projet actif : assistant de clôture (aucune clôture forcée).
+ * @param props projet et exécution
+ * @returns élément React
+ */
+function EtapeActif(props: Readonly<EtapeProps>): ReactNode {
+  const [text, setText] = useState('');
+  const blockers = props.project.closureBlockers ?? [];
+  return (
+    <>
+      <h3>Assistant de clôture</h3>
+      {blockers.length > 0
+        ? <Alert severity="warning" small title="Points bloquants" description={<ul>{blockers.map((blocker) => <li key={blocker.code}>{blocker.message}</li>)}</ul>} />
+        : <p>Aucun point bloquant : le projet peut être clôturé après saisie du bilan.</p>}
+      <Field label="Bilan de clôture" value={text} onChange={setText} />
+      <ConfirmButton label="Clôturer le projet" subject={props.subject} disabled={blockers.length > 0 || text.trim() === ''} onConfirm={() => props.run('close', { text })} />
+    </>
+  );
+}
+
+/**
+ * Projet clôturé : réouverture ou archivage.
+ * @param props projet et exécution
+ * @returns élément React
+ */
+function EtapeCloture(props: Readonly<EtapeProps>): ReactNode {
+  const [text, setText] = useState('');
+  return (
+    <>
+      <Field label="Justification de la réouverture" required={false} value={text} onChange={setText} />
+      <ul className="fr-btns-group fr-btns-group--inline">
+        <li><Button priority="secondary" disabled={text.trim() === ''} onClick={() => props.run('reopen', { text })}>Rouvrir (sous 90 jours)</Button></li>
+        <li><ConfirmButton label="Archiver le projet" subject={props.subject} onConfirm={() => props.run('archive')} /></li>
+      </ul>
+    </>
+  );
+}
+
+/**
+ * Projet archivé : désarchivage ou demande de suppression.
+ * @param props projet et exécution
+ * @returns élément React
+ */
+function EtapeArchive(props: Readonly<EtapeProps>): ReactNode {
+  return (
+    <ul className="fr-btns-group fr-btns-group--inline">
+      <li><Button priority="secondary" onClick={() => props.run('unarchive')}>Désarchiver</Button></li>
+      <li><ConfirmButton label="Demander la suppression (délai de grâce de 30 jours)" subject={props.subject} onConfirm={() => props.run('request-deletion')} /></li>
+    </ul>
+  );
+}
+
+/**
+ * Suppression programmée : annulation possible jusqu'à l'échéance.
+ * @param props projet et exécution
+ * @returns élément React
+ */
+function EtapeSuppression(props: Readonly<EtapeProps>): ReactNode {
+  return (
+    <>
+      <p>Purge programmée le {formatDate(props.project.deletionScheduledFor)}.</p>
+      <Button onClick={() => props.run('cancel-deletion')}>Annuler la suppression</Button>
+    </>
+  );
+}
+
+const ETAPES: Readonly<Record<Project['status'], (props: Readonly<EtapeProps>) => ReactNode>> = {
+  draft: EtapeBrouillon,
+  active: EtapeActif,
+  closed: EtapeCloture,
+  archived: EtapeArchive,
+  pending_deletion: EtapeSuppression,
+};
+
 /**
  * Actions du cycle de vie disponibles selon le statut.
  * @param props projet
  * @returns élément React
  */
-function CycleDeVie(props: { readonly project: Project }): ReactNode {
+function CycleDeVie(props: Readonly<{ project: Project }>): ReactNode {
   const { project } = props;
   const write = useWrite<Project>();
-  const [text, setText] = useState('');
   const run = (action: string, body: Record<string, string> = {}): void => write.mutate({ method: 'POST', path: `/projects/${project.key}/actions/${action}`, body });
-  const subject = `le projet ${project.key}`;
+  const Etape = ETAPES[project.status];
   return (
     <section aria-labelledby="cycle-de-vie" className="fr-mt-4w">
       <h2 id="cycle-de-vie">Cycle de vie</h2>
       <ErrorMessage error={write.error} />
       <p className="fr-text--sm">Les actions « Désarchiver » et « Suppression » exigent une vérification MFA récente (moins de 15 minutes), à effectuer depuis <Link to="/profil">Mon profil</Link>.</p>
-      {project.status === 'draft' && (
-        <ul className="fr-btns-group fr-btns-group--inline">
-          <li><Button disabled={!project.configurationReady || write.isPending} onClick={() => run('activate')}>Activer le projet</Button></li>
-          <li><ConfirmButton label="Supprimer le brouillon" subject={subject} onConfirm={() => run('request-deletion')} /></li>
-        </ul>
-      )}
-      {project.status === 'active' && (
-        <>
-          <h3>Assistant de clôture</h3>
-          {(project.closureBlockers ?? []).length > 0
-            ? <Alert severity="warning" small title="Points bloquants" description={<ul>{(project.closureBlockers ?? []).map((blocker) => <li key={blocker.code}>{blocker.message}</li>)}</ul>} />
-            : <p>Aucun point bloquant : le projet peut être clôturé après saisie du bilan.</p>}
-          <Field label="Bilan de clôture" value={text} onChange={setText} />
-          <ConfirmButton label="Clôturer le projet" subject={subject} disabled={(project.closureBlockers ?? []).length > 0 || text.trim() === ''} onConfirm={() => run('close', { text })} />
-        </>
-      )}
-      {project.status === 'closed' && (
-        <>
-          <Field label="Justification de la réouverture" required={false} value={text} onChange={setText} />
-          <ul className="fr-btns-group fr-btns-group--inline">
-            <li><Button priority="secondary" disabled={text.trim() === ''} onClick={() => run('reopen', { text })}>Rouvrir (sous 90 jours)</Button></li>
-            <li><ConfirmButton label="Archiver le projet" subject={subject} onConfirm={() => run('archive')} /></li>
-          </ul>
-        </>
-      )}
-      {project.status === 'archived' && (
-        <ul className="fr-btns-group fr-btns-group--inline">
-          <li><Button priority="secondary" onClick={() => run('unarchive')}>Désarchiver</Button></li>
-          <li><ConfirmButton label="Demander la suppression (délai de grâce de 30 jours)" subject={subject} onConfirm={() => run('request-deletion')} /></li>
-        </ul>
-      )}
-      {project.status === 'pending_deletion' && (
-        <>
-          <p>Purge programmée le {formatDate(project.deletionScheduledFor)}.</p>
-          <Button onClick={() => run('cancel-deletion')}>Annuler la suppression</Button>
-        </>
-      )}
+      <Etape project={project} subject={`le projet ${project.key}`} pending={write.isPending} run={run} />
     </section>
   );
 }
@@ -77,7 +136,7 @@ function CycleDeVie(props: { readonly project: Project }): ReactNode {
  * @param props projet
  * @returns élément React
  */
-function VueEnsemble(props: { readonly project: Project }): ReactNode {
+function VueEnsemble(props: Readonly<{ project: Project }>): ReactNode {
   const { project } = props;
   return (
     <>

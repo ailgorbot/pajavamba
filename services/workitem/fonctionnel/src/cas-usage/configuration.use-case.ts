@@ -23,12 +23,11 @@ export async function recordProject(dependencies: WorkItemDependencies, project:
  * Enregistre la configuration issue d'un pack : types et versions publiées.
  * @param dependencies dépendances
  * @param projectId projet
- * @param types types d'éléments
- * @param workflows versions publiées
+ * @param pack types d'éléments et versions publiées
  */
-export async function recordPack(dependencies: WorkItemDependencies, projectId: ProjectId, types: readonly ItemType[], workflows: readonly WorkflowSnapshot[]): Promise<void> {
-  await dependencies.configuration.replaceTypes(projectId, types);
-  for (const snapshot of workflows) {
+export async function recordPack(dependencies: WorkItemDependencies, projectId: ProjectId, pack: { readonly types: readonly ItemType[]; readonly workflows: readonly WorkflowSnapshot[] }): Promise<void> {
+  await dependencies.configuration.replaceTypes(projectId, pack.types);
+  for (const snapshot of pack.workflows) {
     await dependencies.configuration.saveWorkflowVersion(projectId, snapshot);
   }
 }

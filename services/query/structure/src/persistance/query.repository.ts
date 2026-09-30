@@ -48,6 +48,39 @@ function mapItem(row: ItemRow): ItemView {
 }
 
 /**
+ * Vues des éléments et du journal d'activité.
+ * @param tx transaction
+ * @returns opérations
+ */
+function itemViews(tx: SqlExecutor): Pick<QueryRepository, 'listItems' | 'listActivity'> {
+  return {
+    async listItems(filter) {
+      const rows = await tx.query<ItemRow>(
+        `${ITEM_SELECT}
+         WHERE NOT i.deleted
+           AND ($1::uuid[] IS NULL OR i.project_id = ANY($1))
+           AND ($2 OR i.confidentiality = 'normal')
+           AND ($3 OR i.state_category <> 'done')
+           AND ($4::text IS NULL OR i.type_key = $4)
+           AND ($5::text IS NULL OR s.workflow_key = $5)
+           AND ($6::text IS NULL OR i.tsv @@ websearch_to_tsquery('french', unaccent($6)) OR i.key = upper($6) OR i.title % $6)
+         ORDER BY ${filter.text === null ? 'i.rank' : 'ts_rank(i.tsv, websearch_to_tsquery(\'french\', unaccent($6))) DESC, i.rank'}
+         LIMIT $7`,
+        [filter.projectIds === 'all' ? null : filter.projectIds, filter.includeRestricted, filter.includeDone, filter.typeKey, filter.workflowKey, filter.text, filter.limit],
+      );
+      return rows.map(mapItem);
+    },
+    async listActivity(projectId, limit) {
+      const rows = await tx.query<{ readonly occurred_at: Date; readonly event_code: string; readonly resource_key: string | null; readonly actor_ref: string | null; readonly params: ActivityView['params'] }>(
+        'SELECT occurred_at, event_code, resource_key, actor_ref, params FROM activity_entries WHERE project_id = $1 ORDER BY seq DESC LIMIT $2',
+        [projectId, limit],
+      );
+      return rows.map((row) => ({ occurredAt: row.occurred_at.toISOString(), eventCode: row.event_code, resourceKey: row.resource_key, actorId: row.actor_ref, params: row.params }));
+    },
+  };
+}
+
+/**
  * Crée le dépôt des vues.
  * @param tx transaction
  * @returns dépôt
@@ -73,28 +106,6 @@ export function queryRepository(tx: SqlExecutor): QueryRepository {
       const rows = await tx.query<{ readonly workflow_key: string }>('SELECT DISTINCT workflow_key FROM workflow_states WHERE project_id = $1 ORDER BY workflow_key', [projectId]);
       return rows.map((row) => row.workflow_key);
     },
-    async listItems(filter) {
-      const rows = await tx.query<ItemRow>(
-        `${ITEM_SELECT}
-         WHERE NOT i.deleted
-           AND ($1::uuid[] IS NULL OR i.project_id = ANY($1))
-           AND ($2 OR i.confidentiality = 'normal')
-           AND ($3 OR i.state_category <> 'done')
-           AND ($4::text IS NULL OR i.type_key = $4)
-           AND ($5::text IS NULL OR s.workflow_key = $5)
-           AND ($6::text IS NULL OR i.tsv @@ websearch_to_tsquery('french', unaccent($6)) OR i.key = upper($6) OR i.title % $6)
-         ORDER BY ${filter.text === null ? 'i.rank' : 'ts_rank(i.tsv, websearch_to_tsquery(\'french\', unaccent($6))) DESC, i.rank'}
-         LIMIT $7`,
-        [filter.projectIds === 'all' ? null : filter.projectIds, filter.includeRestricted, filter.includeDone, filter.typeKey, filter.workflowKey, filter.text, filter.limit],
-      );
-      return rows.map(mapItem);
-    },
-    async listActivity(projectId, limit) {
-      const rows = await tx.query<{ readonly occurred_at: Date; readonly event_code: string; readonly resource_key: string | null; readonly actor_ref: string | null; readonly params: ActivityView['params'] }>(
-        'SELECT occurred_at, event_code, resource_key, actor_ref, params FROM activity_entries WHERE project_id = $1 ORDER BY seq DESC LIMIT $2',
-        [projectId, limit],
-      );
-      return rows.map((row) => ({ occurredAt: row.occurred_at.toISOString(), eventCode: row.event_code, resourceKey: row.resource_key, actorId: row.actor_ref, params: row.params }));
-    },
+    ...itemViews(tx),
   };
 }

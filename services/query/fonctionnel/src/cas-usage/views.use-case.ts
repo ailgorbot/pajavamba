@@ -14,6 +14,7 @@ export const MAX_BOARD = 500;
 
 /** Options du backlog. */
 export interface BacklogOptions {
+  readonly ref: ProjectRef;
   readonly includeDone: boolean;
   readonly typeKey: string | null;
   readonly text: string | null;
@@ -38,12 +39,11 @@ async function readableProject(dependencies: QueryDependencies, context: Executi
  * Backlog ordonné d'un projet.
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param options filtres
+ * @param options projet et filtres
  * @returns projet et éléments
  */
-export async function backlog(dependencies: QueryDependencies, context: ExecutionContext, ref: ProjectRef, options: BacklogOptions): Promise<Result<{ readonly project: ProjectView; readonly items: readonly ItemView[] }, DomainError>> {
-  const readable = await readableProject(dependencies, context, ref);
+export async function backlog(dependencies: QueryDependencies, context: ExecutionContext, options: BacklogOptions): Promise<Result<{ readonly project: ProjectView; readonly items: readonly ItemView[] }, DomainError>> {
+  const readable = await readableProject(dependencies, context, options.ref);
   if (!readable.ok) return readable;
   const items = await dependencies.views.listItems({ projectIds: [readable.value.project.id], includeRestricted: readable.value.restricted, includeDone: options.includeDone, typeKey: options.typeKey, workflowKey: null, text: options.text, limit: MAX_LIST });
   return ok({ project: readable.value.project, items });
@@ -57,19 +57,30 @@ export interface BoardColumn {
 }
 
 /**
+ * Workflow affiché : celui demandé s'il existe, sinon les éléments d'équipe, sinon le premier.
+ * @param keys workflows disponibles
+ * @param requested workflow demandé
+ * @returns workflow retenu ou `null`
+ */
+function selectWorkflow(keys: readonly string[], requested: string | null): string | null {
+  if (requested !== null && keys.includes(requested)) return requested;
+  if (keys.includes('team_item')) return 'team_item';
+  return keys[0] ?? null;
+}
+
+/**
  * Board d'un projet : une colonne par état du workflow choisi, dans l'ordre du workflow.
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param workflowKey workflow affiché (par défaut le premier disponible)
+ * @param request projet et workflow affiché (par défaut les éléments d'équipe)
  * @returns projet, workflows disponibles et colonnes
  */
-export async function board(dependencies: QueryDependencies, context: ExecutionContext, ref: ProjectRef, workflowKey: string | null): Promise<Result<{ readonly project: ProjectView; readonly workflowKeys: readonly string[]; readonly workflowKey: string | null; readonly columns: readonly BoardColumn[] }, DomainError>> {
-  const readable = await readableProject(dependencies, context, ref);
+export async function board(dependencies: QueryDependencies, context: ExecutionContext, request: { readonly ref: ProjectRef; readonly workflowKey: string | null }): Promise<Result<{ readonly project: ProjectView; readonly workflowKeys: readonly string[]; readonly workflowKey: string | null; readonly columns: readonly BoardColumn[] }, DomainError>> {
+  const readable = await readableProject(dependencies, context, request.ref);
   if (!readable.ok) return readable;
   const { project, restricted } = readable.value;
   const keys = await dependencies.views.workflowKeys(project.id);
-  const selected = workflowKey !== null && keys.includes(workflowKey) ? workflowKey : (keys.includes('team_item') ? 'team_item' : keys[0] ?? null);
+  const selected = selectWorkflow(keys, request.workflowKey);
   if (selected === null) return ok({ project, workflowKeys: keys, workflowKey: null, columns: [] });
   const states = await dependencies.views.latestStates(project.id, selected);
   const items = await dependencies.views.listItems({ projectIds: [project.id], includeRestricted: restricted, includeDone: true, typeKey: null, workflowKey: selected, text: null, limit: MAX_BOARD });

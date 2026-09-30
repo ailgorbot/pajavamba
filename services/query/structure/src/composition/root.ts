@@ -62,20 +62,37 @@ function page(data: readonly unknown[]): { readonly data: readonly unknown[]; re
 }
 
 /**
- * Déclare les actions de lecture.
+ * Représentation API d'éléments, avec l'identifiant public du projet.
+ * @param items éléments
+ * @returns corps JSON
+ */
+function itemsBody(items: readonly ItemView[]): readonly unknown[] {
+  return items.map((item) => ({ ...item, projectPublicId: uuidToPublicId(item.projectId) }));
+}
+
+/**
+ * Lecture dans le contexte RLS de l'organisation de l'appel.
+ * @param runtime environnement
+ * @returns fonction de lecture
+ */
+function readFor(runtime: ServiceRuntimeShape<QueryDependencies>): <T>(call: ActionCall, work: Parameters<typeof serviceRead<QueryDependencies, T>>[2]) => Promise<T> {
+  return async (call, work) => serviceRead(runtime, requireContext(call.context).organisationId, work);
+}
+
+/**
+ * Déclare les actions (partie 1).
  * @param runtime environnement
  * @returns actions
  */
-function actions(runtime: ServiceRuntimeShape<QueryDependencies>): RegisteredAction[] {
-  const read = async <T>(call: ActionCall, work: Parameters<typeof serviceRead<QueryDependencies, T>>[2]): Promise<T> => serviceRead(runtime, requireContext(call.context).organisationId, work);
-  const itemsBody = (items: readonly ItemView[]): readonly unknown[] => items.map((item) => ({ ...item, projectPublicId: uuidToPublicId(item.projectId) }));
+function actionsPart1(runtime: ServiceRuntimeShape<QueryDependencies>): RegisteredAction[] {
+  const read = readFor(runtime);
   return [
     {
       definition: defineAction({ id: 'backlog.get', permission: 'work_item:read', risk: 'R0', method: 'GET', path: '/projects/:projectRef/backlog', reversible: true, description: 'Backlog ordonné du projet (filtres : type, texte, éléments terminés).', rules: ['RG-WI-007'] }),
       handle: async (call) => {
         const context = requireContext(call.context);
         const options = { includeDone: call.query['includeDone'] === 'true', typeKey: textParam(call.query['type']), text: textParam(call.query['q']) };
-        const result = await read(call, async (dependencies) => backlog(dependencies, context, refOf(call), options));
+        const result = await read(call, async (dependencies) => backlog(dependencies, context, { ...options, ref: refOf(call) }));
         return { status: 200, body: page(itemsBody(result.items)) };
       },
     },
@@ -83,10 +100,21 @@ function actions(runtime: ServiceRuntimeShape<QueryDependencies>): RegisteredAct
       definition: defineAction({ id: 'board.get', permission: 'work_item:read', risk: 'R0', method: 'GET', path: '/projects/:projectRef/board', reversible: true, description: "Board du projet : colonnes par état du workflow, limites WIP signalées.", rules: ['RG-WF-004', 'RG-WI-007'] }),
       handle: async (call) => {
         const context = requireContext(call.context);
-        const result = await read(call, async (dependencies) => board(dependencies, context, refOf(call), textParam(call.query['workflow'])));
+        const result = await read(call, async (dependencies) => board(dependencies, context, { ref: refOf(call), workflowKey: textParam(call.query['workflow']) }));
         return { status: 200, body: { workflowKeys: result.workflowKeys, workflowKey: result.workflowKey, columns: result.columns.map((column) => ({ ...column, items: itemsBody(column.items) })) } };
       },
     },
+  ];
+}
+
+/**
+ * Déclare les actions (partie 2).
+ * @param runtime environnement
+ * @returns actions
+ */
+function actionsPart2(runtime: ServiceRuntimeShape<QueryDependencies>): RegisteredAction[] {
+  const read = readFor(runtime);
+  return [
     {
       definition: defineAction({ id: 'search.items', permission: 'work_item:read', risk: 'R0', method: 'GET', path: '/search', reversible: true, description: 'Recherche plein texte (français) dans les projets accessibles.', rules: ['RG-WI-007'] }),
       handle: async (call) => {
@@ -105,6 +133,15 @@ function actions(runtime: ServiceRuntimeShape<QueryDependencies>): RegisteredAct
       },
     },
   ];
+}
+
+/**
+ * Déclare les actions de lecture.
+ * @param runtime environnement
+ * @returns actions
+ */
+function actions(runtime: ServiceRuntimeShape<QueryDependencies>): RegisteredAction[] {
+  return [...actionsPart1(runtime), ...actionsPart2(runtime)];
 }
 
 /**

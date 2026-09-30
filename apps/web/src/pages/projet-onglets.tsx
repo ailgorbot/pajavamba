@@ -40,13 +40,11 @@ function nameOf(members: readonly { readonly id: string; readonly displayName: s
 }
 
 /**
- * Onglet des équipes.
+ * Formulaire de création d'une équipe rattachée au projet.
  * @param props projet
  * @returns élément React
  */
-export function EquipesProjet(props: { readonly project: Project }): ReactNode {
-  const teams = useResource<Page<Team>>(['teams', props.project.key], `/projects/${props.project.key}/teams`);
-  const members = useMembers();
+function CreationEquipe(props: Readonly<{ project: Project }>): ReactNode {
   const write = useWrite();
   const [form, setForm] = useState({ key: '', name: '', kind: 'scrum' });
   const create = (event: SubmitEvent<HTMLFormElement>): void => {
@@ -54,37 +52,50 @@ export function EquipesProjet(props: { readonly project: Project }): ReactNode {
     write.mutate({ method: 'POST', path: `/projects/${props.project.key}/teams`, body: form });
   };
   return (
+    <form onSubmit={create} className="fr-col-md-8">
+      <h3>Créer une équipe</h3>
+      <ErrorMessage error={write.error} />
+      <Field label="Clé de l’équipe" hint="Majuscules et chiffres, 2 à 6 caractères" value={form.key} onChange={(value) => setForm({ ...form, key: value.toUpperCase() })} />
+      <Field label="Nom" value={form.name} onChange={(value) => setForm({ ...form, name: value })} />
+      <Select label="Nature (obligatoire)" nativeSelectProps={{ value: form.kind, onChange: (event) => setForm({ ...form, kind: event.target.value }) }}>
+        <option value="scrum">Scrum</option><option value="kanban">Kanban</option><option value="scrumban">Scrumban</option><option value="other">Autre</option>
+      </Select>
+      <Button type="submit">Créer l’équipe</Button>
+    </form>
+  );
+}
+
+/**
+ * Onglet des équipes.
+ * @param props projet
+ * @returns élément React
+ */
+export function EquipesProjet(props: Readonly<{ project: Project }>): ReactNode {
+  const teams = useResource<Page<Team>>(['teams', props.project.key], `/projects/${props.project.key}/teams`);
+  const members = useMembers();
+  const describe = (team: Team): string => (team.members.length === 0 ? 'Aucun membre.' : team.members.map((member) => `${nameOf(members.data?.data, member.userId)} (${String(member.allocationPercent)} %)`).join(', '));
+  return (
     <>
-      <ErrorMessage error={write.error ?? teams.error} />
+      <ErrorMessage error={teams.error} />
       {teams.isPending && <Loading />}
       {teams.data?.data.length === 0 && <EmptyState message="Aucune équipe n’est rattachée à ce projet." />}
       {teams.data?.data.map((team) => (
         <section key={team.id} className="fr-mb-3w">
           <h3>{team.name} ({team.key})</h3>
-          <p>{team.members.length === 0 ? 'Aucun membre.' : team.members.map((member) => `${nameOf(members.data?.data, member.userId)} (${String(member.allocationPercent)} %)`).join(', ')}</p>
+          <p>{describe(team)}</p>
         </section>
       ))}
-      <h3>Créer une équipe</h3>
-      <form onSubmit={create} className="fr-col-md-8">
-        <Field label="Clé de l’équipe" hint="Majuscules et chiffres, 2 à 6 caractères" value={form.key} onChange={(value) => setForm({ ...form, key: value.toUpperCase() })} />
-        <Field label="Nom" value={form.name} onChange={(value) => setForm({ ...form, name: value })} />
-        <Select label="Nature (obligatoire)" nativeSelectProps={{ value: form.kind, onChange: (event) => setForm({ ...form, kind: event.target.value }) }}>
-          <option value="scrum">Scrum</option><option value="kanban">Kanban</option><option value="scrumban">Scrumban</option><option value="other">Autre</option>
-        </Select>
-        <Button type="submit">Créer l’équipe</Button>
-      </form>
+      <CreationEquipe project={props.project} />
     </>
   );
 }
 
 /**
- * Onglet des membres et rôles du projet.
- * @param props projet
+ * Formulaire d'attribution d'un rôle de projet.
+ * @param props projet et membres de l'organisation
  * @returns élément React
  */
-export function MembresProjet(props: { readonly project: Project }): ReactNode {
-  const assignments = useResource<Page<Assignment>>(['assignments', props.project.id], `/projects/${props.project.id}/members`);
-  const members = useMembers();
+function AttributionRole(props: Readonly<{ project: Project; members: readonly { readonly id: string; readonly displayName: string; readonly email: string }[] }>): ReactNode {
   const write = useWrite();
   const [userId, setUserId] = useState('');
   const [roleKey, setRoleKey] = useState('contributor');
@@ -93,6 +104,31 @@ export function MembresProjet(props: { readonly project: Project }): ReactNode {
     write.mutate({ method: 'POST', path: '/role-assignments', body: { userId, roleKey, projectId: props.project.id, effect: 'allow' } });
   };
   return (
+    <form onSubmit={add} className="fr-col-md-8">
+      <ErrorMessage error={write.error} />
+      <Select label="Personne (obligatoire)" nativeSelectProps={{ value: userId, required: true, onChange: (event) => setUserId(event.target.value) }}>
+        <option value="" disabled>Choisir une personne</option>
+        {props.members.map((member) => <option key={member.id} value={member.id}>{member.displayName} — {member.email}</option>)}
+      </Select>
+      <Select label="Rôle (obligatoire)" nativeSelectProps={{ value: roleKey, onChange: (event) => setRoleKey(event.target.value) }}>
+        {PROJECT_ROLES.map((role) => <option key={role} value={role}>{ROLE_LABELS[role]}</option>)}
+      </Select>
+      <Button type="submit" disabled={userId === ''}>Attribuer le rôle</Button>
+    </form>
+  );
+}
+
+/**
+ * Onglet des membres et rôles du projet.
+ * @param props projet
+ * @returns élément React
+ */
+export function MembresProjet(props: Readonly<{ project: Project }>): ReactNode {
+  const assignments = useResource<Page<Assignment>>(['assignments', props.project.id], `/projects/${props.project.id}/members`);
+  const members = useMembers();
+  const write = useWrite();
+  const people = members.data?.data ?? [];
+  return (
     <>
       <p className="fr-text--sm">La gestion des membres est une action sensible (R3) : vérifiez votre MFA depuis « Mon profil » dans les 15 minutes qui précèdent.</p>
       <ErrorMessage error={write.error ?? assignments.error} />
@@ -100,22 +136,13 @@ export function MembresProjet(props: { readonly project: Project }): ReactNode {
         caption="Attributions de rôles du projet"
         headers={['Personne', 'Rôle', 'Effet', 'Action']}
         data={(assignments.data?.data ?? []).map((assignment) => [
-          nameOf(members.data?.data, assignment.userId),
+          nameOf(people, assignment.userId),
           ROLE_LABELS[assignment.roleKey] ?? assignment.roleKey,
           assignment.effect === 'allow' ? 'Autorisation' : 'Refus explicite',
-          <ConfirmButton key={assignment.id} label="Retirer" subject={`le rôle de ${nameOf(members.data?.data, assignment.userId)}`} onConfirm={() => write.mutate({ method: 'DELETE', path: `/role-assignments/${assignment.id}` })} />,
+          <ConfirmButton key={assignment.id} label="Retirer" subject={`le rôle de ${nameOf(people, assignment.userId)}`} onConfirm={() => write.mutate({ method: 'DELETE', path: `/role-assignments/${assignment.id}` })} />,
         ])}
       />
-      <form onSubmit={add} className="fr-col-md-8">
-        <Select label="Personne (obligatoire)" nativeSelectProps={{ value: userId, required: true, onChange: (event) => setUserId(event.target.value) }}>
-          <option value="" disabled>Choisir une personne</option>
-          {(members.data?.data ?? []).map((member) => <option key={member.id} value={member.id}>{member.displayName} — {member.email}</option>)}
-        </Select>
-        <Select label="Rôle (obligatoire)" nativeSelectProps={{ value: roleKey, onChange: (event) => setRoleKey(event.target.value) }}>
-          {PROJECT_ROLES.map((role) => <option key={role} value={role}>{ROLE_LABELS[role]}</option>)}
-        </Select>
-        <Button type="submit" disabled={userId === ''}>Attribuer le rôle</Button>
-      </form>
+      <AttributionRole project={props.project} members={people} />
     </>
   );
 }
@@ -132,7 +159,7 @@ interface WorkflowView {
  * @param props projet
  * @returns élément React
  */
-export function WorkflowsProjet(props: { readonly project: Project }): ReactNode {
+export function WorkflowsProjet(props: Readonly<{ project: Project }>): ReactNode {
   const workflows = useResource<Page<WorkflowView>>(['workflows', props.project.key], `/projects/${props.project.key}/workflows`);
   return (
     <>
@@ -170,7 +197,7 @@ const EVENT_LABELS: Readonly<Record<string, string>> = {
  * @param props projet
  * @returns élément React
  */
-export function ActiviteProjet(props: { readonly project: Project }): ReactNode {
+export function ActiviteProjet(props: Readonly<{ project: Project }>): ReactNode {
   const activity = useResource<Page<ActivityEntry>>(['activity', props.project.key], `/projects/${props.project.key}/activity`);
   return (
     <>

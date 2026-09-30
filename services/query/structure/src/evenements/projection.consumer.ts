@@ -102,31 +102,46 @@ async function recordActivity(tx: SqlExecutor, event: CloudEvent, projectId: str
   );
 }
 
-/**
- * Applique un événement aux vues.
- * @param tx transaction
- * @param event événement
- */
-async function apply(tx: SqlExecutor, event: CloudEvent): Promise<void> {
-  if (PROJECT_EVENTS.includes(event.type)) {
-    await tx.query('INSERT INTO projects (organisation_id, id, key, name, status) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (organisation_id, id) DO UPDATE SET name = EXCLUDED.name, status = EXCLUDED.status', [event.pvorganisation, event.subject, text(event, 'key'), text(event, 'name'), text(event, 'status')]);
-    await recordActivity(tx, event, event.subject);
-  } else if (event.type === EVENT_TYPES.projectPurged) {
-    await tx.query('DELETE FROM work_item_views WHERE project_id = $1', [event.subject]);
-    await tx.query('DELETE FROM activity_entries WHERE project_id = $1', [event.subject]);
-    await tx.query('DELETE FROM workflow_states WHERE project_id = $1', [event.subject]);
-    await tx.query('DELETE FROM projects WHERE id = $1', [event.subject]);
-  } else if (event.type === EVENT_TYPES.packInstantiated) {
-    // Conversion justifiée : le schéma de l'événement est garanti par le service workflow (§5.7).
-    for (const workflow of (event.data['workflows'] ?? []) as unknown as readonly WorkflowPayload[]) await saveStates(tx, event, workflow);
-  } else if (event.type === EVENT_TYPES.workflowPublished) {
-    await saveStates(tx, event, event.data as unknown as WorkflowPayload);
-  } else if (ITEM_EVENTS.includes(event.type)) {
-    await upsertItem(tx, event);
-    await recordActivity(tx, event, text(event, 'projectId') ?? '');
-  } else if (event.type === EVENT_TYPES.commentAdded) {
-    await recordActivity(tx, event, text(event, 'projectId') ?? '');
+type Projector = (tx: SqlExecutor, event: CloudEvent) => Promise<void>;
+
+const projectProjector: Projector = async (tx, event) => {
+  await tx.query('INSERT INTO projects (organisation_id, id, key, name, status) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (organisation_id, id) DO UPDATE SET name = EXCLUDED.name, status = EXCLUDED.status', [event.pvorganisation, event.subject, text(event, 'key'), text(event, 'name'), text(event, 'status')]);
+  await recordActivity(tx, event, event.subject);
+};
+
+const purgeProjector: Projector = async (tx, event) => {
+  for (const table of ['work_item_views', 'activity_entries', 'workflow_states'] as const) {
+    // Nom de table issu d'une liste constante : jamais d'une donnée reçue.
+    await tx.query(`DELETE FROM ${table} WHERE project_id = $1`, [event.subject]);
   }
+  await tx.query('DELETE FROM projects WHERE id = $1', [event.subject]);
+};
+
+// Conversion justifiée : le schéma des événements de workflow est garanti par leur producteur (§5.7).
+const packProjector: Projector = async (tx, event) => {
+  for (const workflow of (event.data['workflows'] ?? []) as unknown as readonly WorkflowPayload[]) await saveStates(tx, event, workflow);
+};
+
+const itemProjector: Projector = async (tx, event) => {
+  await upsertItem(tx, event);
+  await recordActivity(tx, event, text(event, 'projectId') ?? '');
+};
+
+/**
+ * Projecteur associé à un type d'événement.
+ * @param type type d'événement
+ * @returns projecteur, ou `undefined` si le type n'est pas projeté
+ */
+function projectorOf(type: string): Projector | undefined {
+  if (PROJECT_EVENTS.includes(type)) return projectProjector;
+  if (ITEM_EVENTS.includes(type)) return itemProjector;
+  const others: Readonly<Record<string, Projector>> = {
+    [EVENT_TYPES.projectPurged]: purgeProjector,
+    [EVENT_TYPES.packInstantiated]: packProjector,
+    [EVENT_TYPES.workflowPublished]: async (tx, event) => saveStates(tx, event, event.data as unknown as WorkflowPayload),
+    [EVENT_TYPES.commentAdded]: async (tx, event) => recordActivity(tx, event, text(event, 'projectId') ?? ''),
+  };
+  return others[type];
 }
 
 /**
@@ -140,7 +155,7 @@ export function createProjectionConsumer(pool: pg.Pool): EventConsumer {
     types: [...PROJECT_EVENTS, EVENT_TYPES.projectPurged, EVENT_TYPES.packInstantiated, EVENT_TYPES.workflowPublished, ...ITEM_EVENTS, EVENT_TYPES.commentAdded],
     async handle(event) {
       await consumeOnce({ pool, scope: { ...SCOPE, organisationId: event.pvorganisation }, consumer: CONSUMER, eventId: event.id, correlationId: event.pvcorrelation }, async (tx) => {
-        await apply(tx, event);
+        await projectorOf(event.type)?.(tx, event);
         return [];
       });
     },

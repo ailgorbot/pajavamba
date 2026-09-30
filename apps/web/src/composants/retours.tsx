@@ -13,23 +13,31 @@ import { ApiError } from '../adaptateurs/api.ts';
 const DOC_BASE = 'https://ailgorbot.github.io/pajavamba/reference/erreurs/';
 
 /**
+ * Détail d'une erreur de l'API : message, champs en erreur, code documenté.
+ * @param props erreur
+ * @returns élément React
+ */
+function ErrorDetail(props: Readonly<{ error: ApiError | undefined }>): ReactNode {
+  const { error } = props;
+  if (error === undefined) return <p>Une erreur inattendue est survenue. Réessayez.</p>;
+  return (
+    <>
+      <p>{error.detail}</p>
+      {error.fieldErrors.length > 0 && <ul>{error.fieldErrors.map((field) => <li key={field.pointer}>{field.pointer.replace('/', '')} : {field.message}</li>)}</ul>}
+      <p className="fr-text--sm fr-mb-0">Code : <a href={`${DOC_BASE}${error.code}`} target="_blank" rel="noreferrer">{error.code}</a></p>
+    </>
+  );
+}
+
+/**
  * Affiche une erreur de façon compréhensible.
  * @param props erreur
  * @returns élément React ou rien
  */
-export function ErrorMessage(props: { readonly error: unknown }): ReactNode {
+export function ErrorMessage(props: Readonly<{ error: unknown }>): ReactNode {
   if (props.error === null || props.error === undefined) return null;
   const error = props.error instanceof ApiError ? props.error : undefined;
-  const description = (
-    <>
-      <p>{error?.detail ?? 'Une erreur inattendue est survenue. Réessayez.'}</p>
-      {error !== undefined && error.fieldErrors.length > 0 && (
-        <ul>{error.fieldErrors.map((field) => <li key={field.pointer}>{field.pointer.replace('/', '')} : {field.message}</li>)}</ul>
-      )}
-      {error !== undefined && <p className="fr-text--sm fr-mb-0">Code : <a href={`${DOC_BASE}${error.code}`} target="_blank" rel="noreferrer">{error.code}</a></p>}
-    </>
-  );
-  return <div role="alert" className="fr-mb-3w"><Alert severity="error" small={false} title={error?.title ?? 'Erreur'} description={description} /></div>;
+  return <div role="alert" className="fr-mb-3w"><Alert severity="error" small={false} title={error?.title ?? 'Erreur'} description={<ErrorDetail error={error} />} /></div>;
 }
 
 /**
@@ -45,7 +53,7 @@ export function Loading(): ReactNode {
  * @param props texte et action
  * @returns élément React
  */
-export function EmptyState(props: { readonly message: string; readonly action?: ReactNode }): ReactNode {
+export function EmptyState(props: Readonly<{ message: string; action?: ReactNode }>): ReactNode {
   return (
     <div className="fr-callout fr-my-3w">
       <p className="fr-callout__text">{props.message}</p>
@@ -54,12 +62,20 @@ export function EmptyState(props: { readonly message: string; readonly action?: 
   );
 }
 
+/** Propriétés du bouton de confirmation. */
+interface ConfirmButtonProps {
+  readonly label: string;
+  readonly subject: string;
+  readonly disabled?: boolean;
+  readonly onConfirm: () => void;
+}
+
 /**
  * Bouton d'action irréversible : une seconde étape de confirmation rappelle l'objet.
  * @param props libellé, objet concerné, action
  * @returns élément React
  */
-export function ConfirmButton(props: { readonly label: string; readonly subject: string; readonly disabled?: boolean; onConfirm(): void }): ReactNode {
+export function ConfirmButton(props: Readonly<ConfirmButtonProps>): ReactNode {
   const [asking, setAsking] = useState(false);
   if (!asking) {
     return <Button priority="secondary" disabled={props.disabled === true} onClick={() => setAsking(true)}>{props.label}</Button>;

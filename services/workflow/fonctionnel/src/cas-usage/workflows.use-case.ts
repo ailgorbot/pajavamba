@@ -4,7 +4,7 @@
  * Couche : basse (workflow/fonctionnel). Règles : RG-WF-001, RG-WF-002, RG-PRJ-004, RI-MET-04,
  * RI-MET-05, RI-SEC-03.
  */
-import { domainError, err, FORBIDDEN, NOT_FOUND, ok, requireAccess, type DomainError, type DomainEvent, type EventValue, type ExecutionContext, type ProjectId, type Result, type UseCaseOutput } from '@pajavamba/kernel';
+import { domainError, err, FORBIDDEN, NOT_FOUND, ok, requireAccess, type DomainError, type DomainEvent, type EventValue, type ExecutionContext, type ProjectId, type ProjectRef, type Result, type UseCaseOutput } from '@pajavamba/kernel';
 import { findPack, type MethodologyPack } from '../domaine/packs.catalog.ts';
 import { publish, validateDefinition, validateWorkflowKey, type Workflow, type WorkflowDefinition, type WorkflowVersion } from '../domaine/workflow.ts';
 import type { ProjectSnapshot, WorkflowDependencies } from '../ports/workflow.ports.ts';
@@ -32,12 +32,11 @@ function definitionValue(definition: WorkflowDefinition): EventValue {
  * Charge un projet visible et vérifie la permission demandée.
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param permission permission requise
+ * @param permission projet, permission requise et exigence d'écriture
  * @returns projet ou erreur
  */
-async function loadProject(dependencies: WorkflowDependencies, context: ExecutionContext, ref: { readonly id: ProjectId } | { readonly key: string }, permission: { readonly name: string; readonly risk: 'R0' | 'R2'; readonly writable: boolean }): Promise<Result<ProjectSnapshot, DomainError>> {
-  const project = await dependencies.workflows.findProject(ref);
+async function loadProject(dependencies: WorkflowDependencies, context: ExecutionContext, permission: { readonly ref: ProjectRef; readonly name: string; readonly risk: 'R0' | 'R2'; readonly writable: boolean }): Promise<Result<ProjectSnapshot, DomainError>> {
+  const project = await dependencies.workflows.findProject(permission.ref);
   if (project === undefined) return err(NOT_FOUND);
   if (!(await requireAccess(dependencies.policy, context, { permission: 'project:read', risk: 'R0', projectId: project.id })).ok) return err(NOT_FOUND);
   if (!(await requireAccess(dependencies.policy, context, { permission: permission.name, risk: permission.risk, projectId: project.id })).ok) return err(FORBIDDEN);
@@ -93,6 +92,7 @@ export async function instantiatePack(dependencies: WorkflowDependencies, projec
 
 /** Entrée d'un brouillon de workflow. */
 export interface DraftWorkflowInput {
+  readonly ref: ProjectRef;
   readonly key: string;
   readonly name: string;
   readonly definition: WorkflowDefinition;
@@ -102,12 +102,11 @@ export interface DraftWorkflowInput {
  * Crée une nouvelle version brouillon d'un workflow (nouveau workflow si la clé est inconnue).
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param input clé, nom et définition
+ * @param input projet, clé, nom et définition
  * @returns version brouillon
  */
-export async function draftWorkflow(dependencies: WorkflowDependencies, context: ExecutionContext, ref: { readonly id: ProjectId } | { readonly key: string }, input: DraftWorkflowInput): Promise<Result<UseCaseOutput<WorkflowVersion>, DomainError>> {
-  const project = await loadProject(dependencies, context, ref, { name: 'workflow:configure', risk: 'R2', writable: true });
+export async function draftWorkflow(dependencies: WorkflowDependencies, context: ExecutionContext, input: DraftWorkflowInput): Promise<Result<UseCaseOutput<WorkflowVersion>, DomainError>> {
+  const project = await loadProject(dependencies, context, { ref: input.ref, name: 'workflow:configure', risk: 'R2', writable: true });
   if (!project.ok) return project;
   const key = validateWorkflowKey(input.key);
   if (!key.ok) return key;
@@ -127,12 +126,12 @@ export async function draftWorkflow(dependencies: WorkflowDependencies, context:
  * Publie une version brouillon (RG-WF-001 : elle devient immuable).
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param versionId version
+ * @param request projet et version
  * @returns version publiée
  */
-export async function publishWorkflowVersion(dependencies: WorkflowDependencies, context: ExecutionContext, ref: { readonly id: ProjectId } | { readonly key: string }, versionId: string): Promise<Result<UseCaseOutput<WorkflowVersion>, DomainError>> {
-  const project = await loadProject(dependencies, context, ref, { name: 'workflow:configure', risk: 'R2', writable: true });
+export async function publishWorkflowVersion(dependencies: WorkflowDependencies, context: ExecutionContext, request: { readonly ref: ProjectRef; readonly versionId: string }): Promise<Result<UseCaseOutput<WorkflowVersion>, DomainError>> {
+  const { versionId } = request;
+  const project = await loadProject(dependencies, context, { ref: request.ref, name: 'workflow:configure', risk: 'R2', writable: true });
   if (!project.ok) return project;
   const version = await dependencies.workflows.findVersion(versionId);
   const workflows = await dependencies.workflows.listWorkflows(project.value.id);
@@ -152,8 +151,8 @@ export async function publishWorkflowVersion(dependencies: WorkflowDependencies,
  * @param ref projet
  * @returns workflows
  */
-export async function listProjectWorkflows(dependencies: WorkflowDependencies, context: ExecutionContext, ref: { readonly id: ProjectId } | { readonly key: string }): Promise<Result<readonly { readonly workflow: Workflow; readonly versions: readonly WorkflowVersion[] }[], DomainError>> {
-  const project = await loadProject(dependencies, context, ref, { name: 'project:read', risk: 'R0', writable: false });
+export async function listProjectWorkflows(dependencies: WorkflowDependencies, context: ExecutionContext, ref: ProjectRef): Promise<Result<readonly { readonly workflow: Workflow; readonly versions: readonly WorkflowVersion[] }[], DomainError>> {
+  const project = await loadProject(dependencies, context, { ref, name: 'project:read', risk: 'R0', writable: false });
   if (!project.ok) return project;
   return ok(await dependencies.workflows.listWorkflows(project.value.id));
 }

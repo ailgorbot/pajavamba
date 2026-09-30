@@ -9,7 +9,7 @@ import type { ItemType } from '../domaine/hierarchy.ts';
 import type { SnapshotState, SnapshotTransition } from '../domaine/transition.ts';
 import type { WorkItem } from '../domaine/work-item.ts';
 import type { Comment, HistoryEntry, WorkItemDependencies } from '../ports/workitem.ports.ts';
-import { loadItem, loadProject, WORKITEM_EVENTS } from './item-access.ts';
+import { loadItem, loadProject, READ, WORKITEM_EVENTS, type ItemTarget } from './item-access.ts';
 
 /** Détail d'un élément. */
 export interface WorkItemDetail {
@@ -22,19 +22,17 @@ export interface WorkItemDetail {
   readonly history: readonly HistoryEntry[];
 }
 
-const READ = { permission: 'work_item:read', risk: 'R0', writable: false } as const;
 const COMMENT_MAX = 20_000;
 
 /**
  * Lit le détail d'un élément (`work_item.get`).
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param itemRef élément
+ * @param target projet et élément
  * @returns détail
  */
-export async function getWorkItem(dependencies: WorkItemDependencies, context: ExecutionContext, ref: ProjectRef, itemRef: string): Promise<Result<WorkItemDetail, DomainError>> {
-  const loaded = await loadItem(dependencies, context, ref, itemRef, READ);
+export async function getWorkItem(dependencies: WorkItemDependencies, context: ExecutionContext, target: ItemTarget): Promise<Result<WorkItemDetail, DomainError>> {
+  const loaded = await loadItem(dependencies, context, { ...READ, ...target });
   if (!loaded.ok) return loaded;
   const { item } = loaded.value;
   const snapshot = await dependencies.configuration.findWorkflowVersion(item.workflowVersionId);
@@ -59,7 +57,7 @@ export async function getWorkItem(dependencies: WorkItemDependencies, context: E
  * @returns types
  */
 export async function listItemTypes(dependencies: WorkItemDependencies, context: ExecutionContext, ref: ProjectRef): Promise<Result<readonly ItemType[], DomainError>> {
-  const project = await loadProject(dependencies, context, ref, READ);
+  const project = await loadProject(dependencies, context, { ...READ, ref });
   return project.ok ? ok(await dependencies.configuration.listTypes(project.value.id)) : project;
 }
 
@@ -67,15 +65,13 @@ export async function listItemTypes(dependencies: WorkItemDependencies, context:
  * Ajoute un commentaire (`work_item.comment`) ; mentions et notifications relèvent du lot 4.
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param itemRef élément
- * @param body texte (Markdown)
+ * @param input projet, élément et texte (Markdown)
  * @returns commentaire créé
  */
-export async function commentWorkItem(dependencies: WorkItemDependencies, context: ExecutionContext, ref: ProjectRef, itemRef: string, body: string): Promise<Result<UseCaseOutput<Comment>, DomainError>> {
-  const loaded = await loadItem(dependencies, context, ref, itemRef, { permission: 'work_item:comment', risk: 'R1', writable: true });
+export async function commentWorkItem(dependencies: WorkItemDependencies, context: ExecutionContext, input: ItemTarget & { readonly body: string }): Promise<Result<UseCaseOutput<Comment>, DomainError>> {
+  const loaded = await loadItem(dependencies, context, { ...input, permission: 'work_item:comment', risk: 'R1', writable: true });
   if (!loaded.ok) return loaded;
-  const text = body.trim();
+  const text = input.body.trim();
   if (text.length === 0 || text.length > COMMENT_MAX) return err(domainError('workitem.invalid_comment', 'validation', 'Le commentaire doit contenir entre 1 et 20 000 caractères.'));
   const comment: Comment = { id: dependencies.ids.next(), workItemId: loaded.value.item.id, authorId: context.actor.kind === 'user' ? context.actor.userId : null, body: text, createdVia: context.channel, createdAt: dependencies.clock.now() };
   await dependencies.items.insertComment(comment);

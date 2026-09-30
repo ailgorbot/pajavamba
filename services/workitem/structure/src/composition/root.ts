@@ -81,7 +81,7 @@ async function apply(dependencies: WorkItemDependencies, event: CloudEvent): Pro
   switch (event.type) {
     case EVENT_TYPES.packInstantiated: {
       const payload = packPayload(event);
-      await recordPack(dependencies, projectId, payload.types, payload.workflows.map(snapshotOf));
+      await recordPack(dependencies, projectId, { types: payload.types, workflows: payload.workflows.map(snapshotOf) });
       return;
     }
     case EVENT_TYPES.workflowPublished:

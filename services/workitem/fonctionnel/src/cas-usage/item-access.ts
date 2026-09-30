@@ -15,6 +15,32 @@ export interface Requirement {
   readonly writable: boolean;
 }
 
+/** Demande d'accès à un projet. */
+export interface ProjectAccess extends Requirement {
+  readonly ref: ProjectRef;
+}
+
+/** Demande d'accès à un élément (clé ou identifiant). */
+export interface ItemAccess extends ProjectAccess {
+  readonly itemRef: string;
+  readonly includeDeleted?: boolean;
+}
+
+/** Désignation d'un élément dans un projet. */
+export interface ItemTarget {
+  readonly ref: ProjectRef;
+  readonly itemRef: string;
+}
+
+/** Projet et élément chargés. */
+export interface LoadedItem {
+  readonly project: ProjectSnapshot;
+  readonly item: WorkItem;
+}
+
+/** Exigence de lecture. */
+export const READ: Requirement = { permission: 'work_item:read', risk: 'R0', writable: false };
+
 /** Types d'événements publiés par workitem. */
 export const WORKITEM_EVENTS = {
   created: 'pv.workitem.work_item.created.v1',
@@ -34,34 +60,44 @@ const WRITABLE_STATUSES = new Set(['draft', 'active']);
  * Charge un projet visible et vérifie une permission.
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param requirement exigence
+ * @param access projet et exigence
  * @returns projet ou erreur
  */
-export async function loadProject(dependencies: WorkItemDependencies, context: ExecutionContext, ref: ProjectRef, requirement: Requirement): Promise<Result<ProjectSnapshot, DomainError>> {
-  const project = await dependencies.configuration.findProject(ref);
+export async function loadProject(dependencies: WorkItemDependencies, context: ExecutionContext, access: ProjectAccess): Promise<Result<ProjectSnapshot, DomainError>> {
+  const project = await dependencies.configuration.findProject(access.ref);
   if (project === undefined) return err(NOT_FOUND);
   if (!(await requireAccess(dependencies.policy, context, { permission: 'work_item:read', risk: 'R0', projectId: project.id })).ok) return err(NOT_FOUND);
-  if (!(await requireAccess(dependencies.policy, context, { permission: requirement.permission, risk: requirement.risk, projectId: project.id })).ok) return err(FORBIDDEN);
-  return requirement.writable && !WRITABLE_STATUSES.has(project.status) ? err(PROJECT_READ_ONLY) : ok(project);
+  if (!(await requireAccess(dependencies.policy, context, { permission: access.permission, risk: access.risk, projectId: project.id })).ok) return err(FORBIDDEN);
+  return access.writable && !WRITABLE_STATUSES.has(project.status) ? err(PROJECT_READ_ONLY) : ok(project);
+}
+
+/**
+ * Indique si l'acteur peut voir un élément (confidentialité, corbeille).
+ * @param dependencies dépendances
+ * @param context contexte
+ * @param loaded projet, élément et option de corbeille
+ * @returns vrai si l'élément est visible
+ */
+async function isVisible(dependencies: WorkItemDependencies, context: ExecutionContext, loaded: LoadedItem & { readonly includeDeleted: boolean }): Promise<boolean> {
+  if (loaded.item.projectId !== loaded.project.id || (loaded.item.deletedAt !== null && !loaded.includeDeleted)) return false;
+  if (loaded.item.confidentiality === 'normal') return true;
+  return (await requireAccess(dependencies.policy, context, { permission: 'work_item:read_restricted', risk: 'R0', projectId: loaded.project.id })).ok;
 }
 
 /**
  * Charge un élément (par clé ou identifiant) visible par l'acteur.
  * @param dependencies dépendances
  * @param context contexte
- * @param ref projet
- * @param itemRef clé ou identifiant de l'élément
- * @param requirement exigence
+ * @param access projet, élément et exigence
  * @returns projet et élément, ou erreur
  */
-export async function loadItem(dependencies: WorkItemDependencies, context: ExecutionContext, ref: ProjectRef, itemRef: string, requirement: Requirement & { readonly includeDeleted?: boolean }): Promise<Result<{ readonly project: ProjectSnapshot; readonly item: WorkItem }, DomainError>> {
-  const project = await loadProject(dependencies, context, ref, requirement);
+export async function loadItem(dependencies: WorkItemDependencies, context: ExecutionContext, access: ItemAccess): Promise<Result<LoadedItem, DomainError>> {
+  const project = await loadProject(dependencies, context, access);
   if (!project.ok) return project;
-  const item = isUuid(itemRef) ? await dependencies.items.findById(itemRef) : await dependencies.items.findByKey(itemRef);
-  if (item?.projectId !== project.value.id || (item.deletedAt !== null && requirement.includeDeleted !== true)) return err(ITEM_NOT_FOUND);
-  if (item.confidentiality === 'restricted' && !(await requireAccess(dependencies.policy, context, { permission: 'work_item:read_restricted', risk: 'R0', projectId: project.value.id })).ok) return err(ITEM_NOT_FOUND);
-  return ok({ project: project.value, item });
+  const item = isUuid(access.itemRef) ? await dependencies.items.findById(access.itemRef) : await dependencies.items.findByKey(access.itemRef);
+  if (item === undefined) return err(ITEM_NOT_FOUND);
+  const visible = await isVisible(dependencies, context, { project: project.value, item, includeDeleted: access.includeDeleted === true });
+  return visible ? ok({ project: project.value, item }) : err(ITEM_NOT_FOUND);
 }
 
 /**

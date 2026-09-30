@@ -10,36 +10,21 @@ import { Link } from '@tanstack/react-router';
 import { useState, type SubmitEvent, type ReactNode } from 'react';
 import type { Page } from '../adaptateurs/api.ts';
 import { useMembers, useResource, useWrite } from '../adaptateurs/requetes.ts';
-import { formatDate, ROLE_LABELS, type ItemSummary } from '../domaine/modeles.ts';
+import { formatDate, ROLE_LABELS, type ItemSummary, type Member } from '../domaine/modeles.ts';
 import { ConfirmButton, EmptyState, ErrorMessage, Loading } from '../composants/retours.tsx';
 import { Field } from './acces.tsx';
 
 /**
- * Page d'administration.
+ * Formulaire d'invitation ; le lien n'est affiché qu'une fois.
  * @returns élément React
  */
-export function AdministrationPage(): ReactNode {
-  const members = useMembers();
+function Invitation(): ReactNode {
   const invite = useWrite<{ readonly invitationCode: string }>();
-  const write = useWrite();
   const [form, setForm] = useState({ email: '', displayName: '', orgRole: 'member' });
   const submit = (event: SubmitEvent<HTMLFormElement>): void => { event.preventDefault(); invite.mutate({ method: 'POST', path: '/users', body: form }); };
-  const link = invite.data === undefined ? '' : `${window.location.origin}/invitation?code=${invite.data.invitationCode}`;
+  const link = invite.data === undefined ? '' : window.location.origin + '/invitation?code=' + invite.data.invitationCode;
   return (
     <>
-      <h1>Administration de l’organisation</h1>
-      <p className="fr-text--sm">Ces actions sont sensibles (R3) : vérifiez votre MFA depuis <Link to="/profil">Mon profil</Link> dans les 15 minutes qui précèdent.</p>
-      <ErrorMessage error={members.error ?? write.error} />
-      <Table
-        caption="Membres de l’organisation"
-        headers={['Nom', 'Adresse', 'Rôle', 'Statut', 'Action']}
-        data={(members.data?.data ?? []).map((member) => [
-          member.displayName, member.email, ROLE_LABELS[member.orgRole] ?? member.orgRole, member.status,
-          member.status === 'deactivated'
-            ? <Button key={member.id} size="small" priority="secondary" onClick={() => write.mutate({ method: 'POST', path: `/users/${member.id}/actions/reactivate` })}>Réactiver</Button>
-            : <ConfirmButton key={member.id} label="Désactiver" subject={`${member.displayName} (sessions et clé révoquées immédiatement)`} onConfirm={() => write.mutate({ method: 'POST', path: `/users/${member.id}/actions/deactivate` })} />,
-        ])}
-      />
       <h2>Inviter une personne</h2>
       <ErrorMessage error={invite.error} />
       {invite.data !== undefined && <Alert severity="success" title="Invitation créée" description={<p>Transmettez ce lien à la personne (valable 72 heures, affiché une seule fois) : <code>{link}</code></p>} />}
@@ -53,6 +38,37 @@ export function AdministrationPage(): ReactNode {
       </form>
     </>
   );
+}
+
+/**
+ * Page d'administration.
+ * @returns élément React
+ */
+export function AdministrationPage(): ReactNode {
+  const members = useMembers();
+  const write = useWrite();
+  const toggle = (member: Member): ReactNode => (member.status === 'deactivated'
+    ? <Button key={member.id} size="small" priority="secondary" onClick={() => write.mutate({ method: 'POST', path: `/users/${member.id}/actions/reactivate` })}>Réactiver</Button>
+    : <ConfirmButton key={member.id} label="Désactiver" subject={member.displayName + ' (sessions et clé révoquées immédiatement)'} onConfirm={() => write.mutate({ method: 'POST', path: `/users/${member.id}/actions/deactivate` })} />);
+  return (
+    <>
+      <h1>Administration de l’organisation</h1>
+      <p className="fr-text--sm">Ces actions sont sensibles (R3) : vérifiez votre MFA depuis <Link to="/profil">Mon profil</Link> dans les 15 minutes qui précèdent.</p>
+      <ErrorMessage error={members.error ?? write.error} />
+      <Table caption="Membres de l’organisation" headers={['Nom', 'Adresse', 'Rôle', 'Statut', 'Action']} data={(members.data?.data ?? []).map((member) => [member.displayName, member.email, ROLE_LABELS[member.orgRole] ?? member.orgRole, member.status, toggle(member)])} />
+      <Invitation />
+    </>
+  );
+}
+
+/**
+ * Résumé de la vérification de la chaîne d'audit.
+ * @param result nombre d'entrées et première entrée invalide
+ * @returns texte
+ */
+function describeVerification(result: { readonly entries: number; readonly firstInvalidSeq: number | null }): string {
+  const invalid = result.firstInvalidSeq === null ? '' : ' ; première entrée invalide : ' + String(result.firstInvalidSeq);
+  return `${String(result.entries)} entrées vérifiées${invalid}.`;
 }
 
 interface AuditEntry {
@@ -78,7 +94,7 @@ export function AuditPage(): ReactNode {
       <h1>Journal d’audit</h1>
       <ErrorMessage error={entries.error} />
       {verification.data !== undefined && (
-        <Alert severity={verification.data.intact ? 'success' : 'error'} small title={verification.data.intact ? 'Chaîne intègre' : 'Chaîne altérée'} description={`${String(verification.data.entries)} entrées vérifiées${verification.data.firstInvalidSeq === null ? '' : ` ; première entrée invalide : ${String(verification.data.firstInvalidSeq)}`}.`} />
+        <Alert severity={verification.data.intact ? 'success' : 'error'} small title={verification.data.intact ? 'Chaîne intègre' : 'Chaîne altérée'} description={describeVerification(verification.data)} />
       )}
       <Table caption="Entrées les plus récentes" headers={['N°', 'Date', 'Action', 'Ressource', 'Canal', 'Décision', 'Champs modifiés']} data={(entries.data?.data ?? []).map((entry) => [String(entry.seq), formatDate(entry.occurredAt), entry.action, entry.resourceType, entry.channel, entry.decision === 'allow' ? 'Autorisée' : 'Refusée', entry.changedFields.join(', ') || '—'])} />
     </>
@@ -115,7 +131,7 @@ export function RecherchePage(): ReactNode {
  * @param props page demandée
  * @returns élément React
  */
-export function PageLegale(props: { readonly page: 'accessibilite' | 'mentions' | 'donnees' }): ReactNode {
+export function PageLegale(props: Readonly<{ page: 'accessibilite' | 'mentions' | 'donnees' }>): ReactNode {
   if (props.page === 'accessibilite') {
     return (
       <>

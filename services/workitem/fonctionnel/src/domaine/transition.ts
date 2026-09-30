@@ -77,23 +77,52 @@ function unmet(condition: SnapshotCondition, item: WorkItem, facts: TransitionFa
   return filled[condition.field] ? undefined : `Le champ « ${condition.field} » doit être renseigné.`;
 }
 
+/** Demande de transition. */
+export interface TransitionRequest {
+  readonly targetKey: string;
+  readonly facts: TransitionFacts;
+}
+
+/**
+ * Retrouve la transition applicable et l'état cible, ou l'erreur d'interdiction.
+ * @param snapshot version rattachée
+ * @param item élément
+ * @param targetKey état cible
+ * @returns état cible et transition, ou erreur
+ */
+function findTransition(snapshot: WorkflowSnapshot, item: WorkItem, targetKey: string): Result<{ readonly target: SnapshotState; readonly transition: SnapshotTransition }, DomainError> {
+  const target = snapshot.states.find((state) => state.key === targetKey);
+  const transition = snapshot.transitions.find((candidate) => candidate.to === targetKey && (candidate.from === null || candidate.from === item.stateKey));
+  if (target !== undefined && transition !== undefined && targetKey !== item.stateKey) return ok({ target, transition });
+  const current = snapshot.states.find((state) => state.key === item.stateKey);
+  return err(NOT_ALLOWED(current?.name ?? item.stateKey, target?.name ?? targetKey));
+}
+
+/**
+ * Vérifie la limite de travail en cours bloquante de l'état cible (RG-WF-004).
+ * @param target état cible
+ * @param count éléments déjà dans l'état
+ * @returns vrai si la limite est atteinte
+ */
+function wipReached(target: SnapshotState, count: number): boolean {
+  return target.wipBlocking && target.wipLimit !== null && count >= target.wipLimit;
+}
+
 /**
  * Évalue le passage d'un élément vers un état cible.
  * @param snapshot version rattachée à l'élément
  * @param item élément
- * @param targetKey état cible
- * @param facts faits utiles aux conditions
+ * @param request état cible et faits utiles aux conditions
  * @returns état cible ou erreur
  */
-export function evaluateTransition(snapshot: WorkflowSnapshot, item: WorkItem, targetKey: string, facts: TransitionFacts): Result<SnapshotState, DomainError> {
-  const target = snapshot.states.find((state) => state.key === targetKey);
-  const current = snapshot.states.find((state) => state.key === item.stateKey);
-  const transition = snapshot.transitions.find((candidate) => candidate.to === targetKey && (candidate.from === null || candidate.from === item.stateKey));
-  if (target === undefined || transition === undefined || targetKey === item.stateKey) return err(NOT_ALLOWED(current?.name ?? item.stateKey, target?.name ?? targetKey));
+export function evaluateTransition(snapshot: WorkflowSnapshot, item: WorkItem, request: TransitionRequest): Result<SnapshotState, DomainError> {
+  const found = findTransition(snapshot, item, request.targetKey);
+  if (!found.ok) return found;
+  const { target, transition } = found.value;
   if (transition.requiresApproval) return err(APPROVAL_REQUIRED);
-  const failure = transition.conditions.map((condition) => unmet(condition, item, facts)).find((message) => message !== undefined);
+  const failure = transition.conditions.map((condition) => unmet(condition, item, request.facts)).find((message) => message !== undefined);
   if (failure !== undefined) return err(domainError('workitem.transition_condition_unmet', 'conflict', failure));
-  if (target.wipBlocking && target.wipLimit !== null && facts.targetCount >= target.wipLimit) {
+  if (wipReached(target, request.facts.targetCount)) {
     return err(domainError('workitem.wip_limit_reached', 'conflict', `La limite de travail en cours de « ${target.name} » (${String(target.wipLimit)}) est atteinte.`));
   }
   return ok(target);
