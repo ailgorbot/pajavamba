@@ -1,0 +1,17 @@
+{
+  "name": "@pajavamba/policy-structure",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Couche moyenne du service policy : adaptateur AccessPolicy alimenté par le client identity",
+  "exports": {
+    ".": "./src/composition/root.ts"
+  },
+  "dependencies": {
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/kernel": "workspace:*",
+    "@pajavamba/policy-fonctionnel": "workspace:*",
+    "@pajavamba/ops": "workspace:*",
+    "pg": "8.23.0"
+  }
+}

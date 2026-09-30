@@ -1,0 +1,19 @@
+{
+  "name": "@pajavamba/identity-structure",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Couche moyenne du service identity : persistance, actions, client, consommateurs",
+  "exports": {
+    ".": "./src/composition/root.ts"
+  },
+  "dependencies": {
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/identity-fonctionnel": "workspace:*",
+    "@pajavamba/kernel": "workspace:*",
+    "@pajavamba/ops": "workspace:*",
+    "otpauth": "9.5.2",
+    "pg": "8.23.0",
+    "zod": "4.6.5"
+  }
+}

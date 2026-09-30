@@ -1,0 +1,17 @@
+{
+  "name": "@pajavamba/audit-structure",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Service technique audit : chaînage, consultation et vérification",
+  "exports": {
+    ".": "./src/composition/root.ts"
+  },
+  "dependencies": {
+    "@pajavamba/audit-fonctionnel": "workspace:*",
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/kernel": "workspace:*",
+    "@pajavamba/ops": "workspace:*",
+    "pg": "8.23.0"
+  }
+}
