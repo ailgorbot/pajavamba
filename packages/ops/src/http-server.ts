@@ -84,10 +84,43 @@ function sendProblem(reply: FastifyReply, request: FastifyRequest, problem: Http
  * @param readiness contrôle de disponibilité
  */
 function registerProbes(app: FastifyInstance, readiness: () => Promise<boolean>): void {
-  app.get('/healthz', async () => ({ status: 'ok' }));
+  app.get('/healthz', (_request, reply) => reply.send({ status: 'ok' }));
   app.get('/readyz', async (_request, reply) => {
     const ready = await readiness().catch(() => false);
     return reply.code(ready ? 200 : 503).send({ status: ready ? 'ready' : 'unavailable' });
+  });
+}
+
+/**
+ * Code SQLSTATE d'une erreur de base, seule information technique journalisée avec sa classe (§15.6).
+ * @param error erreur interceptée
+ * @returns code ou « aucun »
+ */
+function sqlStateOf(error: FastifyError): string {
+  return 'code' in error && typeof error.code === 'string' && /^[0-9A-Z]{5}$/u.test(error.code) ? error.code : 'aucun';
+}
+
+/**
+ * Déclare les crochets communs : corrélation, en-têtes de sécurité, journal des requêtes.
+ * @param app instance
+ * @param options options du serveur
+ */
+function registerHooks(app: FastifyInstance, options: HttpServerOptions): void {
+  app.addHook('onSend', async (request, reply) => {
+    void reply.header('x-request-id', request.id);
+    for (const [name, value] of Object.entries(SECURITY_HEADERS)) void reply.header(name, value);
+    if (options.https) void reply.header('strict-transport-security', 'max-age=31536000; includeSubDomains');
+  });
+  app.addHook('onResponse', async (request, reply) => {
+    options.logger.emit('requestCompleted', { correlationId: request.id, method: request.method, route: request.routeOptions.url ?? 'inconnue', statusCode: reply.statusCode, durationMs: Math.round(reply.elapsedTime) });
+  });
+  app.setErrorHandler((error: FastifyError, request, reply) => {
+    const problem = toProblem(error);
+    if (problem.status >= HTTP_SERVER_ERROR) options.logger.emit('requestFailed', { correlationId: request.id, errorClass: error.name, errorCode: sqlStateOf(error) });
+    sendProblem(reply, request, problem);
+  });
+  app.setNotFoundHandler((request, reply) => {
+    sendProblem(reply, request, { status: 404, code: 'ops.not_found', title: 'Ressource introuvable', detail: "La ressource demandée n'existe pas ou n'est pas accessible." });
   });
 }
 
@@ -106,30 +139,7 @@ export function createHttpServer(options: HttpServerOptions): FastifyInstance {
       return typeof header === 'string' && REQUEST_ID_PATTERN.test(header) ? header : uuidv7(Date.now());
     },
   });
-  app.addHook('onSend', async (request, reply) => {
-    void reply.header('x-request-id', request.id);
-    for (const [name, value] of Object.entries(SECURITY_HEADERS)) {
-      void reply.header(name, value);
-    }
-    if (options.https) {
-      void reply.header('strict-transport-security', 'max-age=31536000; includeSubDomains');
-    }
-  });
-  app.addHook('onResponse', async (request, reply) => {
-    options.logger.emit('requestCompleted', { correlationId: request.id, method: request.method, route: request.routeOptions.url ?? 'inconnue', statusCode: reply.statusCode, durationMs: Math.round(reply.elapsedTime) });
-  });
-  app.setErrorHandler((error: FastifyError, request, reply) => {
-    const problem = toProblem(error);
-    if (problem.status >= HTTP_SERVER_ERROR) {
-      // Seuls la classe et le code SQLSTATE sont journalisés : jamais le message d'origine (§15.6).
-      const sqlState = 'code' in error && typeof error.code === 'string' && /^[0-9A-Z]{5}$/u.test(error.code) ? error.code : 'aucun';
-      options.logger.emit('requestFailed', { correlationId: request.id, errorClass: error.name, errorCode: sqlState });
-    }
-    sendProblem(reply, request, problem);
-  });
-  app.setNotFoundHandler((request, reply) => {
-    sendProblem(reply, request, { status: 404, code: 'ops.not_found', title: 'Ressource introuvable', detail: "La ressource demandée n'existe pas ou n'est pas accessible." });
-  });
+  registerHooks(app, options);
   registerProbes(app, options.readiness);
   return app;
 }

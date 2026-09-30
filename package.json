@@ -3,6 +3,7 @@
   "version": "0.4.0",
   "private": true,
   "description": "PajaVamba — plateforme de gestion de projets agiles",
+  "license": "Apache-2.0",
   "type": "module",
   "packageManager": "pnpm@10.34.6",
   "engines": {

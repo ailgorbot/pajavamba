@@ -53,13 +53,13 @@ export interface WriteActionSpec<T> {
 
 /**
  * Construit l'entrée d'audit d'une action.
- * @param context contexte
- * @param spec action
- * @param decision décision
- * @param resourceId ressource
+ * @param spec contexte et action
+ * @param outcome décision et ressource
  * @returns charge utile d'audit
  */
-function auditPayload(context: ContextShape, spec: Pick<WriteActionSpec<unknown>, 'actionId' | 'resourceType' | 'changedFields'>, decision: 'allow' | 'deny', resourceId: string | null): Record<string, unknown> {
+function auditPayload(spec: Pick<WriteActionSpec<unknown>, 'context' | 'actionId' | 'resourceType' | 'changedFields'>, outcome: { readonly decision: 'allow' | 'deny'; readonly resourceId: string | null }): Record<string, unknown> {
+  const { context } = spec;
+  const { decision, resourceId } = outcome;
   return {
     occurredAt: new Date().toISOString(),
     organisationId: context.organisationId,
@@ -81,7 +81,7 @@ function auditPayload(context: ContextShape, spec: Pick<WriteActionSpec<unknown>
  * @returns message d'outbox
  */
 export function denialAudit(spec: Pick<WriteActionSpec<unknown>, 'context' | 'actionId' | 'resourceType' | 'changedFields'>): FailureOutboxMessage {
-  return { kind: 'audit', type: 'pv.audit.entry.v1', aggregateId: spec.actionId, payload: auditPayload(spec.context, spec, 'deny', null) };
+  return { kind: 'audit', type: 'pv.audit.entry.v1', aggregateId: spec.actionId, payload: auditPayload(spec, { decision: 'deny', resourceId: null }) };
 }
 
 /**
@@ -89,7 +89,7 @@ export function denialAudit(spec: Pick<WriteActionSpec<unknown>, 'context' | 'ac
  * @param spec description de l'action
  * @returns réponse à renvoyer
  */
-export async function runWriteAction<T>(spec: WriteActionSpec<T>): Promise<WriteResponse<unknown>> {
+export async function runWriteAction<T>(spec: WriteActionSpec<T>): Promise<WriteResponse> {
   const actorId = spec.context.actor.kind === 'user' ? spec.context.actor.userId : undefined;
   const organisation = spec.context.organisationId === '' ? {} : { organisationId: spec.context.organisationId };
   const scope = { ...spec.scope, ...organisation, ...(actorId === undefined ? {} : { actorId }) };
@@ -101,7 +101,7 @@ export async function runWriteAction<T>(spec: WriteActionSpec<T>): Promise<Write
     const { result, events } = outcome.value;
     const resourceId = spec.resourceId(result);
     const messages: OutboxMessage[] = events.map((event) => ({ kind: 'event', type: event.type, aggregateId: event.aggregateId, aggregateVersion: event.aggregateVersion, payload: event.data }));
-    messages.push({ kind: 'audit', type: 'pv.audit.entry.v1', aggregateId: resourceId ?? spec.actionId, aggregateVersion: 0, payload: auditPayload(spec.context, spec, 'allow', resourceId) });
+    messages.push({ kind: 'audit', type: 'pv.audit.entry.v1', aggregateId: resourceId ?? spec.actionId, aggregateVersion: 0, payload: auditPayload(spec, { decision: 'allow', resourceId }) });
     return { ...spec.respond(result), outbox: messages };
   });
 }

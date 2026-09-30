@@ -27,7 +27,7 @@ export interface AppShellProps {
   /** Réglage du thème. */
   readonly footerExtra: ReactNode;
   /** Navigation interne sans rechargement. */
-  onNavigate(href: string): void;
+  readonly onNavigate: (href: string) => void;
   readonly children: ReactNode;
 }
 
@@ -37,7 +37,7 @@ interface InternalLinkProps {
   readonly className: string;
   readonly current?: boolean;
   readonly title?: string;
-  onNavigate(href: string): void;
+  readonly onNavigate: (href: string) => void;
   readonly children: ReactNode;
 }
 
@@ -46,7 +46,7 @@ interface InternalLinkProps {
  * @param props propriétés
  * @returns élément React
  */
-function InternalLink(props: InternalLinkProps): ReactNode {
+function InternalLink(props: Readonly<InternalLinkProps>): ReactNode {
   return (
     <a
       className={props.className}
@@ -69,7 +69,7 @@ function InternalLink(props: InternalLinkProps): ReactNode {
  * @param props propriétés de la coque
  * @returns élément React
  */
-function ShellHeader(props: AppShellProps): ReactNode {
+function ShellHeader(props: Readonly<AppShellProps>): ReactNode {
   return (
     <header role="banner" className="fr-header">
       <div className="fr-header__body">
@@ -94,23 +94,81 @@ function ShellHeader(props: AppShellProps): ReactNode {
           </div>
         </div>
       </div>
-      <div className="fr-header__menu">
-        <div className="fr-container">
-          <div className="fr-header__menu-links" />
-          {props.navigation.length > 0 && (
-            <nav className="fr-nav" id="navigation-principale" role="navigation" aria-label="Menu principal">
-              <ul className="fr-nav__list">
-                {props.navigation.map((link) => (
-                  <li className="fr-nav__item" key={link.href}>
-                    <InternalLink className="fr-nav__link" href={link.href} current={link.current} onNavigate={props.onNavigate}>{link.label}</InternalLink>
-                  </li>
-                ))}
-              </ul>
-            </nav>
-          )}
+      <ShellNavigation navigation={props.navigation} onNavigate={props.onNavigate} />
+    </header>
+  );
+}
+
+/**
+ * Menu principal (le conteneur des liens d'accès rapide est requis par le script du DSFR).
+ * @param props liens et navigation interne
+ * @returns élément React
+ */
+function ShellNavigation(props: Readonly<Pick<AppShellProps, 'navigation' | 'onNavigate'>>): ReactNode {
+  return (
+    <div className="fr-header__menu">
+      <div className="fr-container">
+        <div className="fr-header__menu-links" />
+        {props.navigation.length > 0 && (
+          <nav className="fr-nav" id="navigation-principale" role="navigation" aria-label="Menu principal">
+            <ul className="fr-nav__list">
+              {props.navigation.map((link) => (
+                <li className="fr-nav__item" key={link.href}>
+                  <InternalLink className="fr-nav__link" href={link.href} current={link.current} onNavigate={props.onNavigate}>{link.label}</InternalLink>
+                </li>
+              ))}
+            </ul>
+          </nav>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/**
+ * Liens d'évitement.
+ * @returns élément React
+ */
+function SkipLinks(): ReactNode {
+  return (
+    <div className="fr-skiplinks">
+      <nav className="fr-container" role="navigation" aria-label="Accès rapide">
+        <ul className="fr-skiplinks__list">
+          <li><a className="fr-link" href="#contenu">Contenu</a></li>
+          <li><a className="fr-link" href="#navigation-principale">Menu</a></li>
+          <li><a className="fr-link" href="#pied-de-page">Pied de page</a></li>
+        </ul>
+      </nav>
+    </div>
+  );
+}
+
+/**
+ * Pied de page : liens obligatoires et réglage du thème.
+ * @param props propriétés de la coque
+ * @returns élément React
+ */
+function ShellFooter(props: Readonly<AppShellProps>): ReactNode {
+  return (
+    <footer className="fr-footer" role="contentinfo" id="pied-de-page">
+      <div className="fr-container">
+        <div className="fr-footer__body">
+          <div className="fr-footer__content">
+            <p className="fr-footer__content-desc">{props.serviceName} — {props.tagline}</p>
+          </div>
+        </div>
+        <div className="fr-footer__bottom">
+          <ul className="fr-footer__bottom-list">
+            {props.footerLinks.map((link) => (
+              <li className="fr-footer__bottom-item" key={link.href}>
+                <InternalLink className="fr-footer__bottom-link" href={link.href} onNavigate={props.onNavigate}>{link.label}</InternalLink>
+              </li>
+            ))}
+          </ul>
+          <div className="fr-footer__bottom-copy fr-mt-2w">{props.footerExtra}</div>
         </div>
       </div>
-    </header>
+    </footer>
   );
 }
 
@@ -119,41 +177,15 @@ function ShellHeader(props: AppShellProps): ReactNode {
  * @param props propriétés
  * @returns élément React
  */
-export function AppShell(props: AppShellProps): ReactNode {
+export function AppShell(props: Readonly<AppShellProps>): ReactNode {
   return (
     <>
-      <div className="fr-skiplinks">
-        <nav className="fr-container" role="navigation" aria-label="Accès rapide">
-          <ul className="fr-skiplinks__list">
-            <li><a className="fr-link" href="#contenu">Contenu</a></li>
-            <li><a className="fr-link" href="#navigation-principale">Menu</a></li>
-            <li><a className="fr-link" href="#pied-de-page">Pied de page</a></li>
-          </ul>
-        </nav>
-      </div>
+      <SkipLinks />
       <ShellHeader {...props} />
       <main id="contenu" role="main" tabIndex={-1} className="fr-container fr-py-4w">
         {props.children}
       </main>
-      <footer className="fr-footer" role="contentinfo" id="pied-de-page">
-        <div className="fr-container">
-          <div className="fr-footer__body">
-            <div className="fr-footer__content">
-              <p className="fr-footer__content-desc">{props.serviceName} — {props.tagline}</p>
-            </div>
-          </div>
-          <div className="fr-footer__bottom">
-            <ul className="fr-footer__bottom-list">
-              {props.footerLinks.map((link) => (
-                <li className="fr-footer__bottom-item" key={link.href}>
-                  <InternalLink className="fr-footer__bottom-link" href={link.href} onNavigate={props.onNavigate}>{link.label}</InternalLink>
-                </li>
-              ))}
-            </ul>
-            <div className="fr-footer__bottom-copy fr-mt-2w">{props.footerExtra}</div>
-          </div>
-        </div>
-      </footer>
+      <ShellFooter {...props} />
     </>
   );
 }

@@ -70,7 +70,7 @@ export async function serviceWrite<D, T, R extends ResponseShape>(runtime: Servi
       response = write.respond(result);
       return { status: response.status, body: response.body };
     },
-    resourceId: write.resourceId,
+    resourceId: (result) => write.resourceId(result),
   });
   return response ?? { status: outcome.status, body: outcome.body };
 }

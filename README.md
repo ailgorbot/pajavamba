@@ -33,4 +33,4 @@ Toute modification passe par une PR (≤ 400 lignes, une story), avec CI verte e
 
 ## Licence
 
-En attente de décision ([ADR-0001](docs/adr/0001-licence-du-coeur.md)).
+[Apache-2.0](LICENSE) ([ADR-0001](docs/adr/0001-licence-du-coeur.md)).

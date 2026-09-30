@@ -32,7 +32,7 @@ export function useApplyTheme(): (theme: Theme) => void {
 /** Propriétés du sélecteur de thème. */
 export interface ThemeSelectorProps {
   readonly value: Theme;
-  onChange(theme: Theme): void;
+  readonly onChange: (theme: Theme) => void;
 }
 
 const THEME_LABELS: Readonly<Record<Theme, string>> = { system: 'Système', light: 'Clair', dark: 'Sombre' };
@@ -43,7 +43,7 @@ const THEMES: readonly Theme[] = ['system', 'light', 'dark'];
  * @param props valeur et changement
  * @returns élément React
  */
-export function ThemeSelector(props: ThemeSelectorProps): ReactNode {
+export function ThemeSelector(props: Readonly<ThemeSelectorProps>): ReactNode {
   const apply = useApplyTheme();
   return (
     <div className="fr-select-group fr-mb-0">

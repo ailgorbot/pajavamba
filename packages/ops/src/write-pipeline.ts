@@ -39,9 +39,9 @@ export interface WriteRequest {
 }
 
 /** Réponse d'une écriture. */
-export interface WriteResponse<B> {
+export interface WriteResponse {
   readonly status: number;
-  readonly body: B | unknown;
+  readonly body: unknown;
   readonly replayed: boolean;
 }
 
@@ -105,7 +105,7 @@ async function auditFailure(request: WriteRequest, problem: HttpProblem): Promis
  * @param handler traitement métier transactionnel
  * @returns réponse à renvoyer
  */
-export async function executeWrite<B>(request: WriteRequest, handler: (tx: SqlExecutor) => Promise<WriteOutcome<B>>): Promise<WriteResponse<B>> {
+export async function executeWrite<B>(request: WriteRequest, handler: (tx: SqlExecutor) => Promise<WriteOutcome<B>>): Promise<WriteResponse> {
   try {
     const response = await withTransaction(request.pool, { ...request.scope, rollback: request.dryRun }, async (tx) => {
       const replay = await findReplay(tx, request);

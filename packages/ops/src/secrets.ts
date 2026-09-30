@@ -145,6 +145,8 @@ export function uuidv7(now: number): string {
  * @returns empreinte encodée PHC
  */
 export async function hashPassword(password: string): Promise<string> {
+  // Valeur numérique de l'énumération constante `Algorithm.Argon2id`, inaccessible en modules isolés.
+  // eslint-disable-next-line @typescript-eslint/no-unsafe-enum-assignment -- valeur 2 = Argon2id, vérifiée par les tests d'intégration
   return hash(password, { algorithm: ARGON2_ID, memoryCost: ARGON2_MEMORY_KIB, timeCost: ARGON2_ITERATIONS, parallelism: 1 });
 }
 

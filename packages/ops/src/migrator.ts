@@ -34,22 +34,26 @@ interface AppliedRow {
   readonly checksum: string;
 }
 
+/** Migration à appliquer. */
+interface PendingMigration {
+  readonly set: MigrationSet;
+  readonly file: string;
+  readonly applied: ReadonlyMap<string, string>;
+}
+
 /**
  * Applique une migration si elle ne l'a pas déjà été ; échoue si une migration appliquée a changé.
  * @param client connexion d'administration
- * @param set ensemble du service
- * @param file nom du fichier
- * @param applied migrations déjà appliquées
+ * @param migration ensemble, fichier et migrations déjà appliquées
  * @returns vrai si la migration a été appliquée
  */
-async function applyOne(client: pg.PoolClient, set: MigrationSet, file: string, applied: ReadonlyMap<string, string>): Promise<boolean> {
+async function applyOne(client: pg.PoolClient, migration: PendingMigration): Promise<boolean> {
+  const { set, file, applied } = migration;
   const sql = readFileSync(join(set.directory, file), 'utf8');
   const checksum = sha256Hex(sql);
   const previous = applied.get(file);
   if (previous !== undefined) {
-    if (previous !== checksum) {
-      throw new Error(`Migration modifiée après application : ${set.service}/${file}`);
-    }
+    if (previous !== checksum) throw new Error(`Migration modifiée après application : ${set.service}/${file}`);
     return false;
   }
   await client.query('BEGIN');
@@ -65,6 +69,21 @@ async function applyOne(client: pg.PoolClient, set: MigrationSet, file: string, 
 }
 
 /**
+ * Applique les migrations d'un service, dans l'ordre des noms de fichiers.
+ * @param client connexion d'administration
+ * @param set ensemble du service
+ * @param logger journal catalogué
+ */
+async function applySet(client: pg.PoolClient, set: MigrationSet, logger: Logger): Promise<void> {
+  const rows = await client.query<AppliedRow>('SELECT name, checksum FROM pv_ops.schema_migrations WHERE service = $1', [set.service]);
+  const applied = new Map(rows.rows.map((row) => [row.name, row.checksum]));
+  const files = readdirSync(set.directory).filter((name) => name.endsWith('.sql')).sort((left, right) => left.localeCompare(right));
+  for (const file of files) {
+    if (await applyOne(client, { set, file, applied })) logger.emit('migrationApplied', { service: set.service, migration: file });
+  }
+}
+
+/**
  * Applique, dans l'ordre, les migrations de chaque service.
  * @param pool pool d'administration (rôle de migration)
  * @param sets ensembles de migrations, dans l'ordre d'application
@@ -75,16 +94,7 @@ export async function runMigrations(pool: pg.Pool, sets: readonly MigrationSet[]
   try {
     await client.query('SELECT pg_advisory_lock($1)', [LOCK_KEY]);
     await client.query(HISTORY_DDL);
-    for (const set of sets) {
-      const rows = await client.query<AppliedRow>('SELECT name, checksum FROM pv_ops.schema_migrations WHERE service = $1', [set.service]);
-      const applied = new Map(rows.rows.map((row) => [row.name, row.checksum]));
-      const files = readdirSync(set.directory).filter((name) => name.endsWith('.sql')).sort((left, right) => left.localeCompare(right));
-      for (const file of files) {
-        if (await applyOne(client, set, file, applied)) {
-          logger.emit('migrationApplied', { service: set.service, migration: file });
-        }
-      }
-    }
+    for (const set of sets) await applySet(client, set, logger);
   } finally {
     await client.query('SELECT pg_advisory_unlock($1)', [LOCK_KEY]);
     client.release();

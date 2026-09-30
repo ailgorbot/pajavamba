@@ -6,7 +6,7 @@
  * Règles : RI-API-01, RI-API-05, RI-SCR-04 (jeton dans l'URL refusé), RI-CNX-04 (cookie
  * `__Host-pv_session`, CSRF), RI-SEC-04, §8.8.
  */
-import type { ActionCall, ActionResponse, AuthenticatedPrincipal, IdentityClient, RegisteredAction } from '@pajavamba/contracts';
+import type { ActionCall, ActionDefinition, ActionResponse, AuthenticatedPrincipal, IdentityClient, RegisteredAction } from '@pajavamba/contracts';
 import { toEntityId, type ExecutionContext } from '@pajavamba/kernel';
 import type {} from '@fastify/cookie';
 import { HttpProblem, UNAUTHENTICATED, type Logger } from '@pajavamba/ops';
@@ -123,6 +123,46 @@ function send(options: GatewayOptions, reply: FastifyReply, response: ActionResp
   return response.status === 204 ? reply.code(204).send() : reply.code(response.status).send(response.body);
 }
 
+/** Résultat de l'authentification d'une requête. */
+type Authentication = Awaited<ReturnType<typeof authenticate>>;
+
+/**
+ * Exige l'authentification (hors actions publiques) et le jeton CSRF des écritures par cookie.
+ * @param definition action
+ * @param request requête
+ * @param authentication principal et canal
+ */
+function guardAccess(definition: ActionDefinition, request: FastifyRequest, authentication: Authentication): void {
+  const { principal, channel } = authentication;
+  if (principal === undefined) {
+    if (definition.permission !== 'public') throw UNAUTHENTICATED;
+    return;
+  }
+  if (definition.method !== 'GET' && channel === 'ui' && header(request, 'x-csrf-token') !== principal.csrfToken) throw CSRF_INVALID;
+}
+
+/**
+ * Exige `Idempotency-Key` sur les écritures POST authentifiées portant une permission (RI-API-05).
+ * @param definition action
+ * @param call appel
+ */
+function guardIdempotency(definition: ActionDefinition, call: ActionCall): void {
+  const exempt = definition.permission === 'public' || definition.permission === 'self';
+  if (definition.method === 'POST' && !exempt && call.headers.idempotencyKey === null) throw IDEMPOTENCY_REQUIRED;
+}
+
+/**
+ * Contexte d'exécution de la requête authentifiée.
+ * @param request requête
+ * @param authentication principal et canal
+ * @returns contexte, ou `undefined` sans authentification
+ */
+function contextOf(request: FastifyRequest, authentication: Authentication): ExecutionContext | undefined {
+  const { principal, channel } = authentication;
+  if (principal === undefined) return undefined;
+  return { organisationId: principal.organisationId, actor: { kind: 'user', userId: principal.userId }, channel, credential: principal.credential, correlationId: toEntityId(request.id) };
+}
+
 /**
  * Enregistre une action du registre comme route REST.
  * @param app instance Fastify
@@ -136,12 +176,10 @@ function registerAction(app: FastifyInstance, options: GatewayOptions, action: R
     url: `${API_PREFIX}${definition.path}`,
     handler: async (request, reply) => {
       rejectTokenInUrl(options, request);
-      const { principal, channel, sessionSecret } = await authenticate(options, request);
-      if (principal === undefined && definition.permission !== 'public') throw UNAUTHENTICATED;
-      const writing = definition.method !== 'GET';
-      if (writing && principal !== undefined && channel === 'ui' && header(request, 'x-csrf-token') !== principal.csrfToken) throw CSRF_INVALID;
-      const call = buildCall(request, principal === undefined ? undefined : { organisationId: principal.organisationId, actor: { kind: 'user', userId: principal.userId }, channel, credential: principal.credential, correlationId: toEntityId(request.id) }, sessionSecret);
-      if (definition.method === 'POST' && definition.permission !== 'public' && definition.permission !== 'self' && call.headers.idempotencyKey === null) throw IDEMPOTENCY_REQUIRED;
+      const authentication = await authenticate(options, request);
+      guardAccess(definition, request, authentication);
+      const call = buildCall(request, contextOf(request, authentication), authentication.sessionSecret);
+      guardIdempotency(definition, call);
       return send(options, reply, await action.handle(call));
     },
   });

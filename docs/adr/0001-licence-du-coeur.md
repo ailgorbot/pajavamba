@@ -1,7 +1,7 @@
 ---
 titre: ADR-0001 — Licence du cœur
 public: mainteneurs
-statut: proposée
+statut: acceptée
 version_min: 0.1.0
 mise_a_jour: 2026-09-30
 ---
@@ -10,7 +10,7 @@ mise_a_jour: 2026-09-30
 
 | Élément | Valeur |
 |---|---|
-| Statut | **Proposée** — décision des mainteneurs en attente |
+| Statut | **Acceptée** le 30/09/2026 par le mainteneur |
 | Story | [L0-03](https://github.com/ailgorbot/pajavamba/issues/3) |
 | Références | H09, C01, RI-GIT-05 |
 
@@ -27,8 +27,10 @@ RI-GIT-05 exige un fichier `LICENSE`. Deux options sont envisagées pour le cœu
 
 ## Décision
 
-Non prise à la date du MVP 0.4.0 : aucun fichier `LICENSE` n'est ajouté tant que les mainteneurs n'ont pas tranché. Le contrôle RI-GIT-05 reste donc ouvert.
+Le cœur de PajaVamba est publié sous licence **Apache-2.0**. Le texte officiel figure dans le fichier `LICENSE` à la racine du dépôt.
 
 ## Conséquences
 
-La première PR de gouvernance (L0-08) ajoutera `LICENSE` dès la décision.
+- RI-GIT-05 : le fichier `LICENSE` est présent.
+- Toute dépendance ajoutée doit être compatible avec Apache-2.0 (contrôle de licence de RI-COD-10).
+- Les contributions sont acceptées sous la même licence (à préciser dans `CONTRIBUTING`, story L0-08).
