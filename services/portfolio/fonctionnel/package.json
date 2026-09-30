@@ -1,0 +1,13 @@
+{
+  "name": "@pajavamba/portfolio-fonctionnel",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Couche basse du service portfolio : projets, cycle de vie, équipes",
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "dependencies": {
+    "@pajavamba/kernel": "workspace:*"
+  }
+}
