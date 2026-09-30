@@ -1,0 +1,95 @@
+# Déploiement conteneurisé de PajaVamba (recette Coolify, Podman ou Docker).
+# Ordre : génération des secrets → base → migrations → application (§7.2).
+# Règles : RI-SCR-01 et RI-SCR-07 (secrets générés à l'installation, lus en fichiers `_FILE`,
+# aucun secret en variable d'environnement), RI-SEC-10 (non root, lecture seule), RI-VER-07
+# (seule l'application est exposée, via le proxy TLS), RI-DON-05 (volumes nommés persistants).
+name: pajavamba
+
+x-app-image: &app-image
+  build:
+    context: ../..
+    dockerfile: deploy/compose/Dockerfile
+  image: pajavamba/pv-app:${PV_VERSION:-0.4.0}
+
+volumes:
+  pv-secrets:
+  pv-db-data:
+
+services:
+  pv-init:
+    <<: *app-image
+    command: ["node", "deploy/units/pv-app/src/init-secrets.ts"]
+    environment:
+      PV_INIT_SECRETS_DIR: /secrets
+    volumes:
+      - pv-secrets:/secrets
+    read_only: true
+    restart: "no"
+    labels:
+      - coolify.exclude_from_hc=true
+
+  pv-db:
+    image: postgres:18-alpine
+    depends_on:
+      pv-init:
+        condition: service_completed_successfully
+    environment:
+      POSTGRES_DB: pajavamba
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD_FILE: /secrets/db_admin_password
+    volumes:
+      - pv-db-data:/var/lib/postgresql
+      - pv-secrets:/secrets:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d pajavamba"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+    restart: unless-stopped
+
+  pv-migrate:
+    <<: *app-image
+    command: ["node", "deploy/units/pv-app/src/migrate.ts"]
+    depends_on:
+      pv-db:
+        condition: service_healthy
+    environment:
+      PV_MIGRATE_DB_HOST: pv-db
+      PV_MIGRATE_DB_ADMIN_PASSWORD_FILE: /secrets/db_admin_password
+      PV_MIGRATE_RUNTIME_PASSWORD_FILE: /secrets/db_runtime_password
+    volumes:
+      - pv-secrets:/secrets:ro
+    read_only: true
+    restart: "no"
+    labels:
+      - coolify.exclude_from_hc=true
+
+  pv-app:
+    <<: *app-image
+    depends_on:
+      pv-migrate:
+        condition: service_completed_successfully
+    environment:
+      PV_VERSION: ${PV_VERSION:-0.4.0}
+      PV_APP_DB_HOST: pv-db
+      PV_APP_DB_PASSWORD_FILE: /secrets/db_runtime_password
+      PV_APP_PEPPER_FILE: /secrets/pepper
+      PV_APP_SETUP_CODE_FILE: /secrets/setup_code
+      PV_APP_FIELD_KEY_FILE: /secrets/field_key
+      PV_APP_SECURE_COOKIES: ${PV_APP_SECURE_COOKIES:-true}
+      PV_APP_HTTPS: ${PV_APP_HTTPS:-true}
+      PV_APP_TRUSTED_PROXIES: ${PV_APP_TRUSTED_PROXIES:-10.0.0.0/8,172.16.0.0/12,192.168.0.0/16}
+      PV_APP_LOG_DETAIL: ${PV_APP_LOG_DETAIL:-technical}
+    volumes:
+      - pv-secrets:/secrets:ro
+    read_only: true
+    tmpfs:
+      - /tmp
+    expose:
+      - "8080"
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/readyz"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped

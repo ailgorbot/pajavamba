@@ -1,0 +1,34 @@
+/*
+ * Styles de la façade : DSFR complet puis classes spécifiques préfixées `pv-`.
+ * Règles : RI-DSF-03 (jetons DSFR uniquement, aucune couleur codée en dur).
+ */
+@import '@codegouvfr/react-dsfr/main.css';
+
+/* Logo de l'opérateur : hauteur alignée sur la ligne de titre du DSFR. */
+.pv-logo {
+  max-height: var(--text-display-xs-line-height, 2.5rem);
+  width: auto;
+}
+
+/* Board : défilement horizontal si les colonnes dépassent la largeur disponible. */
+.pv-board {
+  overflow-x: auto;
+}
+
+.pv-board__column {
+  background-color: var(--background-alt-grey);
+  border: 1px solid var(--border-default-grey);
+}
+
+.pv-board__column--over {
+  border-color: var(--border-plain-error);
+}
+
+.pv-card {
+  background-color: var(--background-default-grey);
+  border: 1px solid var(--border-default-grey);
+}
+
+.pv-card--dragging {
+  border-color: var(--border-active-blue-france);
+}

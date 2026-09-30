@@ -1,0 +1,15 @@
+{
+  "name": "@pajavamba/event-relay-structure",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Service technique event-relay : relais des outbox vers les consommateurs",
+  "exports": {
+    ".": "./src/composition/root.ts"
+  },
+  "dependencies": {
+    "@pajavamba/contracts": "workspace:*",
+    "@pajavamba/ops": "workspace:*",
+    "pg": "8.23.0"
+  }
+}

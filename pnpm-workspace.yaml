@@ -1,0 +1,8 @@
+packages:
+  - packages/*
+  - services/*/fonctionnel
+  - services/*/structure
+  - apps/*
+  - deploy/units/*
+onlyBuiltDependencies:
+  - esbuild

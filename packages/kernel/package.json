@@ -1,0 +1,10 @@
+{
+  "name": "@pajavamba/kernel",
+  "version": "0.4.0",
+  "private": true,
+  "type": "module",
+  "description": "Noyau partagé : identifiants typés, Result, contexte d'exécution, événements et erreurs de base",
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}
