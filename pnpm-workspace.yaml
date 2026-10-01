@@ -6,3 +6,8 @@ packages:
   - deploy/units/*
 onlyBuiltDependencies:
   - esbuild
+# Chaîne d'approvisionnement (#266, RI-COD-10) : aucune version publiée depuis moins de 7 jours,
+# aucune sous-dépendance de source exotique (Git, URL), aucune baisse du niveau de confiance.
+minimumReleaseAge: 10080
+blockExoticSubdeps: true
+trustPolicy: no-downgrade
