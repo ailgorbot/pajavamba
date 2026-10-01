@@ -186,22 +186,27 @@ export function deriveKey(material: string): Buffer {
  */
 export function encryptField(key: Buffer, plaintext: string, associatedData: string): string {
   const iv = randomBytes(GCM_IV_BYTES);
-  const cipher = createCipheriv('aes-256-gcm', key, iv);
+  const cipher = createCipheriv('aes-256-gcm', key, iv, { authTagLength: GCM_TAG_BYTES });
   cipher.setAAD(Buffer.from(associatedData));
   const data = Buffer.concat([cipher.update(plaintext, 'utf8'), cipher.final()]);
   return Buffer.concat([iv, cipher.getAuthTag(), data]).toString('base64');
 }
 
 /**
- * Déchiffre un champ AES-256-GCM.
+ * Déchiffre un champ AES-256-GCM ; l'étiquette doit faire exactement 16 octets (une étiquette tronquée
+ * affaiblirait l'authentification).
  * @param key clé AES-256
  * @param encoded chiffré base64
  * @param associatedData données associées
  * @returns valeur en clair
+ * @throws Error si le chiffré est trop court, altéré ou lié à d'autres données associées
  */
 export function decryptField(key: Buffer, encoded: string, associatedData: string): string {
   const raw = Buffer.from(encoded, 'base64');
-  const decipher = createDecipheriv('aes-256-gcm', key, raw.subarray(0, GCM_IV_BYTES));
+  if (raw.length < GCM_IV_BYTES + GCM_TAG_BYTES) {
+    throw new Error('Champ chiffré invalide : longueur insuffisante');
+  }
+  const decipher = createDecipheriv('aes-256-gcm', key, raw.subarray(0, GCM_IV_BYTES), { authTagLength: GCM_TAG_BYTES });
   decipher.setAAD(Buffer.from(associatedData));
   decipher.setAuthTag(raw.subarray(GCM_IV_BYTES, GCM_IV_BYTES + GCM_TAG_BYTES));
   return Buffer.concat([decipher.update(raw.subarray(GCM_IV_BYTES + GCM_TAG_BYTES)), decipher.final()]).toString('utf8');
