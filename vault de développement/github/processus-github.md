@@ -9,7 +9,7 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 ## Dépôt et backlog
 
 - Dépôt public [ailgorbot/pajavamba](https://github.com/ailgorbot/pajavamba) ; branche `main`. Rulesets **pas encore activés** (L0-01, action du mainteneur).
-- Projet v2 n° 2 « PajaVamba Iterative development » : champs `Status` (Backlog, In progress, Done), `Lot`, `Ordre`, `Criticité`, `Version cible`. Identifiants des champs : `gh project field-list 2 --owner ailgorbot`.
+- Projet v2 n° 2 « PajaVamba Iterative development » : champs `Status` (Backlog, In progress, Done), `Lot`, `Ordre`, `Criticité`, `Version cible`. Modifier un champ : `gh project item-edit 2 --owner ailgorbot --url <issue> --field Status --value "In progress"` (forme par nom, plus fiable que les identifiants).
 - 16 jalons (lots 0 à 15) ; stories `[Lx-nn] titre` ; étiquettes `type:*`, `service:*`, `priorite:P0..P3`, `phase:*`, plus `bug`.
 - Une story livrée passe à **Done** dans le projet ; l'issue est fermée par `Closes #n` à la fusion. Une story partielle reste **In progress** avec un commentaire indiquant ce qui reste.
 - Nouvelle story hors backlog initial : la créer avec le modèle « Story », jalon et étiquettes, puis l'ajouter au projet (`gh project item-add 2 --owner ailgorbot --url …`). Exemple : L0-37 (#258).

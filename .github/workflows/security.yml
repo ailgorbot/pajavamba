@@ -1,4 +1,5 @@
-# Sécurité bloquante : SAST Semgrep (règles du projet, en conteneur) et vulnérabilités des dépendances.
+# Sécurité bloquante : SAST Semgrep (règles du projet, en conteneur) et vulnérabilités des dépendances ;
+# chaque lundi, audit complet avec les jeux de règles officiels (ADR-0008).
 # Règles : RI-SEC-09 (SAST et dépendances bloquants), RI-COD-09 (SQL paramétré), H10 (Semgrep en conteneur),
 # RI-GIT-03 (actions et image épinglées par empreinte, permissions minimales, aucun pull_request_target).
 name: security
@@ -9,6 +10,7 @@ on:
     branches: [main]
   schedule:
     - cron: '17 4 * * 1'
+  workflow_dispatch:
 
 permissions:
   contents: read
@@ -30,6 +32,19 @@ jobs:
         run: semgrep --test --metrics=off --config .semgrep/regles-projet.yml .semgrep/regles-projet.ts
       - name: Analyse du dépôt
         run: semgrep scan --config .semgrep/regles-projet.yml --error --metrics=off --exclude .semgrep .
+
+  audit-officiel:
+    name: Audit Semgrep officiel (planifié, RI-SEC-14)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Règles du projet et jeux officiels (image épinglée, même liste qu'en local)
+        run: node tools/semgrep/audit-semgrep.ts
 
   dependances:
     name: Vulnérabilités des dépendances
