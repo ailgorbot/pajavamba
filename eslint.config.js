@@ -15,7 +15,7 @@ const FORBIDDEN_SYNTAX = [
 ];
 
 export default tseslint.config(
-  { ignores: ['**/node_modules/**', '**/dist/**', 'Documents Chat/**', 'eslint.config.js', '.dependency-cruiser.cjs', '**/vite.config.ts', 'vitest.config.ts'] },
+  { ignores: ['**/node_modules/**', '**/dist/**', 'Documents Chat/**', '.claude/**', 'vault de développement/**', 'eslint.config.js', '.dependency-cruiser.cjs', '**/vite.config.ts', 'vitest.config.ts'] },
   js.configs.recommended,
   ...tseslint.configs.strictTypeChecked,
   sonarjs.configs.recommended,
