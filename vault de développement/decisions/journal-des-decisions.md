@@ -21,6 +21,8 @@ Choix pris en conversation, avec leur conséquence durable. Source brute : [[202
 | 01/10 | Reprendre story par story les éléments partiels, à partir de L0-08 | Mainteneur (« continue ») | Ordre suivi : L0-08, L0-09, puis vault |
 | 01/10 | Vault de développement, règle immuable et comportement de base | Mainteneur | ADR-0007, RI-DOC-10, `CLAUDE.md`, skill grill-me, crochets |
 | 01/10 | Chaque PR de story embarque sa mise à jour du vault | Agent | Pas de PR séparée pour le vault, sauf refonte |
+| 01/10 | Audit Semgrep complet avant chaque livraison, issues et corrections ; règle immuable | Mainteneur | ADR-0008, RI-SEC-14, `pnpm audit:semgrep`, [[audit-semgrep]] |
+| 01/10 | Constat AES-GCM classé « durcissement » (issue publique) et non « vulnérabilité » (avis privé) | Agent | Exploitation conditionnée à un accès en écriture à la base ; à revoir avec le mainteneur si désaccord |
 | 01/10 | Infrastructure de recette (adresse, identifiants Coolify) hors du dépôt public | Agent | Notes dans `vault de développement/local/` (non versionné) |
 
 Questions ouvertes pour le mainteneur (à poser avec grill-me le moment venu) : validation d'ADR-0006 ; activation des rulesets et de la sécurité du dépôt (L0-01, L0-02) ; création de la GitHub App des agents (L0-10).

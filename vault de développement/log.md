@@ -53,3 +53,11 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] ingestion | L0-16 sécurité bloquante (en cours)
 
 - `security.yml` : Semgrep en conteneur avec règles du projet et tests, audit des dépendances avec sentinelle ; interpolations d'identifiants de `withTransaction` justifiées. Voir [[processus-github]], [[ops]].
+
+## [2026-10-01] décision | Audit Semgrep à chaque livraison (RI-SEC-14)
+
+- Le mainteneur demande d'inscrire en règle immuable l'audit Semgrep du code avant chaque livraison, avec issues et corrections, et un audit de tout le code existant. ADR-0008, RI-SEC-14, story [#271](https://github.com/ailgorbot/pajavamba/issues/271). Voir [[audit-semgrep]].
+
+## [2026-10-01] audit | Premier audit Semgrep complet
+
+- 6 constats et 2 erreurs d'analyse (jeux officiels) : #265 (AES-GCM, PR #268), #266 (pnpm/npm, PR #269), #267 (faux positif, erreurs d'analyse, PR #270) ; 11 interpolations SQL corrigées en requêtes littérales dans #264. Rapport : [[2026-10-01-audit-semgrep-initial]].

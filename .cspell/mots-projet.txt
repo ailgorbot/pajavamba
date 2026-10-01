@@ -158,6 +158,7 @@ scopes
 Scopes
 Scrum
 Scrumban
+semgrep
 Semgrep
 serde
 sérialisable

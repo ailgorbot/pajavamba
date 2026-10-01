@@ -10,6 +10,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 
 | Lot | Done | In progress | Backlog |
 |---|---|---|---|
+| Hors lot | 18 | 0 | 1 |
+| Lot 00 — Socle | 23 | 8 | 9 |
 | Hors lot | 15 | 0 | 0 |
 | Lot 00 — Socle | 22 | 5 | 9 |
 | Lot 01 — Identité et accès | 15 | 3 | 9 |
@@ -47,6 +49,10 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#261](https://github.com/ailgorbot/pajavamba/issues/261) | docs(socle): compléter le vault (modules, concepts, décisions, exploitation, leçons) | Done |
 | [#262](https://github.com/ailgorbot/pajavamba/issues/262) | docs(socle): règle RI-DOC-10 et ADR-0007 — vault de développement des… | Done |
 | [#263](https://github.com/ailgorbot/pajavamba/issues/263) | ci(socle): détecter les secrets, vérifier l'orthographe et le Markdown | Done |
+| [#264](https://github.com/ailgorbot/pajavamba/issues/264) | ci(socle): SAST Semgrep et audit des dépendances bloquants | Done |
+| [#268](https://github.com/ailgorbot/pajavamba/issues/268) | fix(socle): imposer une étiquette AES-GCM de 16 octets au déchiffrement | Done |
+| [#269](https://github.com/ailgorbot/pajavamba/issues/269) | build(socle): durcir la chaîne d'approvisionnement pnpm et npm | Done |
+| [#270](https://github.com/ailgorbot/pajavamba/issues/270) | ci(socle): traiter le faux positif et les erreurs d'analyse de l'audit Semgrep | Backlog |
 
 ## Lot 00 — Socle
 
@@ -62,6 +68,7 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#11](https://github.com/ailgorbot/pajavamba/issues/11) | [L0-11] Outiller le monorepo TypeScript (pnpm, Nx, tsconfig strict) | Done |
 | [#14](https://github.com/ailgorbot/pajavamba/issues/14) | [L0-14] Installer gitleaks, cspell et markdownlint | Done |
 | [#15](https://github.com/ailgorbot/pajavamba/issues/15) | [L0-15] Mettre en place la CI minimale (ci.yml) | Done |
+| [#16](https://github.com/ailgorbot/pajavamba/issues/16) | [L0-16] Ajouter le workflow de sécurité (security.yml) | Done |
 | [#19](https://github.com/ailgorbot/pajavamba/issues/19) | [L0-19] Créer packages/kernel (identifiants typés, Result, ExecutionContext) | Done |
 | [#20](https://github.com/ailgorbot/pajavamba/issues/20) | [L0-20] OPS : configuration validée au démarrage | Done |
 | [#21](https://github.com/ailgorbot/pajavamba/issues/21) | [L0-21] OPS : journal structuré catalogué, masquage et valeurs sentinelles | Done |
@@ -79,6 +86,10 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#23](https://github.com/ailgorbot/pajavamba/issues/23) | [L0-23] OPS : client HTTP résilient, pool PostgreSQL, idempotence et limitation de débit | In progress |
 | [#27](https://github.com/ailgorbot/pajavamba/issues/27) | [L0-27] Générer la référence, le registre des règles et la traçabilité (tools/) | In progress |
 | [#34](https://github.com/ailgorbot/pajavamba/issues/34) | [L0-34] Déployer automatiquement la recette sur Coolify et poser v0.1.0 | In progress |
+| [#265](https://github.com/ailgorbot/pajavamba/issues/265) | [Semgrep] Imposer la longueur de l'étiquette AES-GCM au déchiffrement des champs | In progress |
+| [#266](https://github.com/ailgorbot/pajavamba/issues/266) | [Semgrep] Durcir la chaîne d'approvisionnement pnpm et npm | In progress |
+| [#267](https://github.com/ailgorbot/pajavamba/issues/267) | [Semgrep] Traiter les faux positifs et erreurs d'analyse de l'audit | In progress |
+| [#271](https://github.com/ailgorbot/pajavamba/issues/271) | [L0-38] Auditer le code avec Semgrep à chaque livraison et traiter chaque constat | In progress |
 | [#1](https://github.com/ailgorbot/pajavamba/issues/1) | [L0-01] Protéger la branche main par des rulesets | Backlog |
 | [#2](https://github.com/ailgorbot/pajavamba/issues/2) | [L0-02] Activer la sécurité du dépôt GitHub | Backlog |
 | [#10](https://github.com/ailgorbot/pajavamba/issues/10) | [L0-10] Créer la GitHub App des agents de développement | Backlog |

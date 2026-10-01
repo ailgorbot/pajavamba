@@ -19,8 +19,10 @@ Les sources ne sont jamais modifiées par le vault : on les lit et on en tire de
 | Issues et projet | github.com/ailgorbot/pajavamba, projet n° 2 | Stories (récit, Gherkin, règles), statut. Instantané : [[etat-des-stories]] |
 | PR | github.com/ailgorbot/pajavamba/pulls | Diff, discussion, CI. Synthèse : [[historique-des-pr]] |
 | Documents d'origine | `Documents Chat/` (local, exclu de Git) | Versions sources des spécifications et du backlog copiées dans `docs/` |
+| Audits Semgrep | `pnpm audit:semgrep` | Constats de sécurité ; rapports datés dans `sources/`, synthèse : [[audit-semgrep]] |
 | Échanges avec le mainteneur | Conversations Claude Code | Consignes et choix ; instantanés datés dans `sources/` |
 
 ## Instantanés datés
 
+- [[2026-10-01-audit-semgrep-initial]] — rapport du premier audit Semgrep complet.
 - [[2026-10-01-decisions-du-mainteneur]] — consignes et choix des sessions du 29/09 au 01/10/2026.

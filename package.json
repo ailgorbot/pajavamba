@@ -23,7 +23,8 @@
     "reference:check": "node tools/reference/generate-actions-reference.ts --check",
     "smoke": "node tools/smoke/smoke-test.ts",
     "spell": "cspell --no-progress \"**/*.{md,ts,tsx,mjs}\"",
-    "lint:md": "markdownlint-cli2"
+    "lint:md": "markdownlint-cli2",
+    "audit:semgrep": "node tools/semgrep/audit-semgrep.ts"
   },
   "devDependencies": {
     "@cspell/dict-fr-fr": "2.3.2",

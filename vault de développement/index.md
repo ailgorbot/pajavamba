@@ -56,13 +56,14 @@ Point d'entrée obligatoire (RI-DOC-10). Conventions et opérations : [[SCHEMA]]
 | [[authentification]] | Sessions, CSRF, TOTP, clés `pvb_key_` |
 | [[audit-chaine]] | Chaîne de hachage par organisation |
 | [[interface-dsfr]] | DSFR thème neutre, CSP, accessibilité |
+| [[audit-semgrep]] | Audit Semgrep avant chaque livraison (RI-SEC-14), triage, historique des audits |
 | [[regles-immuables-essentiel]] | Les règles qui reviennent le plus souvent en pratique |
 
 ## Décisions
 
 | Page | Résumé |
 |---|---|
-| [[registre-des-adr]] | ADR-0001 à 0007 : statut et décision en une ligne |
+| [[registre-des-adr]] | ADR-0001 à 0008 : statut et décision en une ligne |
 | [[journal-des-decisions]] | Choix du mainteneur pris en conversation (hors ADR) |
 
 ## GitHub
@@ -91,4 +92,5 @@ Point d'entrée obligatoire (RI-DOC-10). Conventions et opérations : [[SCHEMA]]
 | Page | Résumé |
 |---|---|
 | [[catalogue-des-sources]] | Sources brutes et où les lire |
+| [[2026-10-01-audit-semgrep-initial]] | Rapport du premier audit Semgrep complet (constats et suites) |
 | [[2026-10-01-decisions-du-mainteneur]] | Instantané des consignes et choix du mainteneur (sessions du 29/09 au 01/10/2026) |
