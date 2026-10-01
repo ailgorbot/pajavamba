@@ -97,7 +97,9 @@ jobs:
         run: pnpm lint
       - name: Formatage Prettier des fichiers modifiés (adoption progressive, ADR-0009)
         if: github.event_name == 'pull_request'
-        run: node tools/ci/format-modifies.ts "origin/${{ github.base_ref }}"
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: node tools/ci/format-modifies.ts "origin/$BASE_REF"
       - name: Couches et frontières entre services (dependency-cruiser, RI-ARC-02, RI-SRV-02)
         run: pnpm layers
       - name: Sentinelles qualité (couche interdite, any/enum/export default, fonction de 31 lignes)
