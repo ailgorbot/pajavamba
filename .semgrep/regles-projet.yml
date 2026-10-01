@@ -1,0 +1,38 @@
+# Règles Semgrep du projet (L0-16, §16.5, RI-SEC-09) : bloquantes en CI.
+# Tests : `semgrep --test .semgrep` (cas annotés dans regles-projet.ts).
+rules:
+  - id: pv-sql-concatenation
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Requête SQL construite par concaténation ou interpolation : passer les valeurs en paramètres $n
+      (RI-COD-09). Seuls les identifiants validés par motif peuvent être interpolés, avec justification.
+    pattern-either:
+      - pattern: $DB.query(`...${$VALUE}...`, ...)
+      - pattern: $DB.query("..." + $VALUE, ...)
+      - pattern: $DB.query($VALUE + "...", ...)
+      - pattern: $DB.query('...' + $VALUE, ...)
+      - pattern: $DB.query($VALUE + '...', ...)
+
+  - id: pv-journal-hors-catalogue
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Journalisation directe interdite dans le code livré : utiliser le journal catalogué de packages/ops
+      (catalogue de journalisation, RI-LOG).
+    paths:
+      include: [packages/, services/, apps/, deploy/]
+    pattern-either:
+      - pattern: console.log(...)
+      - pattern: console.info(...)
+      - pattern: console.warn(...)
+      - pattern: console.error(...)
+      - pattern: console.debug(...)
+
+  - id: pv-evaluation-dynamique
+    languages: [typescript]
+    severity: ERROR
+    message: Évaluation dynamique de code interdite (RI-SEC).
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)

@@ -69,7 +69,10 @@ export async function withTransaction<T>(pool: pg.Pool, scope: TransactionScope,
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
+    // Identifiants non paramétrables, validés ci-dessus par `ROLE_PATTERN` et `SCHEMA_PATTERN` (RI-COD-09).
+    // nosemgrep: pv-sql-concatenation
     await client.query(`SET LOCAL ROLE ${scope.role}`);
+    // nosemgrep: pv-sql-concatenation
     await client.query(`SET LOCAL search_path TO ${scope.schema}, public`);
     await client.query("SELECT set_config('app.organisation_id', $1, true), set_config('app.actor_id', $2, true)", [scope.organisationId ?? '', scope.actorId ?? '']);
     const value = await work(executorOf(client));

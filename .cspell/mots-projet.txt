@@ -97,6 +97,7 @@ multifacteur
 newtype
 newtypes
 node
+nosemgrep
 notarisation
 numeric
 Obsidian
@@ -146,6 +147,7 @@ rétroportés
 RGPD
 roam
 ROAM
+ruleid
 runners
 rustdoc
 rustup
