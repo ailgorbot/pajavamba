@@ -30,6 +30,12 @@ interface ProjectRow {
 
 const COLUMNS = 'organisation_id, id, key, name, description, status, visibility, methodology_pack_key, time_zone, configuration_ready, open_item_count, created_by, closed_at, closure_summary, archived_at, deletion_scheduled_for, deletion_from_status, version';
 
+/** Lectures unitaires par clé : requêtes littérales, aucune valeur interpolée (RI-COD-09). */
+const SELECT_BY: Readonly<Record<'id' | 'key', string>> = {
+  id: `SELECT ${COLUMNS} FROM projects WHERE id = $1`,
+  key: `SELECT ${COLUMNS} FROM projects WHERE key = $1`,
+};
+
 const millis = (value: Date | null): number | null => (value === null ? null : value.getTime());
 const date = (value: number | null): Date | null => (value === null ? null : new Date(value));
 
@@ -87,7 +93,7 @@ function projectMaintenance(tx: SqlExecutor): Pick<ProjectRepository, 'list' | '
  */
 export function projectRepository(tx: SqlExecutor): ProjectRepository {
   const findOne = async (column: 'id' | 'key', value: string): Promise<Project | undefined> => {
-    const rows = await tx.query<ProjectRow>(`SELECT ${COLUMNS} FROM projects WHERE ${column} = $1`, [value]);
+    const rows = await tx.query<ProjectRow>(SELECT_BY[column], [value]);
     return rows[0] === undefined ? undefined : mapProject(rows[0]);
   };
   return {

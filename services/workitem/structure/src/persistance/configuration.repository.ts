@@ -57,8 +57,8 @@ function workflowSnapshots(tx: SqlExecutor, organisationId: OrganisationId): Pic
 function projectSnapshots(tx: SqlExecutor, organisationId: OrganisationId): Pick<ConfigurationRepository, 'findProject' | 'upsertProject' | 'deleteProject' | 'nextNumber'> {
   return {
     async findProject(ref) {
-      const [column, value] = 'id' in ref ? ['id', ref.id] : ['key', ref.key];
-      const rows = await tx.query<{ readonly id: string; readonly key: string; readonly status: string }>(`SELECT id, key, status FROM projects WHERE ${column} = $1`, [value]);
+      const [sql, value] = 'id' in ref ? ['SELECT id, key, status FROM projects WHERE id = $1', ref.id] : ['SELECT id, key, status FROM projects WHERE key = $1', ref.key];
+      const rows = await tx.query<{ readonly id: string; readonly key: string; readonly status: string }>(sql, [value]);
       const row = rows[0];
       return row === undefined ? undefined : { id: toEntityId(row.id), key: row.key, status: row.status };
     },

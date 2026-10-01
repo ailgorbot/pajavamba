@@ -110,10 +110,9 @@ const projectProjector: Projector = async (tx, event) => {
 };
 
 const purgeProjector: Projector = async (tx, event) => {
-  for (const table of ['work_item_views', 'activity_entries', 'workflow_states'] as const) {
-    // Nom de table issu d'une liste constante : jamais d'une donnée reçue.
-    await tx.query(`DELETE FROM ${table} WHERE project_id = $1`, [event.subject]);
-  }
+  await tx.query('DELETE FROM work_item_views WHERE project_id = $1', [event.subject]);
+  await tx.query('DELETE FROM activity_entries WHERE project_id = $1', [event.subject]);
+  await tx.query('DELETE FROM workflow_states WHERE project_id = $1', [event.subject]);
   await tx.query('DELETE FROM projects WHERE id = $1', [event.subject]);
 };
 

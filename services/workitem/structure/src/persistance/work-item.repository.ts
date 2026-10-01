@@ -35,6 +35,12 @@ interface ItemRow {
 }
 
 const COLUMNS = 'id, project_id, number, key, type_key, title, description, acceptance_criteria, state_key, state_category, workflow_version_id, priority, parent_id, ancestors, assignee_id, reporter_id, estimate, rank, confidentiality, created_via, created_at, resolved_at, deleted_at, version';
+
+/** Lectures unitaires par clé : requêtes littérales, aucune valeur interpolée (RI-COD-09). */
+const SELECT_BY: Readonly<Record<'id' | 'key', string>> = {
+  id: `SELECT ${COLUMNS} FROM work_items WHERE id = $1`,
+  key: `SELECT ${COLUMNS} FROM work_items WHERE key = $1`,
+};
 const millis = (value: Date | null): number | null => (value === null ? null : value.getTime());
 const date = (value: number | null): Date | null => (value === null ? null : new Date(value));
 
@@ -149,7 +155,7 @@ function itemQueries(tx: SqlExecutor): Pick<WorkItemRepository, 'lastRank' | 'ne
  */
 export function workItemRepository(tx: SqlExecutor, organisationId: OrganisationId): WorkItemRepository {
   const findOne = async (column: 'id' | 'key', value: string): Promise<WorkItem | undefined> => {
-    const rows = await tx.query<ItemRow>(`SELECT ${COLUMNS} FROM work_items WHERE ${column} = $1`, [value]);
+    const rows = await tx.query<ItemRow>(SELECT_BY[column], [value]);
     return rows[0] === undefined ? undefined : mapItem(rows[0]);
   };
   return {

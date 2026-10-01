@@ -38,6 +38,8 @@ async function ensureRuntimeRole(pool: ReturnType<typeof createPool>, password: 
   // format(%L) échappe la valeur côté serveur : aucune concaténation de chaîne dans le client.
   const statement = await pool.query<{ readonly sql: string }>("SELECT format('ALTER ROLE pv_runtime WITH LOGIN PASSWORD %L', $1::text) AS sql", [password]);
   await pool.query(statement.rows[0]?.sql ?? 'SELECT 1');
+  // Noms de rôles non paramétrables, issus de la constante `SERVICE_ROLES` du code (RI-COD-09).
+  // nosemgrep: pv-sql-concatenation
   await pool.query(`GRANT ${SERVICE_ROLES.join(', ')} TO pv_runtime`);
 }
 

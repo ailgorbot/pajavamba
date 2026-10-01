@@ -45,3 +45,11 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] ingestion | L0-14 hygiène du dépôt (en cours)
 
 - gitleaks (règle `pajavamba-token`, pré-commit `.githooks/`, job CI sur tout l'historique), cspell (français ; commentaires du code vérifiés sans dictionnaires anglais), markdownlint (5 corrections). Voir [[processus-github]], [[lecons-apprises]].
+
+## [2026-10-01] livraison | L0-14 fusionnée (#263)
+
+- Faux positifs gitleaks traités par `.gitleaksignore` (empreintes). Voir [[lecons-apprises]].
+
+## [2026-10-01] ingestion | L0-16 sécurité bloquante (en cours)
+
+- `security.yml` : Semgrep en conteneur avec règles du projet et tests, audit des dépendances avec sentinelle ; interpolations d'identifiants de `withTransaction` justifiées. Voir [[processus-github]], [[ops]].

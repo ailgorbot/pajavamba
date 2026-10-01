@@ -1,0 +1,41 @@
+# Règles Semgrep du projet (L0-16, §16.5, RI-SEC-09) : bloquantes en CI.
+# Tests : `semgrep --test --config .semgrep/regles-projet.yml .semgrep/regles-projet.ts` (cas annotés).
+rules:
+  - id: pv-sql-concatenation
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Requête SQL construite par concaténation ou interpolation d'une valeur : passer les valeurs en
+      paramètres $n (RI-COD-09). Seules les constantes du code (MAJUSCULES) peuvent être interpolées ; un
+      identifiant dynamique validé exige une annotation nosemgrep justifiée.
+    # Motifs textuels : le parseur TypeScript de Semgrep ne reconnaît pas les appels génériques query<T>(…).
+    pattern-either:
+      # Gabarit dont une interpolation n'est ni une constante (MAJUSCULES) ni String(CONSTANTE).
+      - pattern-regex: '\.query(?:<[^>(]*>)?\(\s*`[^`]*?\$\{(?!\s*(?:[A-Z][A-Z0-9_]*|String\([A-Z][A-Z0-9_]*\))\s*\})'
+      # Chaîne littérale suivie d'une concaténation.
+      - pattern-regex: '\.query(?:<[^>(]*>)?\(\s*(''[^''\n]*''|"[^"\n]*")\s*\+'
+      # Valeur concaténée à une chaîne littérale.
+      - pattern-regex: '\.query(?:<[^>(]*>)?\(\s*[\w.]+\s*\+\s*[''"`]'
+
+  - id: pv-journal-hors-catalogue
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Journalisation directe interdite dans le code livré : utiliser le journal catalogué de packages/ops
+      (catalogue de journalisation, RI-LOG).
+    paths:
+      include: [packages/, services/, apps/, deploy/]
+    pattern-either:
+      - pattern: console.log(...)
+      - pattern: console.info(...)
+      - pattern: console.warn(...)
+      - pattern: console.error(...)
+      - pattern: console.debug(...)
+
+  - id: pv-evaluation-dynamique
+    languages: [typescript]
+    severity: ERROR
+    message: Évaluation dynamique de code interdite (RI-SEC).
+    pattern-either:
+      - pattern: eval(...)
+      - pattern: new Function(...)

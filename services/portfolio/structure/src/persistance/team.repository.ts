@@ -27,6 +27,12 @@ interface MemberRow {
 
 const COLUMNS = 't.organisation_id, t.id, t.key, t.name, t.kind, t.time_zone, t.working_days, t.version';
 
+/** Lectures unitaires par clé : requêtes littérales, aucune valeur interpolée (RI-COD-09). */
+const SELECT_BY: Readonly<Record<'id' | 'key', string>> = {
+  id: `SELECT ${COLUMNS} FROM teams t WHERE t.id = $1`,
+  key: `SELECT ${COLUMNS} FROM teams t WHERE t.key = $1`,
+};
+
 /**
  * Convertit une ligne d'équipe.
  * @param row ligne
@@ -70,7 +76,7 @@ function teamMembers(tx: SqlExecutor, organisationId: OrganisationId): Pick<Team
  */
 export function teamRepository(tx: SqlExecutor, organisationId: OrganisationId): TeamRepository {
   const findOne = async (column: 'id' | 'key', value: string): Promise<Team | undefined> => {
-    const rows = await tx.query<TeamRow>(`SELECT ${COLUMNS} FROM teams t WHERE t.${column} = $1`, [value]);
+    const rows = await tx.query<TeamRow>(SELECT_BY[column], [value]);
     return rows[0] === undefined ? undefined : mapTeam(rows[0]);
   };
   return {

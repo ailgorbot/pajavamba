@@ -1,0 +1,52 @@
+# Sécurité bloquante : SAST Semgrep (règles du projet, en conteneur) et vulnérabilités des dépendances.
+# Règles : RI-SEC-09 (SAST et dépendances bloquants), RI-COD-09 (SQL paramétré), H10 (Semgrep en conteneur),
+# RI-GIT-03 (actions et image épinglées par empreinte, permissions minimales, aucun pull_request_target).
+name: security
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '17 4 * * 1'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: security-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  semgrep:
+    name: SAST Semgrep (règles du projet)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: semgrep/semgrep:1.178.0@sha256:32e459968daabe7ab86968184a29109b9564aa00392401156f9788452b42786b
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Tests des règles (SQL concaténé, évaluation dynamique)
+        run: semgrep --test --metrics=off --config .semgrep/regles-projet.yml .semgrep/regles-projet.ts
+      - name: Analyse du dépôt
+        run: semgrep scan --config .semgrep/regles-projet.yml --error --metrics=off --exclude .semgrep .
+
+  dependances:
+    name: Vulnérabilités des dépendances
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Audit des dépendances (gravité élevée ou critique bloquante)
+        run: pnpm audit --audit-level high
+      - name: Sentinelle — une dépendance critique connue est refusée
+        working-directory: ${{ runner.temp }}
+        run: |
+          mkdir sentinelle && cd sentinelle
+          printf '{"name":"sentinelle","private":true,"dependencies":{"minimist":"1.2.5"}}\n' > package.json
+          pnpm install --lockfile-only --ignore-scripts --ignore-workspace > /dev/null
+          if pnpm audit --audit-level critical --ignore-workspace; then echo "::error::l'audit n'a pas refusé minimist 1.2.5 (CVE-2021-44906, critique)"; exit 1; fi

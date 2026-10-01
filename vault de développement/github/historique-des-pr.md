@@ -22,7 +22,8 @@ sources: [gh pr list --state all, git log origin/main]
 | [#261](https://github.com/ailgorbot/pajavamba/pull/261) | `docs/258-vault-concepts` | 01/10 | Vault : modules, concepts, décisions, exploitation, leçons | Fusionnée avant #260 (fichiers disjoints, sans conséquence) |
 | [#260](https://github.com/ailgorbot/pajavamba/pull/260) | `docs/258-vault-socle` | 01/10 | Vault : schéma, index, lots, GitHub | Lint en échec tant que #259 n'était pas fusionnée ; `main` fusionnée dans la branche |
 | [#262](https://github.com/ailgorbot/pajavamba/pull/262) | `docs/258-regle-vault` | 01/10 | Doublon de #259 (ancienne branche) | Fusion vide (contenu identique à `main`) ; branche supprimée |
-| à venir | `ci/14-hygiene-depot` | — | L0-14 : gitleaks, cspell, markdownlint + ingestion du vault | — |
+| [#263](https://github.com/ailgorbot/pajavamba/pull/263) | `ci/14-hygiene-depot` | 01/10 | L0-14 : gitleaks, cspell, markdownlint + ingestion du vault | 4 faux positifs gitleaks dans l'historique, ignorés par empreinte |
+| à venir | `ci/16-securite` | — | L0-16 : `security.yml` (Semgrep, audit des dépendances) | — |
 
 Toutes les fusions sont faites par le mainteneur (squash). Après le MVP, la règle est **une PR par story** (≤ 400 lignes) ; l'empilement de PR par lot n'a servi qu'au MVP et a provoqué l'incident de #251 ([[lecons-apprises]]).
 

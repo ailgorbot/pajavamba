@@ -31,8 +31,10 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 
 | Hygiène (L0-14) | gitleaks sur tout l'historique (binaire à empreinte vérifiée), `pnpm spell` (cspell), `pnpm lint:md` (markdownlint), sentinelles : jeton fictif détecté, commentaire anglais signalé |
 
+`security.yml` (L0-16) : job « SAST Semgrep » (image `semgrep/semgrep` épinglée par empreinte, `semgrep --test .semgrep` puis analyse du dépôt) et job « Vulnérabilités des dépendances » (`pnpm audit --audit-level high`, sentinelle minimist 1.2.5). Déclencheurs : PR, `main`, chaque lundi. Une interpolation SQL légitime (identifiant validé) porte `// nosemgrep: pv-sql-concatenation` avec sa justification.
+
 Actions épinglées par SHA (checkout, setup-node, pnpm/action-setup), `permissions: contents: read`, aucun `pull_request_target`.
 
 ## À venir
 
-`security.yml` (L0-16), release-please (L0-17), `docs.yml`/`release.yml` (L0-18), GitHub App des agents (L0-10).
+release-please (L0-17), `docs.yml`/`release.yml` (L0-18), GitHub App des agents (L0-10).
