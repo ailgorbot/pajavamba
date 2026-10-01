@@ -1,0 +1,43 @@
+env:
+  contexts:
+  - excludePaths: []
+    name: baseline
+    urls:
+    - https://pajavamba.169.58.6.47.sslip.io
+  parameters:
+    failOnError: true
+    progressToStdout: false
+jobs:
+- parameters:
+    enableTags: false
+    maxAlertsPerRule: 10
+  type: passiveScan-config
+- parameters:
+    maxDuration: 2
+    url: https://pajavamba.169.58.6.47.sslip.io
+  type: spider
+- parameters:
+    maxDuration: 2
+    url: https://pajavamba.169.58.6.47.sslip.io
+  type: spiderClient
+- parameters:
+    maxDuration: 0
+  type: passiveScan-wait
+- parameters:
+    format: Long
+    summaryFile: /home/zap/zap_out.json
+  rules:
+  - action: IGNORE
+    customMessage: ''
+    id: 10109
+  - action: IGNORE
+    customMessage: ''
+    id: 10049
+  type: outputSummary
+- parameters:
+    reportDescription: ''
+    reportDir: /zap/wrk/
+    reportFile: rapports/rapport-zap.json
+    reportTitle: ZAP Scanning Report
+    template: traditional-json
+  type: report

@@ -69,6 +69,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] audit | Injection dans ci.yml détectée sur #275
 
 - `run-shell-injection` sur l'étape Prettier (`${{ github.base_ref }}` dans `run:`), poussée avant lecture du résultat d'audit ; issue #276, corrigée par `env: BASE_REF`. Leçon : conditionner la poussée au code de sortie de l'audit. Voir [[lecons-apprises]], [[audit-semgrep]].
+
 ## [2026-10-01] livraison | L0-16, corrections Semgrep et RI-SEC-14 fusionnées
 
 - #264 (L0-16), #268 (AES-GCM), #269 (pnpm/npm), #270 (faux positifs), #272 (RI-SEC-14, ADR-0008) fusionnées, toutes vérifications vertes. Voir [[historique-des-pr]].
