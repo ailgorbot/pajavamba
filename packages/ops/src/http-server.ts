@@ -48,6 +48,8 @@ const SECURITY_HEADERS: Readonly<Record<string, string>> = {
   'referrer-policy': 'no-referrer',
   'cross-origin-opener-policy': 'same-origin',
   'cross-origin-resource-policy': 'same-origin',
+  // Isolement inter-origines complet : seules des ressources de même origine sont chargées (#278, constat ZAP 90004).
+  'cross-origin-embedder-policy': 'require-corp',
   'permissions-policy': 'camera=(), microphone=(), geolocation=()',
   'x-frame-options': 'DENY',
 };
@@ -112,7 +114,13 @@ function registerHooks(app: FastifyInstance, options: HttpServerOptions): void {
     if (options.https) void reply.header('strict-transport-security', 'max-age=31536000; includeSubDomains');
   });
   app.addHook('onResponse', async (request, reply) => {
-    options.logger.emit('requestCompleted', { correlationId: request.id, method: request.method, route: request.routeOptions.url ?? 'inconnue', statusCode: reply.statusCode, durationMs: Math.round(reply.elapsedTime) });
+    options.logger.emit('requestCompleted', {
+      correlationId: request.id,
+      method: request.method,
+      route: request.routeOptions.url ?? 'inconnue',
+      statusCode: reply.statusCode,
+      durationMs: Math.round(reply.elapsedTime),
+    });
   });
   app.setErrorHandler((error: FastifyError, request, reply) => {
     const problem = toProblem(error);

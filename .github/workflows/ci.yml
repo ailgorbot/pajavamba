@@ -131,6 +131,8 @@ jobs:
         run: |
           docker compose -p ci -f deploy/compose/compose.yaml exec -T pv-app cat /secrets/setup_code > /tmp/setup_code
           node tools/smoke/smoke-test.ts http://127.0.0.1:18080 /tmp/setup_code
+      - name: DAST OWASP ZAP passif sur la pile éphémère (RI-SEC-15)
+        run: node tools/zap/audit-zap.ts --cible http://pv-app:8080 --reseau ci_default
       - name: Journaux en cas d'échec
         if: failure()
         run: docker compose -p ci -f deploy/compose/compose.yaml logs --no-color

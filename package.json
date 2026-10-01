@@ -25,7 +25,8 @@
     "spell": "cspell --no-progress \"**/*.{md,ts,tsx,mjs}\"",
     "lint:md": "markdownlint-cli2",
     "audit:semgrep": "node tools/semgrep/audit-semgrep.ts",
-    "format:modifies": "node tools/ci/format-modifies.ts origin/main --write"
+    "format:modifies": "node tools/ci/format-modifies.ts origin/main --write",
+    "audit:zap": "node tools/zap/audit-zap.ts"
   },
   "devDependencies": {
     "@cspell/dict-fr-fr": "2.3.2",

@@ -2,7 +2,7 @@
 
 | Élément | Valeur |
 |---|---|
-| Version du document | 1.2.0 (ajout de RI-SEC-14, ADR-0008 ; 1.1.0 : RI-DOC-10, ADR-0007) |
+| Version du document | 1.3.0 (ajout de RI-SEC-15, ADR-0010 ; 1.2.0 : RI-SEC-14, ADR-0008 ; 1.1.0 : RI-DOC-10, ADR-0007) |
 | Date | 01/10/2026 |
 | Document associé | `PajaVamba_Specifications_Techniques.md` (références « § ») |
 | Emplacement cible dans le dépôt | `docs/regles-immuables.md` |
@@ -170,6 +170,7 @@
 | RI-SEC-12 | Les vulnérabilités sont signalées en privé ; jamais par une issue publique. | Processus | §16.6 |
 | RI-SEC-13 | Toutes les exigences OWASP ASVS niveau 2 retenues sont couvertes par des tests. | CI | §16.1 |
 | RI-SEC-14 | Avant chaque livraison de code sur GitHub, l'auteur (personne ou agent) exécute l'audit Semgrep complet (`node tools/semgrep/audit-semgrep.ts` : règles du projet et jeux officiels, image épinglée). Chaque constat confirmé devient une issue « [Semgrep] » et est corrigé ; un faux positif est annoté `nosemgrep` avec sa justification ; une vulnérabilité exploitable suit RI-SEC-12. Une erreur d'analyse se traite comme un constat. | Processus | ADR-0008 |
+| RI-SEC-15 | Avant chaque livraison de code exécuté (`apps/`, `services/`, `packages/`, `deploy/`), l'auteur exécute l'audit DAST OWASP ZAP sur une pile éphémère (`pnpm audit:zap`) ; la CI le rejoue à chaque PR (passif) et chaque semaine (actif, pile éphémère). La recette n'est analysée qu'en mode passif, à chaque livraison de lot. Chaque alerte confirmée devient une issue « [ZAP] » corrigée ; un faux positif est justifié dans `.zap/` ; une vulnérabilité exploitable suit RI-SEC-12. | Processus | ADR-0010 |
 
 ## 10. Secrets, jetons, clés et identifiants (SCR)
 

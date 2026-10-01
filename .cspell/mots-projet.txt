@@ -32,6 +32,7 @@ Cedar
 checkout
 citext
 clippy
+COEP
 CONDUCT
 contracts
 CONTRIBUTING
@@ -52,6 +53,7 @@ désassigne
 Details
 developpeur
 Diátaxis
+Disclosure
 Done
 DSFR
 EBIOS
@@ -104,6 +106,7 @@ Obsidian
 Ollama
 opentelemetry
 outbox
+OWASP
 Owned
 Paja
 pajavamba
@@ -205,3 +208,4 @@ workflows
 Workflows
 workitem
 WSJF
+ZAP

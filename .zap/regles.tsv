@@ -1,0 +1,6 @@
+# Règles ZAP justifiées (RI-SEC-15) : identifiant<TAB>IGNORE|WARN|FAIL<TAB>(nom) — justification obligatoire en commentaire.
+# 10109 : information d'outillage (« application web moderne ») ; la couverture de la SPA est assurée par le spider AJAX (-j).
+10109	IGNORE	(Modern Web Application)
+# 10049 : classement informatif du cache ; politique voulue et testée (deploy/units/pv-app/src/web-cache.ts : ressources
+# versionnées immuables, point d'entrée revalidé ; API non stockable).
+10049	IGNORE	(Non-Storable / Storable Content)

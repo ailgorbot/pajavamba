@@ -36,6 +36,7 @@ sources: [PR #249, #255, #256, #257, docs/developpeur/contribuer/decomposition-d
 | L0-14 (#14) | Livré (#263) |
 | L0-16 (#16) | Livré (#264) : Semgrep (règles du projet), audit des dépendances ; CodeQL et analyse d'images restent à faire (L0-02, L0-34) |
 | L0-37 (#258) | Livré (#259 à #262) |
+| L0-39 (#277) | En cours : DAST OWASP ZAP (RI-SEC-15) ; constats #278 (COEP), #279 (cache) ; suite #280 (parcours authentifiés) |
 | L0-38 (#271) | Livré (#272) : audit Semgrep à chaque livraison (RI-SEC-14) ; suite #273 (CI planifiée) |
 
 Pas de Nx : pnpm seul. Statuts détaillés : [[etat-des-stories]].
