@@ -34,6 +34,19 @@ const ITEM_SELECT = `
   JOIN projects p ON p.id = i.project_id AND p.organisation_id = i.organisation_id
   LEFT JOIN workflow_states s ON s.version_id = i.workflow_version_id AND s.key = i.state_key AND s.organisation_id = i.organisation_id`;
 
+const ITEM_FILTERS = `
+  WHERE NOT i.deleted
+    AND ($1::uuid[] IS NULL OR i.project_id = ANY($1))
+    AND ($2 OR i.confidentiality = 'normal')
+    AND ($3 OR i.state_category <> 'done')
+    AND ($4::text IS NULL OR i.type_key = $4)
+    AND ($5::text IS NULL OR s.workflow_key = $5)
+    AND ($6::text IS NULL OR i.tsv @@ websearch_to_tsquery('french', unaccent($6)) OR i.key = upper($6) OR i.title % $6)`;
+
+/** Listes d'éléments : tri par rang, ou par pertinence quand un texte est cherché (requêtes littérales, RI-COD-09). */
+const ITEM_LIST_BY_RANK = `${ITEM_SELECT} ${ITEM_FILTERS} ORDER BY i.rank LIMIT $7`;
+const ITEM_LIST_BY_RELEVANCE = `${ITEM_SELECT} ${ITEM_FILTERS} ORDER BY ts_rank(i.tsv, websearch_to_tsquery('french', unaccent($6))) DESC, i.rank LIMIT $7`;
+
 /**
  * Convertit une ligne d'élément.
  * @param row ligne
@@ -56,16 +69,7 @@ function itemViews(tx: SqlExecutor): Pick<QueryRepository, 'listItems' | 'listAc
   return {
     async listItems(filter) {
       const rows = await tx.query<ItemRow>(
-        `${ITEM_SELECT}
-         WHERE NOT i.deleted
-           AND ($1::uuid[] IS NULL OR i.project_id = ANY($1))
-           AND ($2 OR i.confidentiality = 'normal')
-           AND ($3 OR i.state_category <> 'done')
-           AND ($4::text IS NULL OR i.type_key = $4)
-           AND ($5::text IS NULL OR s.workflow_key = $5)
-           AND ($6::text IS NULL OR i.tsv @@ websearch_to_tsquery('french', unaccent($6)) OR i.key = upper($6) OR i.title % $6)
-         ORDER BY ${filter.text === null ? 'i.rank' : 'ts_rank(i.tsv, websearch_to_tsquery(\'french\', unaccent($6))) DESC, i.rank'}
-         LIMIT $7`,
+        filter.text === null ? ITEM_LIST_BY_RANK : ITEM_LIST_BY_RELEVANCE,
         [filter.projectIds === 'all' ? null : filter.projectIds, filter.includeRestricted, filter.includeDone, filter.typeKey, filter.workflowKey, filter.text, filter.limit],
       );
       return rows.map(mapItem);
@@ -88,8 +92,8 @@ function itemViews(tx: SqlExecutor): Pick<QueryRepository, 'listItems' | 'listAc
 export function queryRepository(tx: SqlExecutor): QueryRepository {
   return {
     async findProject(ref) {
-      const [column, value] = 'id' in ref ? ['id', ref.id] : ['key', ref.key];
-      const rows = await tx.query<{ readonly id: string; readonly key: string; readonly name: string; readonly status: string }>(`SELECT id, key, name, status FROM projects WHERE ${column} = $1`, [value]);
+      const [sql, value] = 'id' in ref ? ['SELECT id, key, name, status FROM projects WHERE id = $1', ref.id] : ['SELECT id, key, name, status FROM projects WHERE key = $1', ref.key];
+      const rows = await tx.query<{ readonly id: string; readonly key: string; readonly name: string; readonly status: string }>(sql, [value]);
       const row = rows[0];
       return row === undefined ? undefined : { id: toEntityId(row.id), key: row.key, name: row.name, status: row.status };
     },

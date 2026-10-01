@@ -43,7 +43,13 @@ export function mapUser(row: UserRow): User {
   };
 }
 
-const CONCURRENT_UPDATE = new HttpProblem({ status: 409, code: 'identity.concurrent_update', title: 'Modification concurrente', detail: 'Cet utilisateur a été modifié entre-temps. Rechargez puis réessayez.' });
+/** Lectures unitaires par clé : requêtes littérales, aucune valeur interpolée (RI-COD-09). */
+const SELECT_BY: Readonly<Record<'id' | 'email', string>> = {
+  id: `SELECT ${USER_COLUMNS} FROM users u WHERE u.id = $1`,
+  email: `SELECT ${USER_COLUMNS} FROM users u WHERE u.email = $1`,
+};
+
+const CONCURRENT_UPDATE =new HttpProblem({ status: 409, code: 'identity.concurrent_update', title: 'Modification concurrente', detail: 'Cet utilisateur a été modifié entre-temps. Rechargez puis réessayez.' });
 
 /**
  * Crée le dépôt des utilisateurs.
@@ -51,13 +57,13 @@ const CONCURRENT_UPDATE = new HttpProblem({ status: 409, code: 'identity.concurr
  * @returns dépôt
  */
 export function userRepository(tx: SqlExecutor): UserRepository {
-  const findOne = async (where: string, value: string): Promise<User | undefined> => {
-    const rows = await tx.query<UserRow>(`SELECT ${USER_COLUMNS} FROM users u WHERE ${where} = $1`, [value]);
+  const findOne = async (by: keyof typeof SELECT_BY, value: string): Promise<User | undefined> => {
+    const rows = await tx.query<UserRow>(SELECT_BY[by], [value]);
     return rows[0] === undefined ? undefined : mapUser(rows[0]);
   };
   return {
-    findById: async (id) => findOne('u.id', id),
-    findByEmail: async (email) => findOne('u.email', email),
+    findById: async (id) => findOne('id', id),
+    findByEmail: async (email) => findOne('email', email),
     async insert(user) {
       await tx.query('INSERT INTO users (id, email, display_name, status, theme, password_hash, version) VALUES ($1, $2, $3, $4, $5, $6, $7)', [user.id, user.email, user.displayName, user.status, user.theme, user.passwordHash, user.version]);
     },

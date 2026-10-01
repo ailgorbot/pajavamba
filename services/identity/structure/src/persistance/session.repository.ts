@@ -21,6 +21,12 @@ interface SessionRow {
 
 const COLUMNS = 'id, user_id, current_organisation_id, created_at, last_seen_at, mfa_verified_at, csrf_token, revoked_at';
 
+/** Lectures unitaires par clé : requêtes littérales, aucune valeur interpolée (RI-COD-09). */
+const SELECT_BY: Readonly<Record<'secret_hash' | 'id', string>> = {
+  secret_hash: `SELECT ${COLUMNS} FROM sessions WHERE secret_hash = $1`,
+  id: `SELECT ${COLUMNS} FROM sessions WHERE id = $1`,
+};
+
 /**
  * Convertit une ligne de session.
  * @param row ligne
@@ -66,8 +72,8 @@ function sessionQueries(tx: SqlExecutor): Pick<SessionRepository, 'listActiveOf'
  * @returns dépôt
  */
 export function sessionRepository(tx: SqlExecutor): SessionRepository {
-  const findOne = async (where: string, value: unknown): Promise<Session | undefined> => {
-    const rows = await tx.query<SessionRow>(`SELECT ${COLUMNS} FROM sessions WHERE ${where} = $1`, [value]);
+  const findOne = async (by: keyof typeof SELECT_BY, value: unknown): Promise<Session | undefined> => {
+    const rows = await tx.query<SessionRow>(SELECT_BY[by], [value]);
     return rows[0] === undefined ? undefined : mapSession(rows[0]);
   };
   return {

@@ -27,7 +27,7 @@ jobs:
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - name: Tests des règles (SQL concaténé, évaluation dynamique)
-        run: semgrep --test --metrics=off .semgrep
+        run: semgrep --test --metrics=off --config .semgrep/regles-projet.yml .semgrep/regles-projet.ts
       - name: Analyse du dépôt
         run: semgrep scan --config .semgrep/regles-projet.yml --error --metrics=off --exclude .semgrep .
 
