@@ -1,0 +1,22 @@
+# Propriétaires de code : relecture humaine obligatoire sur les zones protégées (RI-REV-03).
+# Les règles sont évaluées de haut en bas ; la dernière correspondance l'emporte.
+
+# Par défaut : un mainteneur.
+*                                   @ailgorbot
+
+# Zones protégées des règles immuables.
+/packages/ops/                      @ailgorbot
+/packages/kernel/                   @ailgorbot
+/packages/contracts/                @ailgorbot
+/packages/ui/                       @ailgorbot
+/services/*/structure/migrations/   @ailgorbot
+/services/policy/                   @ailgorbot
+/services/api-gateway/              @ailgorbot
+/deploy/                            @ailgorbot
+/.github/                           @ailgorbot
+/docs/specifications/               @ailgorbot
+/docs/adr/                          @ailgorbot
+/docs/regles-immuables.md           @ailgorbot
+/SECURITY.md                        @ailgorbot
+/GOVERNANCE.md                      @ailgorbot
+/LICENSE                            @ailgorbot

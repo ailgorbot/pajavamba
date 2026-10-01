@@ -1,4 +1,4 @@
-<p align="center"><img src="docs/public/marque/pajavamba-icon-128x128.png" alt="" width="96" /></p>
+<p align="center"><img src="docs/public/marque/logo-pajavamba.png" alt="Logo PajaVamba" width="240" /></p>
 
 # PajaVamba
 
@@ -30,6 +30,8 @@ Puis récupérer le code d'initialisation (`docker compose -f deploy/compose/com
 ## Contribuer
 
 Toute modification passe par une PR (≤ 400 lignes, une story), avec CI verte et relecture humaine. Commits Conventional Commits en français ([ADR-0003](docs/adr/0003-conventions-git.md)). Suivi : [projet GitHub « PajaVamba Iterative development »](https://github.com/users/ailgorbot/projects/2).
+
+Voir [CONTRIBUTING](CONTRIBUTING.md), [GOVERNANCE](GOVERNANCE.md), [code de conduite](CODE_OF_CONDUCT.md) et, pour signaler une vulnérabilité en privé, [SECURITY](SECURITY.md).
 
 ## Licence
 
