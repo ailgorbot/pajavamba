@@ -36,3 +36,12 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] ingestion | Amorçage du vault
 
 - Ingestion initiale : code (`main` = b632cb7), `docs/`, ADR 0001 à 0007, projet GitHub n° 2, historique des PR, décisions et incidents des sessions du 29/09 au 01/10. Toutes les pages de [[index]] créées.
+
+## [2026-10-01] livraison | Vault fusionné (#259 à #262)
+
+- #261 fusionnée avant #260 ; #260 a échoué au lint tant que #259 manquait (corrigé en fusionnant `main`) ; #262, doublon issu de l'ancienne branche, fusionnée à vide. Story #258 fermée. Voir [[historique-des-pr]].
+- Décision d'organisation : désormais, chaque PR de story embarque sa propre mise à jour du vault (comme RI-DOC-02 pour `docs/`).
+
+## [2026-10-01] ingestion | L0-14 hygiène du dépôt (en cours)
+
+- gitleaks (règle `pajavamba-token`, pré-commit `.githooks/`, job CI sur tout l'historique), cspell (français ; commentaires du code vérifiés sans dictionnaires anglais), markdownlint (5 corrections). Voir [[processus-github]], [[lecons-apprises]].

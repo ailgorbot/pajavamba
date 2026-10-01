@@ -1,0 +1,12 @@
+// Contrôle du Markdown (L0-14, RI-DOC-06). Les tableaux et lignes longues sont la norme de la documentation.
+{
+  "config": {
+    "default": true,
+    "MD013": false,
+    "MD033": { "allowed_elements": ["p", "img", "br", "details", "summary"] },
+    "MD041": false,
+    "MD060": false
+  },
+  "globs": ["**/*.md"],
+  "ignores": ["**/node_modules/**", "Documents Chat/**", "CHANGELOG.md", "vault de développement/local/**"]
+}

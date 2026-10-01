@@ -21,4 +21,4 @@ sources: [PR #250, #252, CHANGELOG.md, services/portfolio, apps/web]
 | L2-20 (#82) | Documentation du lot (guide « Premier projet », fiche `portfolio`) |
 | Backlog | L2-14 portefeuilles, trains et produits ; L2-15 politique de clés par projet ; L2-19 test de montée de version et de retour arrière en recette |
 
-#250 et #252 portent le même lot (branche empilée fusionnée deux fois) : voir [[historique-des-pr]].
+Les PR #250 et #252 portent le même lot (branche empilée fusionnée deux fois) : voir [[historique-des-pr]].

@@ -30,6 +30,8 @@ Ce vault est la **mémoire secondaire des agents** qui développent PajaVamba (r
 
 ### Ingérer (après une PR fusionnée, un lot livré, une décision, un incident)
 
+La mise à jour du vault voyage **dans la PR de la story** qu'elle décrit (comme la documentation, RI-DOC-02) ; l'ingestion des fusions intervenues entre-temps se fait dans la PR suivante.
+
 1. Lire la source (diff de la PR, ADR, réponse du mainteneur, journal d'erreur).
 2. Mettre à jour toutes les pages concernées : lot, modules touchés, concepts, décisions, leçons, [[etat-du-projet]]. Une source touche souvent 5 à 15 pages.
 3. Régénérer [[etat-des-stories]] (`node "vault de développement/outils/instantane-github.mjs"`) si des statuts ont changé.

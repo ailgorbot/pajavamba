@@ -29,8 +29,10 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 | Qualité | Fichiers de gouvernance présents, `pnpm typecheck`, `pnpm test`, `pnpm reference:check`, `pnpm lint`, construction de l'interface |
 | Pile conteneurisée | `docker compose up` avec secrets générés, migrations, tests de fumée, journaux en cas d'échec |
 
+| Hygiène (L0-14) | gitleaks sur tout l'historique (binaire à empreinte vérifiée), `pnpm spell` (cspell), `pnpm lint:md` (markdownlint), sentinelles : jeton fictif détecté, commentaire anglais signalé |
+
 Actions épinglées par SHA (checkout, setup-node, pnpm/action-setup), `permissions: contents: read`, aucun `pull_request_target`.
 
 ## À venir
 
-`security.yml` (L0-16), gitleaks/cspell/markdownlint (L0-14), release-please (L0-17), `docs.yml`/`release.yml` (L0-18), GitHub App des agents (L0-10).
+`security.yml` (L0-16), release-please (L0-17), `docs.yml`/`release.yml` (L0-18), GitHub App des agents (L0-10).

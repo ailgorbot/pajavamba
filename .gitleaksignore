@@ -1,0 +1,7 @@
+# Faux positifs vérifiés (L0-14) : empreintes exactes commit:fichier:règle:ligne.
+# smoke-test.ts:70 : faux jeton invalide servant à vérifier le refus d'un jeton dans l'URL.
+# specifications-techniques.md : UUID d'exemple dans l'en-tête Idempotency-Key.
+d00cfbf90df45b8127af647d4424607edce3c2d9:tools/smoke/smoke-test.ts:generic-api-key:70
+f91f1465243b925649f51061bad228a90dc49f43:tools/smoke/smoke-test.ts:generic-api-key:70
+56338e369e968e1c4b96865943091489b95f0c63:docs/specifications/technique/specifications-techniques.md:generic-api-key:2860
+56338e369e968e1c4b96865943091489b95f0c63:docs/specifications/technique/specifications-techniques.md:generic-api-key:2868

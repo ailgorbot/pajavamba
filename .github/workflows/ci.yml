@@ -32,6 +32,42 @@ jobs:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: node tools/ci/check-pr-body.ts
 
+  hygiene:
+    name: Secrets, orthographe et Markdown (L0-14)
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Installation de gitleaks 8.30.1 (empreinte vérifiée)
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/gitleaks.tar.gz" https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
+      - name: Secrets dans tout l'historique (RI-SCR-01)
+        run: |
+          "$RUNNER_TEMP/gitleaks" git --redact --verbose --no-banner --config .gitleaks.toml .
+      - name: Sentinelle — un jeton PajaVamba fictif est détecté
+        run: |
+          mkdir -p "$RUNNER_TEMP/sentinelle"
+          node -e "const a=(s,n)=>Array.from({length:n},()=>s[Math.floor(Math.random()*s.length)]).join('');const b='123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz';const c=b+'0';console.log('jeton = pvb_svc_'+a(b,8)+'_'+a(c,43)+'_'+a(c,6))" > "$RUNNER_TEMP/sentinelle/fuite.txt"
+          if "$RUNNER_TEMP/gitleaks" dir --redact --no-banner --config .gitleaks.toml "$RUNNER_TEMP/sentinelle"; then echo "::error::gitleaks n'a pas détecté le jeton fictif"; exit 1; fi
+      - name: Orthographe française (cspell)
+        run: pnpm spell
+      - name: Sentinelle — un commentaire en anglais est signalé
+        run: |
+          printf '// This function returns the value\nexport const sentinel = 1;\n' > tools/ci/sentinelle-anglais.ts
+          if pnpm exec cspell --no-progress tools/ci/sentinelle-anglais.ts; then echo "::error::cspell n'a pas signalé le commentaire en anglais"; exit 1; fi
+      - name: Markdown (markdownlint)
+        run: pnpm lint:md
+
   qualite:
     name: Types, lint, couches, tests unitaires, référence
     runs-on: ubuntu-latest

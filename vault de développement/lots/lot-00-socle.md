@@ -32,7 +32,8 @@ sources: [PR #249, #255, #256, #257, docs/developpeur/contribuer/decomposition-d
 | L0-23 (#23) | Client HTTP résilient (disjoncteur), limitation de débit |
 | L0-27 (#27) | Registre des règles et traçabilité générés (seule la référence des actions l'est) |
 | L0-34 (#34) | Livraison automatique, images GHCR signées, tag `v0.1.0` (aujourd'hui : construction sur le VPS, ADR-0004) |
-| Backlog | L0-01 rulesets, L0-02 sécurité du dépôt, L0-10 GitHub App des agents, L0-12 et L0-25 Rust (non introduit, RI-ARC-13), L0-14 gitleaks/cspell/markdownlint, L0-16 `security.yml`, L0-17 release-please, L0-18 `docs.yml`/`release.yml`, L0-32 superviseur `pajavamba`, L0-35 site VitePress |
-| L0-37 (#258) | Vault de développement (en cours) |
+| Backlog | L0-01 rulesets, L0-02 sécurité du dépôt, L0-10 GitHub App des agents, L0-12 et L0-25 Rust (non introduit, RI-ARC-13), L0-16 `security.yml`, L0-17 release-please, L0-18 `docs.yml`/`release.yml`, L0-32 superviseur `pajavamba`, L0-35 site VitePress |
+| L0-14 (#14) | En cours : gitleaks, cspell, markdownlint |
+| L0-37 (#258) | Livré (#259 à #262) |
 
 Pas de Nx : pnpm seul. Statuts détaillés : [[etat-des-stories]].

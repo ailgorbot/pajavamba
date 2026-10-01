@@ -12,6 +12,8 @@ Merci de votre intérêt ! Les [règles immuables](docs/regles-immuables.md) pr�
 - Node.js 24, pnpm 10, Docker ou Podman ([ADR-0002](docs/adr/0002-versions-figees.md)).
 - `pnpm install --frozen-lockfile`
 - `docker compose -f deploy/compose/compose.yaml up --build` pour la pile complète.
+- `git config core.hooksPath .githooks` active le pré-commit qui bloque les secrets ([gitleaks](https://github.com/gitleaks/gitleaks) 8.30.1 à installer).
+- Orthographe : un terme technique légitime refusé par `pnpm spell` s'ajoute à `.cspell/mots-projet.txt`.
 
 ## Règles de contribution
 
@@ -33,6 +35,8 @@ pnpm typecheck
 pnpm lint
 pnpm test
 pnpm reference:check
+pnpm spell
+pnpm lint:md
 ```
 
 Puis remplissez **toutes** les sections du modèle de PR (story, règles, documentation, sécurité, données, accessibilité, migration).

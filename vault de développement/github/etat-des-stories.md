@@ -10,8 +10,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 
 | Lot | Done | In progress | Backlog |
 |---|---|---|---|
-| Hors lot | 10 | 0 | 2 |
-| Lot 00 — Socle | 20 | 4 | 11 |
+| Hors lot | 14 | 0 | 0 |
+| Lot 00 — Socle | 21 | 5 | 10 |
 | Lot 01 — Identité et accès | 15 | 3 | 9 |
 | Lot 02 — Projets et équipes | 16 | 1 | 3 |
 | Lot 03 — Éléments et workflows | 21 | 3 | 9 |
@@ -42,8 +42,10 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#255](https://github.com/ailgorbot/pajavamba/issues/255) | fix(socle): rétablir les outils de fumée après la fusion du lot 3 | Done |
 | [#256](https://github.com/ailgorbot/pajavamba/issues/256) | docs(gouvernance): publier les fichiers de gouvernance du dépôt | Done |
 | [#257](https://github.com/ailgorbot/pajavamba/issues/257) | ci(contribution): modèles de PR et de tickets, contrôle du modèle de PR | Done |
-| [#258](https://github.com/ailgorbot/pajavamba/issues/258) | [L0-37] Tenir un vault de développement (LLM Wiki) comme mémoire des agents | Backlog |
-| [#259](https://github.com/ailgorbot/pajavamba/issues/259) | docs(socle): règle RI-DOC-10 et ADR-0007 — vault de développement des agents | Backlog |
+| [#259](https://github.com/ailgorbot/pajavamba/issues/259) | docs(socle): règle RI-DOC-10 et ADR-0007 — vault de développement des agents | Done |
+| [#260](https://github.com/ailgorbot/pajavamba/issues/260) | docs(socle): amorcer le vault de développement (schéma, index, lots, GitHub) | Done |
+| [#261](https://github.com/ailgorbot/pajavamba/issues/261) | docs(socle): compléter le vault (modules, concepts, décisions, exploitation, leçons) | Done |
+| [#262](https://github.com/ailgorbot/pajavamba/issues/262) | docs(socle): règle RI-DOC-10 et ADR-0007 — vault de développement des… | Done |
 
 ## Lot 00 — Socle
 
@@ -69,7 +71,9 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#30](https://github.com/ailgorbot/pajavamba/issues/30) | [L0-30] Créer packages/ui : façade DSFR et coque applicative | Done |
 | [#31](https://github.com/ailgorbot/pajavamba/issues/31) | [L0-31] Créer apps/web minimale avec icônes et contrôles d'accessibilité | Done |
 | [#33](https://github.com/ailgorbot/pajavamba/issues/33) | [L0-33] Fournir deploy/compose et des images OCI minimales | Done |
+| [#258](https://github.com/ailgorbot/pajavamba/issues/258) | [L0-37] Tenir un vault de développement (LLM Wiki) comme mémoire des agents | Done |
 | [#13](https://github.com/ailgorbot/pajavamba/issues/13) | [L0-13] Configurer ESLint, Prettier, dependency-cruiser et les seuils de code | In progress |
+| [#14](https://github.com/ailgorbot/pajavamba/issues/14) | [L0-14] Installer gitleaks, cspell et markdownlint | In progress |
 | [#23](https://github.com/ailgorbot/pajavamba/issues/23) | [L0-23] OPS : client HTTP résilient, pool PostgreSQL, idempotence et limitation de débit | In progress |
 | [#27](https://github.com/ailgorbot/pajavamba/issues/27) | [L0-27] Générer la référence, le registre des règles et la traçabilité (tools/) | In progress |
 | [#34](https://github.com/ailgorbot/pajavamba/issues/34) | [L0-34] Déployer automatiquement la recette sur Coolify et poser v0.1.0 | In progress |
@@ -77,7 +81,6 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#2](https://github.com/ailgorbot/pajavamba/issues/2) | [L0-02] Activer la sécurité du dépôt GitHub | Backlog |
 | [#10](https://github.com/ailgorbot/pajavamba/issues/10) | [L0-10] Créer la GitHub App des agents de développement | Backlog |
 | [#12](https://github.com/ailgorbot/pajavamba/issues/12) | [L0-12] Outiller le workspace Rust (Cargo, clippy, rustfmt, cargo-deny) | Backlog |
-| [#14](https://github.com/ailgorbot/pajavamba/issues/14) | [L0-14] Installer gitleaks, cspell et markdownlint | Backlog |
 | [#16](https://github.com/ailgorbot/pajavamba/issues/16) | [L0-16] Ajouter le workflow de sécurité (security.yml) | Backlog |
 | [#17](https://github.com/ailgorbot/pajavamba/issues/17) | [L0-17] Contrôler les Conventional Commits et automatiser les versions (release-please) | Backlog |
 | [#18](https://github.com/ailgorbot/pajavamba/issues/18) | [L0-18] Créer les squelettes docs.yml et release.yml | Backlog |
