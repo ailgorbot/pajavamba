@@ -24,6 +24,7 @@ Choix pris en conversation, avec leur conséquence durable. Source brute : [[202
 | 01/10 | Audit Semgrep complet avant chaque livraison, issues et corrections ; règle immuable | Mainteneur | ADR-0008, RI-SEC-14, `pnpm audit:semgrep`, [[audit-semgrep]] |
 | 01/10 | Constat AES-GCM classé « durcissement » (issue publique) et non « vulnérabilité » (avis privé) | Agent | Exploitation conditionnée à un accès en écriture à la base ; à revoir avec le mainteneur si désaccord |
 | 01/10 | Prettier adopté progressivement, largeur 200 : seuls les fichiers modifiés par une PR sont vérifiés et formatés (question posée avec grill-me) | Mainteneur | ADR-0009 ; `pnpm format:modifies` avant poussée ; fonctions découpées au passage |
+| 01/10 | DAST OWASP ZAP sur pile locale et CI, plus analyse passive de la recette à chaque livraison de lot (jamais d'analyse active sur la recette) ; téléchargement de l'image ZAP autorisé | Mainteneur | ADR-0010, RI-SEC-15, `pnpm audit:zap`, [[audit-zap]] |
 | 01/10 | Infrastructure de recette (adresse, identifiants Coolify) hors du dépôt public | Agent | Notes dans `vault de développement/local/` (non versionné) |
 
 Questions ouvertes pour le mainteneur (à poser avec grill-me le moment venu) : validation d'ADR-0006 ; activation des rulesets et de la sécurité du dépôt (L0-01, L0-02) ; création de la GitHub App des agents (L0-10).
