@@ -10,8 +10,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 
 | Lot | Done | In progress | Backlog |
 |---|---|---|---|
-| Hors lot | 23 | 0 | 1 |
-| Lot 00 — Socle | 27 | 8 | 10 |
+| Hors lot | 20 | 0 | 0 |
+| Lot 00 — Socle | 25 | 7 | 9 |
 | Lot 01 — Identité et accès | 15 | 3 | 9 |
 | Lot 02 — Projets et équipes | 16 | 1 | 3 |
 | Lot 03 — Éléments et workflows | 21 | 3 | 9 |
@@ -52,10 +52,6 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#269](https://github.com/ailgorbot/pajavamba/issues/269) | build(socle): durcir la chaîne d'approvisionnement pnpm et npm | Done |
 | [#270](https://github.com/ailgorbot/pajavamba/issues/270) | ci(socle): traiter le faux positif et les erreurs d'analyse de l'audit Semgrep | Done |
 | [#272](https://github.com/ailgorbot/pajavamba/issues/272) | docs(socle): règle RI-SEC-14 — audit Semgrep à chaque livraison | Done |
-| [#274](https://github.com/ailgorbot/pajavamba/issues/274) | ci(socle): jeux de règles Semgrep officiels chaque lundi en CI | Done |
-| [#275](https://github.com/ailgorbot/pajavamba/issues/275) | ci(socle): couches (dependency-cruiser), sentinelles et Prettier progressif | Done |
-| [#276](https://github.com/ailgorbot/pajavamba/issues/276) | [Semgrep] Injection de github.base_ref dans une commande run (PR #275) | Done |
-| [#281](https://github.com/ailgorbot/pajavamba/issues/281) | fix(docs): rétablir l'espacement du journal du vault après la fusion de #275 | Backlog |
 
 ## Lot 00 — Socle
 
@@ -69,7 +65,6 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#8](https://github.com/ailgorbot/pajavamba/issues/8) | [L0-08] Publier les fichiers de gouvernance du dépôt | Done |
 | [#9](https://github.com/ailgorbot/pajavamba/issues/9) | [L0-09] Créer les modèles de PR, de tickets et les étiquettes | Done |
 | [#11](https://github.com/ailgorbot/pajavamba/issues/11) | [L0-11] Outiller le monorepo TypeScript (pnpm, Nx, tsconfig strict) | Done |
-| [#13](https://github.com/ailgorbot/pajavamba/issues/13) | [L0-13] Configurer ESLint, Prettier, dependency-cruiser et les seuils de code | Done |
 | [#14](https://github.com/ailgorbot/pajavamba/issues/14) | [L0-14] Installer gitleaks, cspell et markdownlint | Done |
 | [#15](https://github.com/ailgorbot/pajavamba/issues/15) | [L0-15] Mettre en place la CI minimale (ci.yml) | Done |
 | [#16](https://github.com/ailgorbot/pajavamba/issues/16) | [L0-16] Ajouter le workflow de sécurité (security.yml) | Done |
@@ -87,15 +82,13 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#258](https://github.com/ailgorbot/pajavamba/issues/258) | [L0-37] Tenir un vault de développement (LLM Wiki) comme mémoire des agents | Done |
 | [#267](https://github.com/ailgorbot/pajavamba/issues/267) | [Semgrep] Traiter les faux positifs et erreurs d'analyse de l'audit | Done |
 | [#271](https://github.com/ailgorbot/pajavamba/issues/271) | [L0-38] Auditer le code avec Semgrep à chaque livraison et traiter chaque constat | Done |
-| [#273](https://github.com/ailgorbot/pajavamba/issues/273) | [Semgrep] Exécuter les jeux de règles officiels en CI planifiée | Done |
+| [#13](https://github.com/ailgorbot/pajavamba/issues/13) | [L0-13] Configurer ESLint, Prettier, dependency-cruiser et les seuils de code | In progress |
 | [#23](https://github.com/ailgorbot/pajavamba/issues/23) | [L0-23] OPS : client HTTP résilient, pool PostgreSQL, idempotence et limitation de débit | In progress |
 | [#27](https://github.com/ailgorbot/pajavamba/issues/27) | [L0-27] Générer la référence, le registre des règles et la traçabilité (tools/) | In progress |
 | [#34](https://github.com/ailgorbot/pajavamba/issues/34) | [L0-34] Déployer automatiquement la recette sur Coolify et poser v0.1.0 | In progress |
 | [#265](https://github.com/ailgorbot/pajavamba/issues/265) | [Semgrep] Imposer la longueur de l'étiquette AES-GCM au déchiffrement des champs | In progress |
 | [#266](https://github.com/ailgorbot/pajavamba/issues/266) | [Semgrep] Durcir la chaîne d'approvisionnement pnpm et npm | In progress |
-| [#277](https://github.com/ailgorbot/pajavamba/issues/277) | [L0-39] Auditer l'application avec OWASP ZAP (DAST) à chaque livraison | In progress |
-| [#278](https://github.com/ailgorbot/pajavamba/issues/278) | [ZAP] Ajouter l'en-tête Cross-Origin-Embedder-Policy | In progress |
-| [#279](https://github.com/ailgorbot/pajavamba/issues/279) | [ZAP] Mettre en cache les ressources versionnées de l'interface | In progress |
+| [#273](https://github.com/ailgorbot/pajavamba/issues/273) | [Semgrep] Exécuter les jeux de règles officiels en CI planifiée | In progress |
 | [#1](https://github.com/ailgorbot/pajavamba/issues/1) | [L0-01] Protéger la branche main par des rulesets | Backlog |
 | [#2](https://github.com/ailgorbot/pajavamba/issues/2) | [L0-02] Activer la sécurité du dépôt GitHub | Backlog |
 | [#10](https://github.com/ailgorbot/pajavamba/issues/10) | [L0-10] Créer la GitHub App des agents de développement | Backlog |
@@ -105,7 +98,6 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#25](https://github.com/ailgorbot/pajavamba/issues/25) | [L0-25] Créer crates/pv-ops (équivalent Rust de OPS) | Backlog |
 | [#32](https://github.com/ailgorbot/pajavamba/issues/32) | [L0-32] Créer le squelette de la commande pajavamba (pv-supervisor) | Backlog |
 | [#35](https://github.com/ailgorbot/pajavamba/issues/35) | [L0-35] Publier le site de documentation VitePress | Backlog |
-| [#280](https://github.com/ailgorbot/pajavamba/issues/280) | [ZAP] Étendre l'audit DAST aux parcours authentifiés et à l'API | Backlog |
 
 ## Lot 01 — Identité et accès
 

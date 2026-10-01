@@ -18,7 +18,6 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 
 - Branche `<type>/<n° issue>-<description>` ; Conventional Commits (type anglais, description française, portées d'ADR-0003) ; commits **signés SSH** (voir [[poste-de-developpement]]) avec le pied `Co-Authored-By` de l'agent.
 - Modèle de PR à 7 sections obligatoires (Story, Règles, Documentation, Sécurité, Données, Accessibilité, Migration) vérifié par le job CI « Modèle de PR complet » ; le corps se termine par la mention « Generated with Claude Code ».
-- Avant toute poussée qui modifie du code exécuté : `pnpm audit:zap` ([[audit-zap]], RI-SEC-15).
 - Avant toute poussée de code : `pnpm audit:semgrep` et triage des constats ([[audit-semgrep]], RI-SEC-14).
 - Avant toute poussée de code : `pnpm format:modifies` (Prettier sur les fichiers modifiés, ADR-0009).
 - Après création d'une PR dans l'application : `get_status`, sinon `bind_pr` ; pas de sondage de CI, pas de fusion automatique.

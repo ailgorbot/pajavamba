@@ -31,8 +31,6 @@ Le **MVP 0.4.0** (lots 0 à 3) est fusionné sur `main`, déployé en recette su
 
 Statuts à jour : [[etat-des-stories]].
 
-| DAST OWASP ZAP (L0-39, [#277](https://github.com/ailgorbot/pajavamba/issues/277)) | PR en cours : `pnpm audit:zap`, CI passive et active, RI-SEC-15 ; corrections #278 (COEP) et #279 (cache) ; recette à réanalyser après déploiement. Voir [[audit-zap]] |
-
 ## Prochaines étapes proposées
 
 1. Après #273, reprise des stories du lot 0 dans l'ordre : L0-13, L0-17 (release-please), L0-01/L0-02 (rulesets, sécurité du dépôt : actions du mainteneur dans GitHub).
