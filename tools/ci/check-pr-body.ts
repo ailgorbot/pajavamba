@@ -12,7 +12,14 @@ export const REQUIRED_SECTIONS = ['Story', 'Règles', 'Documentation', 'Sécurit
  * @returns texte sans commentaires
  */
 function stripComments(text: string): string {
-  return text.replace(/<!--[\s\S]*?-->/g, '');
+  let result = '';
+  let position = 0;
+  for (let start = text.indexOf('<!--'); start !== -1; start = text.indexOf('<!--', position)) {
+    const end = text.indexOf('-->', start + 4);
+    result += text.slice(position, start);
+    position = end === -1 ? text.length : end + 3;
+  }
+  return result + text.slice(position);
 }
 
 /**
