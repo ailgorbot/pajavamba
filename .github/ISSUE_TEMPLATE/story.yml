@@ -1,0 +1,55 @@
+name: Story
+description: Besoin utilisateur livrable en une PR (§23.1).
+title: '[Lx-xx] '
+labels: ['type:story']
+body:
+  - type: textarea
+    id: recit
+    attributes:
+      label: Récit
+      description: Format imposé.
+      value: 'En tant que …, je veux …, afin de …'
+    validations:
+      required: true
+  - type: textarea
+    id: criteres
+    attributes:
+      label: Critères d'acceptation
+      description: Scénarios Gherkin en français.
+      render: gherkin
+      value: |
+        # language: fr
+        Fonctionnalité: …
+
+          Scénario: …
+            Étant donné …
+            Quand …
+            Alors …
+    validations:
+      required: true
+  - type: textarea
+    id: regles
+    attributes:
+      label: Règles
+      description: Règles immuables et sections des spécifications concernées.
+    validations:
+      required: true
+  - type: textarea
+    id: donnees
+    attributes:
+      label: Données
+      description: Entités, données personnelles, rétention ; « Sans objet. » sinon.
+    validations:
+      required: true
+  - type: textarea
+    id: accessibilite
+    attributes:
+      label: Accessibilité
+      description: Exigences RGAA ; « Sans objet. » sans interface.
+    validations:
+      required: true
+  - type: textarea
+    id: dependances
+    attributes:
+      label: Dépendances
+      description: Stories ou ADR préalables.

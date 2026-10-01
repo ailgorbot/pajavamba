@@ -1,0 +1,41 @@
+name: Anomalie
+description: Comportement différent de celui attendu (hors faille de sécurité).
+title: '[Anomalie] '
+labels: ['bug']
+body:
+  - type: markdown
+    attributes:
+      value: Une faille de sécurité se signale en privé (voir SECURITY.md), jamais ici. N'incluez aucun secret ni donnée personnelle réelle.
+  - type: input
+    id: version
+    attributes:
+      label: Version ou commit
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Étapes de reproduction
+      value: |
+        1.
+        2.
+    validations:
+      required: true
+  - type: textarea
+    id: attendu
+    attributes:
+      label: Résultat attendu
+    validations:
+      required: true
+  - type: textarea
+    id: obtenu
+    attributes:
+      label: Résultat obtenu
+      description: Message, identifiant de corrélation (`correlation_id`), capture.
+    validations:
+      required: true
+  - type: textarea
+    id: environnement
+    attributes:
+      label: Environnement
+      description: Navigateur, technologie d'assistance, mode de déploiement.

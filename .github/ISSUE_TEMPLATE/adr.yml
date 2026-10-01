@@ -1,0 +1,32 @@
+name: Proposition d'ADR
+description: Décision d'architecture structurante à instruire (RI-DOC-04).
+title: '[ADR] '
+labels: ['type:adr']
+body:
+  - type: textarea
+    id: contexte
+    attributes:
+      label: Contexte
+      description: Problème, contraintes, règles immuables concernées.
+    validations:
+      required: true
+  - type: textarea
+    id: options
+    attributes:
+      label: Options envisagées
+      description: Au moins deux options avec avantages et inconvénients.
+    validations:
+      required: true
+  - type: textarea
+    id: proposition
+    attributes:
+      label: Décision proposée
+    validations:
+      required: true
+  - type: textarea
+    id: consequences
+    attributes:
+      label: Conséquences
+      description: Impacts sur le code, la sécurité, l'exploitation, la documentation.
+    validations:
+      required: true

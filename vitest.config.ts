@@ -11,7 +11,7 @@ export default defineConfig({
       {
         test: {
           name: 'unit',
-          include: ['packages/*/tests/**/*.test.ts', 'services/*/fonctionnel/tests/**/*.test.ts', 'services/*/structure/tests/**/*.test.ts'],
+          include: ['packages/*/tests/**/*.test.ts', 'tools/*/tests/**/*.test.ts', 'services/*/fonctionnel/tests/**/*.test.ts', 'services/*/structure/tests/**/*.test.ts'],
           exclude: ['**/*.int.test.ts'],
         },
       },
