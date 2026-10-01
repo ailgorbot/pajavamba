@@ -29,3 +29,7 @@ desktop.ini
 
 # Vault de développement : notes locales non versionnées (infrastructure de recette)
 vault de développement/local/
+
+# Rapports OWASP ZAP (générés localement par pnpm audit:zap)
+.zap/rapports/
+.zap/zap.yaml
