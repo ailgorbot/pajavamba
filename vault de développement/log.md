@@ -65,3 +65,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] décision | Adoption progressive de Prettier (ADR-0009)
 
 - Question posée avec grill-me : reformater tout le code ferait dépasser 30 lignes à 56 fonctions. Choix du mainteneur : Prettier largeur 200, vérifié en CI sur les seuls fichiers modifiés par une PR. L0-13 complétée dans #275 (dependency-cruiser, sentinelles, Prettier progressif). Voir [[journal-des-decisions]], [[architecture-en-couches]].
+
+## [2026-10-01] audit | Injection dans ci.yml détectée sur #275
+
+- `run-shell-injection` sur l'étape Prettier (`${{ github.base_ref }}` dans `run:`), poussée avant lecture du résultat d'audit ; issue #276, corrigée par `env: BASE_REF`. Leçon : conditionner la poussée au code de sortie de l'audit. Voir [[lecons-apprises]], [[audit-semgrep]].

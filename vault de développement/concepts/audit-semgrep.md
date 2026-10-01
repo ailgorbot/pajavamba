@@ -41,5 +41,6 @@ Tests : `semgrep --test --config .semgrep/regles-projet.yml .semgrep/regles-proj
 | Date | Bilan | Suites |
 |---|---|---|
 | 01/10/2026 | 6 constats, 2 erreurs d'analyse (jeux officiels) ; 11 interpolations SQL (règles du projet) | #265, #266, #267 ; requêtes littérales dans #264. Détail : [[2026-10-01-audit-semgrep-initial]] |
+| 01/10/2026 (PR #275) | 1 constat `run-shell-injection` (+ 2 erreurs d'analyse liées), poussée faite trop tôt | #276, corrigé dans #275 (variable d'environnement) |
 
 Voir aussi [[base-et-rls]], [[processus-github]], [[lecons-apprises]].
