@@ -1,0 +1,37 @@
+# Orthographe (L0-14, RI-COM-01, RI-DOC-06) : documentation et commentaires en français.
+# Dans le code, seuls les commentaires sont vérifiés, avec le dictionnaire français : un commentaire
+# rédigé en anglais est signalé. Les identifiants (anglais, RI-NOM-01) ne sont pas vérifiés.
+version: '0.2'
+language: fr
+import:
+  - '@cspell/dict-fr-fr/cspell-ext.json'
+dictionaryDefinitions:
+  - name: mots-projet
+    path: ./.cspell/mots-projet.txt
+    addWords: true
+dictionaries: [mots-projet]
+ignorePaths:
+  - '**/node_modules/**'
+  - '**/dist/**'
+  - pnpm-lock.yaml
+  - 'Documents Chat/**'
+  - 'vault de développement/local/**'
+  - 'docs/public/**'
+  - CHANGELOG.md
+  - LICENSE
+  - .cspell/**
+ignoreRegExpList:
+  - '/@(?:param|returns?|throws)\s+\S+/g'
+  - '/[\p{L}\d]+(?:-[\p{L}\d]+)+/gu'
+  - '/^```[\s\S]*?^```/gm'
+  - '`[^`\n]*`'
+  - '\[\[[^\]\n]*\]\]'
+  - 'https?://\S+'
+  - '\b[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)+\b'
+languageSettings:
+  - languageId: [typescript, typescriptreact, javascript]
+    # Retire les dictionnaires anglais activés par défaut pour le code : seuls le français et le lexique restent.
+    dictionaries: ['!typescript', '!node', '!npm', '!softwareTerms', '!svelte', '!aws', '!companies', '!fonts']
+    includeRegExpList:
+      - '/(?<![:\w])\/\/\s.*/g'
+      - '/\/\*\*?\s[\s\S]*?\*\//g'

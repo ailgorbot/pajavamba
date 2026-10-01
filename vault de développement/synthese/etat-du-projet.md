@@ -21,7 +21,8 @@ Le **MVP 0.4.0** (lots 0 à 3) est fusionné sur `main`, déployé en recette su
 
 | Sujet | État |
 |---|---|
-| Vault de développement ([#258](https://github.com/ailgorbot/pajavamba/issues/258)) | PR #259 (règle RI-DOC-10, ADR-0007, CLAUDE.md, grill-me, crochets) + PR du contenu du vault |
+| Vault de développement ([#258](https://github.com/ailgorbot/pajavamba/issues/258)) | Livré (#259 à #262) ; tenu à jour dans chaque PR de story |
+| L0-14 ([#14](https://github.com/ailgorbot/pajavamba/issues/14)) | Branche `ci/14-hygiene-depot` : gitleaks (pré-commit + CI), cspell (français, lexique `.cspell/mots-projet.txt`), markdownlint |
 | Stories partielles du lot 0 | L0-13 (Prettier, dependency-cruiser), L0-23 (client HTTP résilient, limitation de débit), L0-27 (registre des règles, traçabilité), L0-34 (livraison automatique, tag v0.1.0) |
 | Stories partielles des lots 1 à 3 | L1-10 (groupes), L1-19 (WebAuthn, politique MFA), L3-12 (observateurs, étiquettes), L3-14 (mentions), documentation des lots (L1-27, L2-20, L3-33) |
 
@@ -29,7 +30,7 @@ Statuts à jour : [[etat-des-stories]].
 
 ## Prochaines étapes proposées
 
-1. Fusion des PR du vault, puis reprise des stories du lot 0 encore au backlog dans l'ordre : L0-14 (gitleaks, cspell, markdownlint), L0-16 (`security.yml`), L0-13, L0-17 (release-please), L0-01/L0-02 (rulesets, sécurité du dépôt : actions du mainteneur dans GitHub).
+1. Après L0-14, reprise des stories du lot 0 dans l'ordre : L0-16 (`security.yml`), L0-13, L0-17 (release-please), L0-01/L0-02 (rulesets, sécurité du dépôt : actions du mainteneur dans GitHub).
 2. Validation d'ADR-0006 par le mainteneur.
 3. Compléter les stories partielles des lots 1 à 3, puis lot 4 ([[lots-04-a-15]]).
 

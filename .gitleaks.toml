@@ -1,0 +1,13 @@
+# Détection des secrets (L0-14, RI-SCR-01, §9.6) : règles par défaut de gitleaks + jetons PajaVamba.
+title = "PajaVamba"
+
+[extend]
+useDefault = true
+
+# Jetons `pvb_<type>_<id public base58 ×8>_<secret base62 ×43>_<somme ×6>` (packages/ops/src/secrets.ts).
+[[rules]]
+id = "pajavamba-token"
+description = "Jeton PajaVamba (clé API, compte de service, jeton court)"
+regex = '''\bpvb_[a-z]{2,8}_[1-9A-HJ-NP-Za-km-z]{8}_[0-9A-Za-z]{43}_[0-9A-Za-z]{6}\b'''
+keywords = ["pvb_"]
+tags = ["pajavamba", "jeton"]

@@ -483,7 +483,7 @@ flowchart LR
 
 Chaque service fonctionnel suit l'architecture hexagonale (§5.3), possède son schéma PostgreSQL et publie ses événements. Aucun service n'accède au schéma d'un autre. Les services techniques ne contiennent aucune règle métier et ne sont jamais propriétaires de données métier.
 
-**Services fonctionnels**
+**Services fonctionnels** :
 
 | Service | Langage | Schéma | Responsabilités | Événements émis (exemples) |
 |---|---|---|---|---|
@@ -498,7 +498,7 @@ Chaque service fonctionnel suit l'architecture hexagonale (§5.3), possède son 
 | `extension` | TS | `extension` | Catalogue, installations, consentements, configuration, stockage clé-valeur des plugins, abonnements webhooks, liens externes | `plugin.installed`, `plugin.disabled` |
 | `query` | TS | `query` | Vues de lecture consolidées, recherche plein texte, journal d'activité (niveau fonctionnel), rapports | — (consommateur) |
 
-**Services techniques**
+**Services techniques** :
 
 | Service | Langage | Schéma | Responsabilités |
 |---|---|---|---|
@@ -533,6 +533,7 @@ Chaque service fonctionnel suit l'architecture hexagonale (§5.3), possède son 
 | `apps/web` | Interface compilée (fichiers statiques servis par `pv-edge` ou le reverse proxy) | — |
 
 Règles :
+
 - Le regroupement est une configuration de déploiement, jamais une dépendance de code.
 - Au sein d'une unité, chaque service garde ses routes, son schéma, son rôle PostgreSQL, son pool de connexions et ses files.
 - Les appels entre services d'une même unité passent par le client généré du contrat, avec un transport en mémoire qui sérialise les messages : le contrat reste identique à celui d'un appel réseau.
@@ -734,6 +735,7 @@ type UseCase<I, O> = (
 ```
 
 Déroulé d'une écriture :
+
 1. La couche moyenne valide l'entrée (Zod) et construit l'`ExecutionContext`.
 2. Elle ouvre l'unité de travail : `SET LOCAL app.organisation_id`, `SET LOCAL app.actor_id`.
 3. Le cas d'usage demande la décision d'autorisation au port `AccessPolicy`, applique les règles, retourne `{ result, events }`.
