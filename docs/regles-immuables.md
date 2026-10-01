@@ -2,8 +2,8 @@
 
 | Élément | Valeur |
 |---|---|
-| Version du document | 1.0.0 |
-| Date | 29/09/2026 |
+| Version du document | 1.1.0 (ajout de RI-DOC-10, ADR-0007) |
+| Date | 01/10/2026 |
 | Document associé | `PajaVamba_Specifications_Techniques.md` (références « § ») |
 | Emplacement cible dans le dépôt | `docs/regles-immuables.md` |
 | Langue | Français |
@@ -149,6 +149,7 @@
 | RI-DOC-07 | L'OpenAPI est publié sur GitHub Pages avec Swagger UI à chaque release. | CI | §10.9 |
 | RI-DOC-08 | Documentation versionnée par release ; PDF balisés et accessibles. | CI | §21.5 |
 | RI-DOC-09 | Aucune clé ou donnée réelle dans la documentation et les exemples. | CI | §9.6 |
+| RI-DOC-10 | Le `vault de développement/` (méthode LLM Wiki) est la mémoire secondaire des agents : pour toute question sur le projet, un agent le consulte en premier, puis le code (qui fait foi en cas de divergence) et GitHub ; un doute persistant est levé en interrogeant le mainteneur (skill `grill-me`). Le vault est mis à jour à chaque PR fusionnée, livraison de lot, décision, incident et avant tout compactage de contexte, avec une entrée dans `log.md`. Il résume `docs/` et y renvoie sans la remplacer (RI-DOC-01). | Processus | ADR-0007 |
 | RI-DOC-10 | Le code produit la documentation de l'état ; la documentation rédigée porte l'intention (pas de duplication manuelle de la référence). | Revue | P13 |
 
 ## 9. Sécurité (SEC)

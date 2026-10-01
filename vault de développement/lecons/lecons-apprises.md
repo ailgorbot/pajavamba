@@ -1,0 +1,22 @@
+---
+type: leçons
+mise_a_jour: 2026-10-01
+sources: [PR #255, sessions du 30/09 et du 01/10/2026]
+---
+
+# Leçons apprises
+
+| Date | Incident | Cause | Règle retenue |
+|---|---|---|---|
+| 30/09 | Insertion du membre bloquée à l'initialisation | RLS forcée : `app.organisation_id` pas encore connu | Préallouer l'identifiant d'organisation dans le gestionnaire avant la transaction ([[base-et-rls]]) |
+| 30/09 | Le compteur d'échecs de connexion ne progressait pas | Le retour arrière de transaction annulait l'incrément | Un refus métier qui doit laisser une trace se **commite** (`{ status: 'rejected' }`) au lieu de lever une erreur ([[authentification]]) |
+| 30/09 | Construction Coolify échouait | Contexte de construction mal positionné | `base_directory` + `docker_compose_location` explicites ([[recette-coolify]]) |
+| 30/09 | Erreurs CSP et `HeaderLinks` du DSFR en recette | Styles injectés par le DSFR, classe de liste manquante | Empreintes de styles + `style-src-attr` ; `fr-header__menu-links` ([[interface-dsfr]]) |
+| 30/09 | Écritures de fichiers en échec (fsync), utilitaires instables | Disque D: défaillant | Déménagement sur G: ; contournements de [[poste-de-developpement]] |
+| 30/09 | Commits non signables | Clé absente de l'agent SSH | Le mainteneur charge la clé ; ne jamais désactiver la signature |
+| 30/09 | Dette de lint (seuils RI-COD-03) | Code écrit vite pendant le MVP | Cas d'usage `(dépendances, contexte, requête)` ; lint lancé avant chaque commit |
+| 01/10 | Deux échecs de CI sur `main` | Résolution de conflit erronée en fusionnant #251 (PR empilées) : `tools/smoke` corrompu | Éviter les PR empilées ; après fusion d'une pile, relancer la CI de `main` et vérifier les fichiers en conflit ; corrigé par #255 |
+| 01/10 | Poussée forcée refusée après `--amend` | Mode auto : réécriture d'historique distant interdite | Ne pas amender un commit poussé ; pousser sur une nouvelle branche si besoin |
+| 01/10 | ESLint échouerait sur des `.mjs` hors `tsconfig` | `projectService` exige que chaque fichier lint appartienne à un projet TS | Exclure du lint les dossiers de scripts hors TS (`.claude/`, vault) ou les inclure dans un `tsconfig` |
+| 01/10 | Couverture de tests quasi nulle (seuls `policy` et `tools/ci` ont des tests unitaires) | MVP livré en priorité au parcours, validé par les tests de fumée | Toute story touchant un service ajoute ses tests unitaires (RI-TST) ; dette à résorber par service |
+| 01/10 | Règle `sonarjs/super-linear-regex` | Expressions régulières à retour arrière | Préférer `startsWith`, `slice`, découpage par ligne |

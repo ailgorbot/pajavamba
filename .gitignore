@@ -26,3 +26,6 @@ logs/
 .DS_Store
 Thumbs.db
 desktop.ini
+
+# Vault de développement : notes locales non versionnées (infrastructure de recette)
+vault de développement/local/
