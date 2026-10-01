@@ -27,7 +27,7 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 | Job | Contrôles |
 |---|---|
 | Modèle de PR complet | `tools/ci/check-pr-body.ts` (PR seulement ; relancé au push, pas à l'édition de la description) |
-| Qualité | Fichiers de gouvernance présents, `pnpm typecheck`, `pnpm test`, `pnpm reference:check`, `pnpm lint`, construction de l'interface |
+| Qualité | Fichiers de gouvernance présents, `pnpm typecheck`, `pnpm test`, `pnpm reference:check`, `pnpm lint`, `pnpm layers` (dependency-cruiser), sentinelles qualité, construction de l'interface |
 | Pile conteneurisée | `docker compose up` avec secrets générés, migrations, tests de fumée, journaux en cas d'échec |
 
 | Hygiène (L0-14) | gitleaks sur tout l'historique (binaire à empreinte vérifiée), `pnpm spell` (cspell), `pnpm lint:md` (markdownlint), sentinelles : jeton fictif détecté, commentaire anglais signalé |

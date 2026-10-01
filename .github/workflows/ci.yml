@@ -93,6 +93,10 @@ jobs:
         run: pnpm reference:check
       - name: Lint et seuils de code (RI-COD-01 à RI-COD-14)
         run: pnpm lint
+      - name: Couches et frontières entre services (dependency-cruiser, RI-ARC-02, RI-SRV-02)
+        run: pnpm layers
+      - name: Sentinelles qualité (couche interdite, any/enum/export default, fonction de 31 lignes)
+        run: sh tools/ci/sentinelles-qualite.sh
       - name: Construction de l'interface (budget JavaScript)
         run: pnpm build:web
 
