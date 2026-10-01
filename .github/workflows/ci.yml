@@ -53,7 +53,7 @@ jobs:
           tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP" gitleaks
       - name: Secrets dans tout l'historique (RI-SCR-01)
         run: |
-          "$RUNNER_TEMP/gitleaks" git --redact --no-banner --config .gitleaks.toml .
+          "$RUNNER_TEMP/gitleaks" git --redact --verbose --no-banner --config .gitleaks.toml .
       - name: Sentinelle — un jeton PajaVamba fictif est détecté
         run: |
           mkdir -p "$RUNNER_TEMP/sentinelle"
