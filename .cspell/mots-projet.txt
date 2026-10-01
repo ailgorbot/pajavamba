@@ -97,6 +97,7 @@ multifacteur
 newtype
 newtypes
 node
+nosemgrep
 notarisation
 numeric
 Obsidian
