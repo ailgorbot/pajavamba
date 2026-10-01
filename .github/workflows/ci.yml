@@ -28,6 +28,11 @@ jobs:
         with:
           node-version: 24
           cache: pnpm
+      - name: Fichiers de gouvernance présents (L0-08)
+        run: |
+          for f in README.md LICENSE SECURITY.md CONTRIBUTING.md CODE_OF_CONDUCT.md GOVERNANCE.md .github/CODEOWNERS; do
+            test -s "$f" || { echo "::error::Fichier de gouvernance manquant : $f"; exit 1; }
+          done
       - run: pnpm install --frozen-lockfile
       - name: Vérification des types (mode strict, couche fonctionnelle sans types Node)
         run: pnpm typecheck
