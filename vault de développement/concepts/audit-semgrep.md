@@ -13,6 +13,7 @@ Règle **RI-SEC-14** (ADR-0008) : aucun code n'est poussé sur GitHub sans audit
 | Niveau | Quand | Règles | Bloquant |
 |---|---|---|---|
 | CI `security.yml` | Chaque PR, `main`, chaque lundi | Règles du projet `.semgrep/regles-projet.yml` (+ tests des règles) | Oui |
+| CI planifiée (#273) | Chaque lundi et à la demande (`workflow_dispatch`) | Même script que l'audit de livraison | Oui (job « Audit Semgrep officiel ») |
 | Audit de livraison | Avant chaque poussée, par l'auteur | Règles du projet + 9 jeux officiels (`REGISTRY_RULESETS` dans `tools/semgrep/audit-semgrep.ts`) | Oui, par processus |
 
 Commande : `pnpm audit:semgrep` (Docker ; image `semgrep/semgrep:1.178.0` épinglée par empreinte, déjà présente sur [[poste-de-developpement]]).
@@ -41,5 +42,6 @@ Tests : `semgrep --test --config .semgrep/regles-projet.yml .semgrep/regles-proj
 | Date | Bilan | Suites |
 |---|---|---|
 | 01/10/2026 | 6 constats, 2 erreurs d'analyse (jeux officiels) ; 11 interpolations SQL (règles du projet) | #265, #266, #267 ; requêtes littérales dans #264. Détail : [[2026-10-01-audit-semgrep-initial]] |
+| 01/10/2026 (après #264 à #272) | 0 constat, 0 erreur d'analyse sur `main` (`1a53b40`) | — |
 
 Voir aussi [[base-et-rls]], [[processus-github]], [[lecons-apprises]].

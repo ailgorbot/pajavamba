@@ -10,10 +10,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 
 | Lot | Done | In progress | Backlog |
 |---|---|---|---|
-| Hors lot | 18 | 0 | 1 |
-| Lot 00 — Socle | 23 | 8 | 9 |
-| Hors lot | 15 | 0 | 0 |
-| Lot 00 — Socle | 22 | 5 | 9 |
+| Hors lot | 20 | 0 | 0 |
+| Lot 00 — Socle | 25 | 7 | 9 |
 | Lot 01 — Identité et accès | 15 | 3 | 9 |
 | Lot 02 — Projets et équipes | 16 | 1 | 3 |
 | Lot 03 — Éléments et workflows | 21 | 3 | 9 |
@@ -52,7 +50,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#264](https://github.com/ailgorbot/pajavamba/issues/264) | ci(socle): SAST Semgrep et audit des dépendances bloquants | Done |
 | [#268](https://github.com/ailgorbot/pajavamba/issues/268) | fix(socle): imposer une étiquette AES-GCM de 16 octets au déchiffrement | Done |
 | [#269](https://github.com/ailgorbot/pajavamba/issues/269) | build(socle): durcir la chaîne d'approvisionnement pnpm et npm | Done |
-| [#270](https://github.com/ailgorbot/pajavamba/issues/270) | ci(socle): traiter le faux positif et les erreurs d'analyse de l'audit Semgrep | Backlog |
+| [#270](https://github.com/ailgorbot/pajavamba/issues/270) | ci(socle): traiter le faux positif et les erreurs d'analyse de l'audit Semgrep | Done |
+| [#272](https://github.com/ailgorbot/pajavamba/issues/272) | docs(socle): règle RI-SEC-14 — audit Semgrep à chaque livraison | Done |
 
 ## Lot 00 — Socle
 
@@ -81,15 +80,15 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#31](https://github.com/ailgorbot/pajavamba/issues/31) | [L0-31] Créer apps/web minimale avec icônes et contrôles d'accessibilité | Done |
 | [#33](https://github.com/ailgorbot/pajavamba/issues/33) | [L0-33] Fournir deploy/compose et des images OCI minimales | Done |
 | [#258](https://github.com/ailgorbot/pajavamba/issues/258) | [L0-37] Tenir un vault de développement (LLM Wiki) comme mémoire des agents | Done |
+| [#267](https://github.com/ailgorbot/pajavamba/issues/267) | [Semgrep] Traiter les faux positifs et erreurs d'analyse de l'audit | Done |
+| [#271](https://github.com/ailgorbot/pajavamba/issues/271) | [L0-38] Auditer le code avec Semgrep à chaque livraison et traiter chaque constat | Done |
 | [#13](https://github.com/ailgorbot/pajavamba/issues/13) | [L0-13] Configurer ESLint, Prettier, dependency-cruiser et les seuils de code | In progress |
-| [#16](https://github.com/ailgorbot/pajavamba/issues/16) | [L0-16] Ajouter le workflow de sécurité (security.yml) | In progress |
 | [#23](https://github.com/ailgorbot/pajavamba/issues/23) | [L0-23] OPS : client HTTP résilient, pool PostgreSQL, idempotence et limitation de débit | In progress |
 | [#27](https://github.com/ailgorbot/pajavamba/issues/27) | [L0-27] Générer la référence, le registre des règles et la traçabilité (tools/) | In progress |
 | [#34](https://github.com/ailgorbot/pajavamba/issues/34) | [L0-34] Déployer automatiquement la recette sur Coolify et poser v0.1.0 | In progress |
 | [#265](https://github.com/ailgorbot/pajavamba/issues/265) | [Semgrep] Imposer la longueur de l'étiquette AES-GCM au déchiffrement des champs | In progress |
 | [#266](https://github.com/ailgorbot/pajavamba/issues/266) | [Semgrep] Durcir la chaîne d'approvisionnement pnpm et npm | In progress |
-| [#267](https://github.com/ailgorbot/pajavamba/issues/267) | [Semgrep] Traiter les faux positifs et erreurs d'analyse de l'audit | In progress |
-| [#271](https://github.com/ailgorbot/pajavamba/issues/271) | [L0-38] Auditer le code avec Semgrep à chaque livraison et traiter chaque constat | In progress |
+| [#273](https://github.com/ailgorbot/pajavamba/issues/273) | [Semgrep] Exécuter les jeux de règles officiels en CI planifiée | In progress |
 | [#1](https://github.com/ailgorbot/pajavamba/issues/1) | [L0-01] Protéger la branche main par des rulesets | Backlog |
 | [#2](https://github.com/ailgorbot/pajavamba/issues/2) | [L0-02] Activer la sécurité du dépôt GitHub | Backlog |
 | [#10](https://github.com/ailgorbot/pajavamba/issues/10) | [L0-10] Créer la GitHub App des agents de développement | Backlog |

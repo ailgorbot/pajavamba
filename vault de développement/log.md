@@ -61,3 +61,11 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] audit | Premier audit Semgrep complet
 
 - 6 constats et 2 erreurs d'analyse (jeux officiels) : #265 (AES-GCM, PR #268), #266 (pnpm/npm, PR #269), #267 (faux positif, erreurs d'analyse, PR #270) ; 11 interpolations SQL corrigées en requêtes littérales dans #264. Rapport : [[2026-10-01-audit-semgrep-initial]].
+
+## [2026-10-01] livraison | L0-16, corrections Semgrep et RI-SEC-14 fusionnées
+
+- #264 (L0-16), #268 (AES-GCM), #269 (pnpm/npm), #270 (faux positifs), #272 (RI-SEC-14, ADR-0008) fusionnées, toutes vérifications vertes. Voir [[historique-des-pr]].
+
+## [2026-10-01] audit | Audit Semgrep de contrôle sur main
+
+- `main` = `1a53b40` : 0 constat, 0 erreur d'analyse. Jeux officiels ajoutés à la CI planifiée (#273). Voir [[audit-semgrep]].

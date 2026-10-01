@@ -23,11 +23,12 @@ sources: [gh pr list --state all, git log origin/main]
 | [#260](https://github.com/ailgorbot/pajavamba/pull/260) | `docs/258-vault-socle` | 01/10 | Vault : schéma, index, lots, GitHub | Lint en échec tant que #259 n'était pas fusionnée ; `main` fusionnée dans la branche |
 | [#262](https://github.com/ailgorbot/pajavamba/pull/262) | `docs/258-regle-vault` | 01/10 | Doublon de #259 (ancienne branche) | Fusion vide (contenu identique à `main`) ; branche supprimée |
 | [#263](https://github.com/ailgorbot/pajavamba/pull/263) | `ci/14-hygiene-depot` | 01/10 | L0-14 : gitleaks, cspell, markdownlint + ingestion du vault | 4 faux positifs gitleaks dans l'historique, ignorés par empreinte |
-| [#264](https://github.com/ailgorbot/pajavamba/pull/264) | `ci/16-securite` | ouverte | L0-16 : `security.yml`, règles Semgrep, requêtes SQL littérales | Premier passage : 2 puis 11 interpolations SQL trouvées |
-| [#268](https://github.com/ailgorbot/pajavamba/pull/268) | `fix/265-aes-gcm` | ouverte | #265 : étiquette AES-GCM imposée, premiers tests de `ops` | Audit Semgrep |
-| [#269](https://github.com/ailgorbot/pajavamba/pull/269) | `build/266-approvisionnement` | ouverte | #266 : durcissement pnpm/npm | Audit Semgrep |
-| [#270](https://github.com/ailgorbot/pajavamba/pull/270) | `ci/267-faux-positifs-semgrep` | ouverte | #267 : faux positif `sendFile`, erreurs d'analyse | Audit Semgrep |
-| à venir | `docs/271-audit-semgrep` | — | L0-38 : RI-SEC-14, ADR-0008, `tools/semgrep`, vault | Basée sur #264 : fusionner #264 d'abord |
+| [#264](https://github.com/ailgorbot/pajavamba/pull/264) | `ci/16-securite` | 01/10 | L0-16 : `security.yml`, règles Semgrep, requêtes SQL littérales | Premier passage : 2 puis 11 interpolations SQL trouvées |
+| [#268](https://github.com/ailgorbot/pajavamba/pull/268) | `fix/265-aes-gcm` | 01/10 | #265 : étiquette AES-GCM imposée, premiers tests de `ops` | Audit Semgrep |
+| [#269](https://github.com/ailgorbot/pajavamba/pull/269) | `build/266-approvisionnement` | 01/10 | #266 : durcissement pnpm/npm | Audit Semgrep |
+| [#270](https://github.com/ailgorbot/pajavamba/pull/270) | `ci/267-faux-positifs-semgrep` | 01/10 | #267 : faux positif `sendFile`, erreurs d'analyse | Audit Semgrep |
+| [#272](https://github.com/ailgorbot/pajavamba/pull/272) | `docs/271-audit-semgrep` | 01/10 | L0-38 : RI-SEC-14, ADR-0008, `tools/semgrep`, vault | Basée sur #264, fusionnée après elle |
+| à venir | `ci/273-audit-officiel-planifie` | — | #273 : jeux officiels Semgrep chaque lundi en CI | — |
 | à venir | `ci/16-securite` | — | L0-16 : `security.yml` (Semgrep, audit des dépendances) | — |
 
 Toutes les fusions sont faites par le mainteneur (squash). Après le MVP, la règle est **une PR par story** (≤ 400 lignes) ; l'empilement de PR par lot n'a servi qu'au MVP et a provoqué l'incident de #251 ([[lecons-apprises]]).
