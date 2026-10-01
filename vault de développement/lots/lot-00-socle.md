@@ -36,5 +36,6 @@ sources: [PR #249, #255, #256, #257, docs/developpeur/contribuer/decomposition-d
 | L0-14 (#14) | Livré (#263) |
 | L0-16 (#16) | En cours : Semgrep (règles projet : SQL concaténé, journal hors catalogue, évaluation dynamique), audit des dépendances ; CodeQL et analyse d'images restent à faire (L0-02, L0-34) |
 | L0-37 (#258) | Livré (#259 à #262) |
+| L0-38 (#271) | En cours : audit Semgrep à chaque livraison (RI-SEC-14) |
 
 Pas de Nx : pnpm seul. Statuts détaillés : [[etat-des-stories]].

@@ -55,4 +55,4 @@ Faire le point sans attendre : travail en cours, décisions de la session, proch
 
 ## Journal
 
-[[log]] est en ajout seul. Chaque entrée commence par `## [AAAA-MM-JJ] opération | titre`, avec `opération` parmi : `ingestion`, `interrogation`, `contrôle`, `décision`, `incident`, `compactage`, `livraison`. Dernières entrées : `grep "^## \[" "vault de développement/log.md" | tail -5`.
+[[log]] est en ajout seul. Chaque entrée commence par `## [AAAA-MM-JJ] opération | titre`, avec `opération` parmi : `ingestion`, `interrogation`, `contrôle`, `décision`, `incident`, `compactage`, `livraison`, `audit` (audit Semgrep, RI-SEC-14). Dernières entrées : `grep "^## \[" "vault de développement/log.md" | tail -5`.

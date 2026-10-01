@@ -2,7 +2,7 @@
 
 | Élément | Valeur |
 |---|---|
-| Version du document | 1.1.0 (ajout de RI-DOC-10, ADR-0007) |
+| Version du document | 1.2.0 (ajout de RI-SEC-14, ADR-0008 ; 1.1.0 : RI-DOC-10, ADR-0007) |
 | Date | 01/10/2026 |
 | Document associé | `PajaVamba_Specifications_Techniques.md` (références « § ») |
 | Emplacement cible dans le dépôt | `docs/regles-immuables.md` |
@@ -169,6 +169,7 @@
 | RI-SEC-11 | SBOM, signatures et provenance pour tout livrable. | CI | §16.4 |
 | RI-SEC-12 | Les vulnérabilités sont signalées en privé ; jamais par une issue publique. | Processus | §16.6 |
 | RI-SEC-13 | Toutes les exigences OWASP ASVS niveau 2 retenues sont couvertes par des tests. | CI | §16.1 |
+| RI-SEC-14 | Avant chaque livraison de code sur GitHub, l'auteur (personne ou agent) exécute l'audit Semgrep complet (`node tools/semgrep/audit-semgrep.ts` : règles du projet et jeux officiels, image épinglée). Chaque constat confirmé devient une issue « [Semgrep] » et est corrigé ; un faux positif est annoté `nosemgrep` avec sa justification ; une vulnérabilité exploitable suit RI-SEC-12. Une erreur d'analyse se traite comme un constat. | Processus | ADR-0008 |
 
 ## 10. Secrets, jetons, clés et identifiants (SCR)
 
