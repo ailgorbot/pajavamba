@@ -85,3 +85,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] audit | Premier audit ZAP (local et recette)
 
 - Local : COEP absent (#278), cache `max-age=0` (#279), régression 500 détectée pendant la correction ; 0 constat après corrections. Recette (passif) : COEP et cache, couverts par les mêmes corrections. Suite : parcours authentifiés (#280). Rapport : [[2026-10-01-audit-zap-initial]].
+
+## [2026-10-01] incident | Rapport ZAP de la recette publié par erreur
+
+- #281 a inclus `.zap/rapports/rapport-zap.json` (adresse de la recette, en-têtes ; aucun secret) et `.zap/zap.yaml` ; retirés par #284. La CI de #282 a relu ce rapport périmé ; script corrigé (suppression préalable, droits du dossier). Voir [[lecons-apprises]], [[audit-zap]].

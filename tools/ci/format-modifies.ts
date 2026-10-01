@@ -27,6 +27,8 @@ export function formattable(paths: readonly string[]): string[] {
  */
 function runNode(args: readonly string[]): { readonly status: number; readonly stdout: string } {
   const run = spawnSync(process.execPath, args, { encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 });
+  // Prettier signale les fichiers mal formatés sur la sortie d'erreur : elle est reportée telle quelle.
+  process.stderr.write(run.stderr);
   return { status: run.status ?? 1, stdout: run.stdout };
 }
 

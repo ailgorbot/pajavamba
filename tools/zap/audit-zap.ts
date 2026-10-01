@@ -8,7 +8,7 @@
  * RI-RGS-03, RI-SEC-09.
  */
 import { spawnSync } from 'node:child_process';
-import { chmodSync, existsSync, mkdirSync, readFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 
 /** Image officielle épinglée par empreinte (ZAP 2.17.0). */
@@ -143,10 +143,13 @@ function localStack(up: boolean): number {
  */
 function scan(options: ZapOptions): number {
   const workDir = join(process.cwd(), WORK_DIR);
-  mkdirSync(join(workDir, 'rapports'), { recursive: true });
-  chmodSync(join(workDir, 'rapports'), 0o777);
-  docker(zapArguments(options, workDir));
   const reportPath = join(workDir, REPORT);
+  // Un rapport périmé ne doit jamais être relu : il est supprimé avant chaque analyse.
+  rmSync(reportPath, { force: true });
+  mkdirSync(join(workDir, 'rapports'), { recursive: true });
+  // Le conteneur ZAP s'exécute sous un autre utilisateur : il doit pouvoir écrire son rapport et sa configuration.
+  for (const dir of [workDir, join(workDir, 'rapports')]) chmodSync(dir, 0o777);
+  docker(zapArguments(options, workDir));
   if (!existsSync(reportPath)) {
     process.stderr.write('Audit ZAP impossible : aucun rapport produit.\n');
     return 2;
