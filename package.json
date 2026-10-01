@@ -24,7 +24,8 @@
     "smoke": "node tools/smoke/smoke-test.ts",
     "spell": "cspell --no-progress \"**/*.{md,ts,tsx,mjs}\"",
     "lint:md": "markdownlint-cli2",
-    "audit:semgrep": "node tools/semgrep/audit-semgrep.ts"
+    "audit:semgrep": "node tools/semgrep/audit-semgrep.ts",
+    "format:modifies": "node tools/ci/format-modifies.ts origin/main --write"
   },
   "devDependencies": {
     "@cspell/dict-fr-fr": "2.3.2",

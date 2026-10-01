@@ -18,6 +18,7 @@ Avant de pousser du code : `pnpm audit:semgrep` (Docker requis). Trier chaque co
 
 - [`docs/regles-immuables.md`](docs/regles-immuables.md) prévaut sur tout le reste.
 - Une PR = une story ou un correctif, ≤ 400 lignes hors fichiers générés ; branche `<type>/<n° issue>-<description>` ; Conventional Commits (type en anglais, description en français), commits signés ; modèle de PR entièrement rempli.
+- Avant de pousser : `pnpm format:modifies` (Prettier sur les fichiers modifiés, ADR-0009), puis `pnpm audit:semgrep`.
 - Un agent ne peut ni approuver ni fusionner (RI-REV-06).
 - Aucun secret dans le dépôt, le vault, les journaux ou les messages.
 

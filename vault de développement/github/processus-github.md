@@ -19,6 +19,7 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 - Branche `<type>/<n° issue>-<description>` ; Conventional Commits (type anglais, description française, portées d'ADR-0003) ; commits **signés SSH** (voir [[poste-de-developpement]]) avec le pied `Co-Authored-By` de l'agent.
 - Modèle de PR à 7 sections obligatoires (Story, Règles, Documentation, Sécurité, Données, Accessibilité, Migration) vérifié par le job CI « Modèle de PR complet » ; le corps se termine par la mention « Generated with Claude Code ».
 - Avant toute poussée de code : `pnpm audit:semgrep` et triage des constats ([[audit-semgrep]], RI-SEC-14).
+- Avant toute poussée de code : `pnpm format:modifies` (Prettier sur les fichiers modifiés, ADR-0009).
 - Après création d'une PR dans l'application : `get_status`, sinon `bind_pr` ; pas de sondage de CI, pas de fusion automatique.
 - CODEOWNERS : @ailgorbot sur tout, et explicitement sur les zones protégées.
 
@@ -27,7 +28,7 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 | Job | Contrôles |
 |---|---|
 | Modèle de PR complet | `tools/ci/check-pr-body.ts` (PR seulement ; relancé au push, pas à l'édition de la description) |
-| Qualité | Fichiers de gouvernance présents, `pnpm typecheck`, `pnpm test`, `pnpm reference:check`, `pnpm lint`, `pnpm layers` (dependency-cruiser), sentinelles qualité, construction de l'interface |
+| Qualité | Fichiers de gouvernance présents, `pnpm typecheck`, `pnpm test`, `pnpm reference:check`, `pnpm lint`, `pnpm layers` (dependency-cruiser), sentinelles qualité, Prettier sur les fichiers modifiés (PR, ADR-0009), construction de l'interface |
 | Pile conteneurisée | `docker compose up` avec secrets générés, migrations, tests de fumée, journaux en cas d'échec |
 
 | Hygiène (L0-14) | gitleaks sur tout l'historique (binaire à empreinte vérifiée), `pnpm spell` (cspell), `pnpm lint:md` (markdownlint), sentinelles : jeton fictif détecté, commentaire anglais signalé |

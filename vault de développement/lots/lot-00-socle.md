@@ -28,7 +28,7 @@ sources: [PR #249, #255, #256, #257, docs/developpeur/contribuer/decomposition-d
 
 | Story | Reste à faire |
 |---|---|
-| L0-13 (#13) | dependency-cruiser et sentinelles en CI (PR en cours) ; **Prettier en attente d'une décision du mainteneur** (reformater ferait dépasser 30 lignes à 56 fonctions, même à 200 caractères) |
+| L0-13 (#13) | dependency-cruiser, sentinelles et Prettier progressif (ADR-0009) en CI — PR #275 |
 | L0-23 (#23) | Client HTTP résilient (disjoncteur), limitation de débit |
 | L0-27 (#27) | Registre des règles et traçabilité générés (seule la référence des actions l'est) |
 | L0-34 (#34) | Livraison automatique, images GHCR signées, tag `v0.1.0` (aujourd'hui : construction sur le VPS, ADR-0004) |

@@ -15,6 +15,7 @@ sources: [docs/adr/]
 | [0005](../../docs/adr/0005-theme-recette.md) Thème | Acceptée (revue attendue) | DSFR thème neutre via `packages/ui`, sans Marianne |
 | [0006](../../docs/adr/0006-ecarts-du-mvp.md) Écarts du MVP | **Proposée — à valider par le mainteneur** | E1 policy TS au lieu de Cedar ; E2 `pg` sans Kysely ; E3 une unité `pv-app` ; E4 relais en processus ; E5 comptes locaux + TOTP ; E6 audit non ancré ; E7 build sur VPS ; E8 CSP assouplie pour le DSFR |
 | [0007](../../docs/adr/0007-vault-de-developpement.md) Vault | Acceptée 01/10 à la demande du mainteneur (PR #259) | Vault LLM Wiki, règle RI-DOC-10, grill-me, crochets |
+| [0009](../../docs/adr/0009-adoption-progressive-de-prettier.md) Prettier | Acceptée 01/10 par le mainteneur (L0-13) | Prettier largeur 200, vérifié sur les seuls fichiers modifiés par une PR |
 | [0008](../../docs/adr/0008-audit-semgrep-a-chaque-livraison.md) Audit Semgrep | Acceptée 01/10 à la demande du mainteneur (#271) | Audit complet avant chaque livraison, constat → issue → correction, RI-SEC-14 ; voir [[audit-semgrep]] |
 
 Une décision structurante nouvelle = une ADR numérotée à la suite, puis une ligne ici et une entrée `décision` dans [[log]]. Choix plus légers : [[journal-des-decisions]].

@@ -61,3 +61,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] audit | Premier audit Semgrep complet
 
 - 6 constats et 2 erreurs d'analyse (jeux officiels) : #265 (AES-GCM, PR #268), #266 (pnpm/npm, PR #269), #267 (faux positif, erreurs d'analyse, PR #270) ; 11 interpolations SQL corrigées en requêtes littérales dans #264. Rapport : [[2026-10-01-audit-semgrep-initial]].
+
+## [2026-10-01] décision | Adoption progressive de Prettier (ADR-0009)
+
+- Question posée avec grill-me : reformater tout le code ferait dépasser 30 lignes à 56 fonctions. Choix du mainteneur : Prettier largeur 200, vérifié en CI sur les seuls fichiers modifiés par une PR. L0-13 complétée dans #275 (dependency-cruiser, sentinelles, Prettier progressif). Voir [[journal-des-decisions]], [[architecture-en-couches]].

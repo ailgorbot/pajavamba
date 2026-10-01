@@ -10,21 +10,21 @@ module.exports = {
   forbidden: [
     {
       name: 'fonctionnel-vers-structure',
-      comment: 'La couche fonctionnelle n\'importe jamais la couche moyenne (RI-ARC-02).',
+      comment: "La couche fonctionnelle n'importe jamais la couche moyenne (RI-ARC-02).",
       severity: 'error',
       from: { path: '^services/[^/]+/fonctionnel/' },
       to: { path: '^services/[^/]+/structure/' },
     },
     {
       name: 'fonctionnel-hors-noyau',
-      comment: 'La couche fonctionnelle n\'importe que le noyau et son propre service (RI-ARC-03, RI-ARC-08).',
+      comment: "La couche fonctionnelle n'importe que le noyau et son propre service (RI-ARC-03, RI-ARC-08).",
       severity: 'error',
       from: { path: '^services/([^/]+)/fonctionnel/' },
       to: { pathNot: ['^services/$1/fonctionnel/', '^packages/kernel/'] },
     },
     {
       name: 'service-vers-autre-service',
-      comment: 'Un service n\'importe jamais un autre service : événements ou contrats uniquement (RI-SRV-02).',
+      comment: "Un service n'importe jamais un autre service : événements ou contrats uniquement (RI-SRV-02).",
       severity: 'error',
       from: { path: '^services/([^/]+)/' },
       to: { path: '^services/', pathNot: '^services/$1/' },
@@ -38,7 +38,7 @@ module.exports = {
     },
     {
       name: 'noyau-autonome',
-      comment: 'Le noyau ne dépend d\'aucun autre paquet interne.',
+      comment: "Le noyau ne dépend d'aucun autre paquet interne.",
       severity: 'error',
       from: { path: '^packages/kernel/' },
       to: { path: '^packages/', pathNot: '^packages/kernel/' },
