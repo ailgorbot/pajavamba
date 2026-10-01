@@ -15,7 +15,7 @@ body:
   - type: textarea
     id: reproduction
     attributes:
-      label: Étapes de reproduction
+      label: "Étapes de reproduction"
       value: |
         1.
         2.

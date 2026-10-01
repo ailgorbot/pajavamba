@@ -25,6 +25,7 @@ Le **MVP 0.4.0** (lots 0 à 3) est fusionné sur `main`, déployé en recette su
 | L0-14 ([#14](https://github.com/ailgorbot/pajavamba/issues/14)) | Livré (#263) : gitleaks, cspell, markdownlint |
 | L0-16 ([#16](https://github.com/ailgorbot/pajavamba/issues/16)) | PR #264 : `security.yml` (Semgrep en conteneur, règles `.semgrep/`, audit pnpm), requêtes SQL littérales |
 | Audit Semgrep initial | #265 (PR #268), #266 (PR #269), #267 (PR #270) ; règle RI-SEC-14 et `pnpm audit:semgrep` : L0-38 ([#271](https://github.com/ailgorbot/pajavamba/issues/271)). Voir [[audit-semgrep]] |
+| L0-16 ([#16](https://github.com/ailgorbot/pajavamba/issues/16)) | Branche `ci/16-securite` : `security.yml` (Semgrep en conteneur, règles `.semgrep/`, audit pnpm) |
 | Stories partielles du lot 0 | L0-13 (Prettier, dependency-cruiser), L0-23 (client HTTP résilient, limitation de débit), L0-27 (registre des règles, traçabilité), L0-34 (livraison automatique, tag v0.1.0) |
 | Stories partielles des lots 1 à 3 | L1-10 (groupes), L1-19 (WebAuthn, politique MFA), L3-12 (observateurs, étiquettes), L3-14 (mentions), documentation des lots (L1-27, L2-20, L3-33) |
 

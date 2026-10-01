@@ -69,6 +69,8 @@ async function serveWeb(app: FastifyInstance, webDir: string): Promise<void> {
   await app.register(fastifyStatic, { root: webDir, wildcard: false, index: ['index.html'] });
   app.get('/*', async (request, reply) => {
     if (request.url.startsWith('/api/')) throw API_NOT_FOUND;
+    // Nom de fichier constant, servi depuis la racine fixée par `@fastify/static` : aucun chemin issu de la requête.
+    // nosemgrep: express-res-sendfile
     return reply.header('cache-control', 'no-cache').sendFile('index.html');
   });
 }

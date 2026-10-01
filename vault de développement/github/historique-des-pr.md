@@ -28,6 +28,7 @@ sources: [gh pr list --state all, git log origin/main]
 | [#269](https://github.com/ailgorbot/pajavamba/pull/269) | `build/266-approvisionnement` | ouverte | #266 : durcissement pnpm/npm | Audit Semgrep |
 | [#270](https://github.com/ailgorbot/pajavamba/pull/270) | `ci/267-faux-positifs-semgrep` | ouverte | #267 : faux positif `sendFile`, erreurs d'analyse | Audit Semgrep |
 | à venir | `docs/271-audit-semgrep` | — | L0-38 : RI-SEC-14, ADR-0008, `tools/semgrep`, vault | Basée sur #264 : fusionner #264 d'abord |
+| à venir | `ci/16-securite` | — | L0-16 : `security.yml` (Semgrep, audit des dépendances) | — |
 
 Toutes les fusions sont faites par le mainteneur (squash). Après le MVP, la règle est **une PR par story** (≤ 400 lignes) ; l'empilement de PR par lot n'a servi qu'au MVP et a provoqué l'incident de #251 ([[lecons-apprises]]).
 

@@ -12,6 +12,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 |---|---|---|---|
 | Hors lot | 18 | 0 | 1 |
 | Lot 00 — Socle | 23 | 8 | 9 |
+| Hors lot | 15 | 0 | 0 |
+| Lot 00 — Socle | 22 | 5 | 9 |
 | Lot 01 — Identité et accès | 15 | 3 | 9 |
 | Lot 02 — Projets et équipes | 16 | 1 | 3 |
 | Lot 03 — Éléments et workflows | 21 | 3 | 9 |
@@ -80,6 +82,7 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#33](https://github.com/ailgorbot/pajavamba/issues/33) | [L0-33] Fournir deploy/compose et des images OCI minimales | Done |
 | [#258](https://github.com/ailgorbot/pajavamba/issues/258) | [L0-37] Tenir un vault de développement (LLM Wiki) comme mémoire des agents | Done |
 | [#13](https://github.com/ailgorbot/pajavamba/issues/13) | [L0-13] Configurer ESLint, Prettier, dependency-cruiser et les seuils de code | In progress |
+| [#16](https://github.com/ailgorbot/pajavamba/issues/16) | [L0-16] Ajouter le workflow de sécurité (security.yml) | In progress |
 | [#23](https://github.com/ailgorbot/pajavamba/issues/23) | [L0-23] OPS : client HTTP résilient, pool PostgreSQL, idempotence et limitation de débit | In progress |
 | [#27](https://github.com/ailgorbot/pajavamba/issues/27) | [L0-27] Générer la référence, le registre des règles et la traçabilité (tools/) | In progress |
 | [#34](https://github.com/ailgorbot/pajavamba/issues/34) | [L0-34] Déployer automatiquement la recette sur Coolify et poser v0.1.0 | In progress |
