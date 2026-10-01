@@ -34,8 +34,8 @@ sources: [PR #249, #255, #256, #257, docs/developpeur/contribuer/decomposition-d
 | L0-34 (#34) | Livraison automatique, images GHCR signées, tag `v0.1.0` (aujourd'hui : construction sur le VPS, ADR-0004) |
 | Backlog | L0-01 rulesets, L0-02 sécurité du dépôt, L0-10 GitHub App des agents, L0-12 et L0-25 Rust (non introduit, RI-ARC-13), L0-17 release-please, L0-18 `docs.yml`/`release.yml`, L0-32 superviseur `pajavamba`, L0-35 site VitePress |
 | L0-14 (#14) | Livré (#263) |
-| L0-16 (#16) | En cours : Semgrep (règles projet : SQL concaténé, journal hors catalogue, évaluation dynamique), audit des dépendances ; CodeQL et analyse d'images restent à faire (L0-02, L0-34) |
+| L0-16 (#16) | Livré (#264) : Semgrep (règles du projet), audit des dépendances ; CodeQL et analyse d'images restent à faire (L0-02, L0-34) |
 | L0-37 (#258) | Livré (#259 à #262) |
-| L0-38 (#271) | En cours : audit Semgrep à chaque livraison (RI-SEC-14) |
+| L0-38 (#271) | Livré (#272) : audit Semgrep à chaque livraison (RI-SEC-14) ; suite #273 (CI planifiée) |
 
 Pas de Nx : pnpm seul. Statuts détaillés : [[etat-des-stories]].
