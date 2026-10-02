@@ -1,7 +1,7 @@
 /**
  * Tests des règles des éléments de travail : clé, hiérarchie, transitions, rang.
  *
- * Couche : basse (workitem). Règles vérifiées : RG-WI-001, RG-WI-002, RG-WI-003, RG-WI-005, RG-WF-004.
+ * Couche : basse (workitem). Règles vérifiées : RG-WI-001, RG-WI-002, RG-WI-003, RG-WI-005, RG-WF-004, RG-WF-005.
  */
 import { toEntityId } from '@pajavamba/kernel';
 import fc from 'fast-check';
@@ -91,7 +91,13 @@ describe('hiérarchie (RG-WI-002, RG-WI-003)', () => {
   });
 });
 
-describe('transitions de workflow (RG-WI-005, RG-WF-004)', () => {
+describe('transitions de workflow (RG-WI-005, RG-WF-004, RG-WF-005)', () => {
+  it('refuse une transition « validation requise » sans validation humaine (RG-WF-005)', () => {
+    const snapshot: WorkflowSnapshot = { ...SNAPSHOT, transitions: [{ key: 'approve', name: 'Valider', from: 'todo', to: 'done', conditions: [], requiresApproval: true }] };
+    const result = evaluateTransition(snapshot, item(), { targetKey: 'done', facts: FACTS });
+    expect(!result.ok && result.error.code).toBe('workitem.approval_required');
+  });
+
   it('autorise une transition de la version rattachée dont les conditions sont remplies', () => {
     const result = evaluateTransition(SNAPSHOT, item({ assigneeId: toEntityId('0192f7c4-5a1e-7c3b-9d2e-4b8f6a1c2d40') }), { targetKey: 'in_progress', facts: FACTS });
     expect(result.ok && result.value.key).toBe('in_progress');
