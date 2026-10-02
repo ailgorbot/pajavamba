@@ -93,3 +93,6 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] ingestion | L0-17 titres de PR et release-please
 
 - Workflow `pr` (titre Conventional Commits + modèle, relancé à l'édition), release-please configuré en français mais inactif tant que le mainteneur n'a pas autorisé Actions à créer des PR et posé `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
+## [2026-10-02] livraison | Recette redéployée et réanalysée
+
+- #281, #282, #283, #284 fusionnées ; recette redéployée sur `e799ced` (POST `/deploy`). Analyse ZAP passive : COEP et cache corrigés, 1 faux positif 10015 justifié (#285). Voir [[audit-zap]], [[recette-coolify]].
