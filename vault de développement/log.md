@@ -111,3 +111,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] livraison | Première publication de la documentation
 
 - `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
+
+## [2026-10-02] ingestion | L0-35 contrôle des liens (2/n)
+
+- lychee en CI : liens internes à chaque PR, externes chaque lundi ; docs, fichiers de gouvernance et vault. Voir [[processus-github]].

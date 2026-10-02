@@ -37,6 +37,8 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 
 `security.yml` (L0-16) : job « SAST Semgrep » (image `semgrep/semgrep` épinglée par empreinte, `semgrep --test .semgrep` puis analyse du dépôt) et job « Vulnérabilités des dépendances » (`pnpm audit --audit-level high`, sentinelle minimist 1.2.5). Déclencheurs : PR, `main`, chaque lundi. Une interpolation SQL légitime (identifiant validé) porte `// nosemgrep: pv-sql-concatenation` avec sa justification.
 
+Liens de la documentation (L0-35) : lychee 0.24.2 (binaire à empreinte vérifiée, `lychee.toml`) — liens internes hors ligne à chaque PR (job hygiène), liens externes chaque lundi (`security.yml`, job « Liens externes »).
+
 Actions épinglées par SHA (checkout, setup-node, pnpm/action-setup), `permissions: contents: read`, aucun `pull_request_target`.
 
 ## Versions (L0-17)
