@@ -31,7 +31,7 @@ Le **MVP 0.4.0** (lots 0 à 3) est en recette sur Coolify et validé ; le socle 
 | Sujet | Blocage | Reprise |
 |---|---|---|
 | VitePress (L0-35) | `minimumReleaseAge` : `bare-fs` 4.8.2 verrouillé, publié le 25/09 | À partir du 03/10 vers 19 h 25 ; VitePress 2.0.0-alpha.20 (choix du mainteneur) |
-| Audits locaux Semgrep et ZAP, pnpm, tests | Docker de nouveau opérationnel le 03/10 (images à retélécharger), mais **Node.js absent** : il était installé sur le disque D: défaillant | Réinstaller Node.js 24 sur C: ou G: (mainteneur) ; d'ici là, audits et contrôles dans la CI sur la branche avant d'ouvrir la PR |
+| Audits locaux Semgrep et ZAP, pnpm, tests | Docker de nouveau opérationnel le 03/10 (images à télécharger de nouveau), Node.js réinstallé sur G: (`G:\nodejs`) le 03/10 | Reprendre les audits locaux (`pnpm audit:semgrep`, `pnpm audit:zap`) après téléchargement des images |
 | Règles RG-PRJ-002, RG-WI-009, RG-IA-002 | Cas d'usage à tester avec davantage de dépendances simulées | Suite de #297 |
 
 ## Prochaines étapes proposées

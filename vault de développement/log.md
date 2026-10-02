@@ -118,4 +118,8 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 
 ## [2026-10-03] compactage | Point avant compactage du contexte
 
-- `main` = `1701a44` ; 11 PR ouvertes (#292 à #296, #298 à #303). Docker de nouveau opérationnel (images à retélécharger) ; **Node.js absent du poste** (installé sur le disque D: défaillant) : pnpm, tests et audits locaux impossibles jusqu'à sa réinstallation. VitePress repoussé (délai de 7 jours sur `bare-fs`). Synthèse réécrite. Voir [[etat-du-projet]], [[poste-de-developpement]].
+- `main` = `1701a44` ; 11 PR ouvertes (#292 à #296, #298 à #303). Docker de nouveau opérationnel (images à télécharger de nouveau) ; **Node.js absent du poste** (installé sur le disque D: défaillant) : pnpm, tests et audits locaux impossibles jusqu'à sa réinstallation. VitePress repoussé (délai de 7 jours sur `bare-fs`). Synthèse réécrite. Voir [[etat-du-projet]], [[poste-de-developpement]].
+
+## [2026-10-03] incident | Node.js réinstallé sur le disque G
+
+- Le mainteneur a installé Node.js dans `G:\nodejs` (v26.4.0) ; pnpm et les contrôles locaux refonctionnent. Voir [[poste-de-developpement]].
