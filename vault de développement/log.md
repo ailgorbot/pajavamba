@@ -111,3 +111,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] livraison | Première publication de la documentation
 
 - `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
+
+## [2026-10-02] ingestion | Tests des règles du cycle de vie des projets
+
+- 12 tests unitaires de la couche fonctionnelle de portfolio (RG-PRJ-001, 003, 004, 005, 006, 007), dont un test de propriété sur la clé ; suivi #297. Voir [[portfolio]].
