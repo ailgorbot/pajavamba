@@ -17,6 +17,7 @@ Plateforme de gestion de projets agiles (Scrum, Kanban, Scrumban, SAFe à venir)
 | [Prise en main](docs/fonctionnel/prise-en-main.md) | Guide utilisateur du MVP |
 | [Déploiement Coolify](docs/exploitation/deploiement-coolify.md) | Installation, secrets, sauvegarde, retour arrière |
 | [Référence des actions](docs/reference/actions.md) | Routes de l'API (générée depuis le code) |
+| [Référence des erreurs](docs/reference/erreurs.md), [du journal](docs/reference/journal.md), [de la configuration](docs/reference/configuration.md) | Codes d'erreur, entrées de journal et variables `PV_*` (générées depuis le code) |
 | [ADR](docs/adr/) | Décisions d'architecture |
 
 ## Démarrage rapide

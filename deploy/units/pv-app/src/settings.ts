@@ -10,23 +10,32 @@ const flag = z.enum(['true', 'false']).transform((value) => value === 'true');
 
 /** Schéma de configuration de l'unité. */
 export const APP_SETTINGS = z.object({
-  host: z.string().default('127.0.0.1'),
-  port: z.coerce.number().int().min(1024).max(65_535).default(8080),
-  dbHost: z.string().min(1).default('127.0.0.1'),
-  dbPort: z.coerce.number().int().default(5432),
-  dbName: z.string().min(1).default('pajavamba'),
-  dbUser: z.string().min(1).default('pv_runtime'),
-  dbPassword: z.string().min(16),
-  dbPoolMax: z.coerce.number().int().min(2).max(100).default(20),
-  pepper: z.string().min(32),
-  setupCode: z.string().min(16),
-  fieldKey: z.string().min(32),
-  secureCookies: flag.default(true),
-  https: flag.default(true),
-  trustedProxies: z.string().default('').transform((value) => value.split(',').map((item) => item.trim()).filter((item) => item !== '')),
-  webDir: z.string().default(''),
-  logDetail: z.enum(['functional', 'technical', 'debug']).default('technical'),
-  purgeIntervalMinutes: z.coerce.number().int().min(1).default(60),
+  host: z.string().default('127.0.0.1').meta({ description: 'Adresse d’écoute HTTP' }),
+  port: z.coerce.number().int().min(1024).max(65_535).default(8080).meta({ description: 'Port d’écoute HTTP' }),
+  dbHost: z.string().min(1).default('127.0.0.1').meta({ description: 'Hôte PostgreSQL' }),
+  dbPort: z.coerce.number().int().default(5432).meta({ description: 'Port PostgreSQL' }),
+  dbName: z.string().min(1).default('pajavamba').meta({ description: 'Base PostgreSQL' }),
+  dbUser: z.string().min(1).default('pv_runtime').meta({ description: 'Rôle PostgreSQL d’exécution (sans `BYPASSRLS`)' }),
+  dbPassword: z.string().min(16).meta({ description: 'Mot de passe du rôle d’exécution', secret: true }),
+  dbPoolMax: z.coerce.number().int().min(2).max(100).default(20).meta({ description: 'Connexions PostgreSQL maximales du pool (RI-PRF-04)' }),
+  pepper: z.string().min(32).meta({ description: 'Poivre HMAC des jetons et clés API', secret: true }),
+  setupCode: z.string().min(16).meta({ description: 'Code d’initialisation de l’instance', secret: true }),
+  fieldKey: z.string().min(32).meta({ description: 'Clé de chiffrement des champs sensibles (AES-256-GCM)', secret: true }),
+  secureCookies: flag.default(true).meta({ description: 'Cookie de session `__Host-` sécurisé (HTTPS obligatoire)' }),
+  https: flag.default(true).meta({ description: 'Service derrière HTTPS : en-tête HSTS' }),
+  trustedProxies: z
+    .string()
+    .default('')
+    .transform((value) =>
+      value
+        .split(',')
+        .map((item) => item.trim())
+        .filter((item) => item !== ''),
+    )
+    .meta({ description: 'Proxys de confiance pour `X-Forwarded-For` (liste séparée par des virgules)' }),
+  webDir: z.string().default('').meta({ description: 'Répertoire de l’interface compilée (vide : pas d’interface)' }),
+  logDetail: z.enum(['functional', 'technical', 'debug']).default('technical').meta({ description: 'Niveau de détail du journal' }),
+  purgeIntervalMinutes: z.coerce.number().int().min(1).default(60).meta({ description: 'Intervalle de la purge des projets supprimés (minutes)' }),
 });
 
 /** Configuration de l'unité. */
@@ -34,12 +43,12 @@ export type AppSettings = z.infer<typeof APP_SETTINGS>;
 
 /** Schéma de configuration du migrateur. */
 export const MIGRATE_SETTINGS = z.object({
-  dbHost: z.string().min(1).default('127.0.0.1'),
-  dbPort: z.coerce.number().int().default(5432),
-  dbName: z.string().min(1).default('pajavamba'),
-  dbAdminUser: z.string().min(1).default('postgres'),
-  dbAdminPassword: z.string().min(16),
-  runtimePassword: z.string().min(16),
+  dbHost: z.string().min(1).default('127.0.0.1').meta({ description: 'Hôte PostgreSQL' }),
+  dbPort: z.coerce.number().int().default(5432).meta({ description: 'Port PostgreSQL' }),
+  dbName: z.string().min(1).default('pajavamba').meta({ description: 'Base PostgreSQL' }),
+  dbAdminUser: z.string().min(1).default('postgres').meta({ description: 'Superutilisateur PostgreSQL du migrateur' }),
+  dbAdminPassword: z.string().min(16).meta({ description: 'Mot de passe du superutilisateur', secret: true }),
+  runtimePassword: z.string().min(16).meta({ description: 'Mot de passe attribué au rôle d’exécution', secret: true }),
 });
 
 /**
