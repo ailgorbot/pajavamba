@@ -1,13 +1,13 @@
 # Documentation : vérifie la documentation à chaque modification de docs/ sur main et, une fois GitHub Pages
-# activé (variable PAGES_ACTIF = true), publie la référence générée et la documentation. Le site VitePress
-# (L0-35) remplacera la publication brute.
+# activé (variable PAGES_ACTIF = true), la rend en HTML (Jekyll officiel de Pages) et la publie. Le site VitePress
+# (L0-35) remplacera ce rendu.
 # Règles : RI-DOC-01, RI-DOC-03 (référence générée), RI-DOC-06, RI-DOC-07 (Pages), RI-GIT-03.
 name: docs
 
 on:
   push:
     branches: [main]
-    paths: ['docs/**', 'README.md', 'tools/reference/**']
+    paths: ['docs/**', 'README.md', 'tools/reference/**', '.github/workflows/docs.yml']
   workflow_dispatch:
 
 permissions:
@@ -35,11 +35,25 @@ jobs:
           pnpm reference:check
           pnpm lint:md
           pnpm spell
-      - name: Assemblage du site (documentation brute en attendant VitePress)
+      - name: Assemblage des sources (README en page d'accueil, liens réécrits, sommaire des ADR)
         run: |
-          mkdir -p _site
-          cp -r docs/. _site/
-          cp README.md _site/index.md
+          mkdir -p _source
+          cp -r docs/. _source/
+          cp CONTRIBUTING.md SECURITY.md GOVERNANCE.md CODE_OF_CONDUCT.md _source/
+          cp LICENSE _source/LICENSE.txt
+          sed -e 's#](docs/#](#g' -e 's#"docs/#"#g' -e 's#](LICENSE)#](LICENSE.txt)#g' README.md > _source/index.md
+          {
+            printf -- '---\ntitle: Décisions d'"'"'architecture (ADR)\n---\n\n# Décisions d'"'"'architecture (ADR)\n\n'
+            for f in _source/adr/[0-9]*.md; do
+              printf -- '- [%s](%s)\n' "$(sed -n 's/^# //p' "$f" | head -n 1)" "$(basename "$f")"
+            done
+          } > _source/adr/index.md
+          printf 'title: PajaVamba\ndescription: Documentation de PajaVamba\nlang: fr\n' > _source/_config.yml
+      - name: Rendu HTML (Jekyll officiel de GitHub Pages, en attendant VitePress, L0-35)
+        uses: actions/jekyll-build-pages@44a6e6beabd48582f863aeeb6cb2151cc1716697 # v1.0.13
+        with:
+          source: _source
+          destination: _site
       - if: vars.PAGES_ACTIF == 'true'
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:

@@ -107,3 +107,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] incident | Journal collé après la fusion de #286 et #287
 
 - Deuxième occurrence (après #275) : markdownlint échouait sur `main`. Tolérance MD022/MD032 dans `log.md`, `merge=union` dans `.gitattributes`. Voir [[lecons-apprises]].
+
+## [2026-10-02] livraison | Première publication de la documentation
+
+- `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].

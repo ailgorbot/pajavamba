@@ -85,6 +85,7 @@ HMAC
 inet
 iteration
 Iterative
+Jekyll
 Karpathy
 Kysely
 l'ANSSI

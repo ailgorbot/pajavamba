@@ -46,7 +46,7 @@ Actions épinglées par SHA (checkout, setup-node, pnpm/action-setup), `permissi
 ## Publication (L0-18)
 
 - `release.yml` (étiquette `v*`) : image `ghcr.io/ailgorbot/pajavamba/pv-app` amd64 + arm64, signée sans clé par cosign (OIDC), SBOM CycloneDX et provenance attestés et poussés au registre ; job dans l'environnement `release`. **À faire par le mainteneur** : créer l'environnement `release` avec un approbateur obligatoire (Settings → Environments), sinon GitHub le crée sans protection au premier tag.
-- `docs.yml` (`main`, `docs/**`) : référence, Markdown et orthographe vérifiés, site assemblé ; publication Pages seulement si la variable `PAGES_ACTIF` vaut `true` et que Pages est activé avec la source « GitHub Actions ». Le site VitePress (L0-35) remplacera l'assemblage brut.
+- `docs.yml` (`main`, `docs/**`, ou manuel) : référence, Markdown et orthographe vérifiés ; sources assemblées (README en page d'accueil, liens réécrits, sommaire des ADR) puis rendues en HTML par `actions/jekyll-build-pages` ; publication sur <https://ailgorbot.github.io/pajavamba/> (Pages activé, `PAGES_ACTIF = true` depuis le 02/10). Le site VitePress (L0-35) remplacera ce rendu.
 
 ## À venir
 
