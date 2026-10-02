@@ -27,4 +27,4 @@ Choix pris en conversation, avec leur conséquence durable. Source brute : [[202
 | 01/10 | DAST OWASP ZAP sur pile locale et CI, plus analyse passive de la recette à chaque livraison de lot (jamais d'analyse active sur la recette) ; téléchargement de l'image ZAP autorisé | Mainteneur | ADR-0010, RI-SEC-15, `pnpm audit:zap`, [[audit-zap]] |
 | 01/10 | Infrastructure de recette (adresse, identifiants Coolify) hors du dépôt public | Agent | Notes dans `vault de développement/local/` (non versionné) |
 
-Questions ouvertes pour le mainteneur (à poser avec grill-me le moment venu) : validation d'ADR-0006 ; activation des rulesets et de la sécurité du dépôt (L0-01, L0-02) ; création de la GitHub App des agents (L0-10).
+Questions ouvertes pour le mainteneur (à poser avec grill-me le moment venu) : rendre public le tableau du projet n° 2 (404 pour les lecteurs, lien exclu de lychee) ; validation d'ADR-0006 ; activation des rulesets et de la sécurité du dépôt (L0-01, L0-02) ; création de la GitHub App des agents (L0-10).
