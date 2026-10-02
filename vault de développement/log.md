@@ -111,3 +111,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] livraison | Première publication de la documentation
 
 - `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
+
+## [2026-10-02] incident | Git Bash hors service puis réinstallé sur G:
+
+- Plus aucune commande Bash ne répondait (installation sur le disque D: défaillant) ; travail en PowerShell, poussée par en-tête transitoire. Le mainteneur a réinstallé Git Bash sur G: ; signature et poussée vérifiées. Voir [[poste-de-developpement]].
