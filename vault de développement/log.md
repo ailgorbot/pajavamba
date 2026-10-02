@@ -89,3 +89,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] incident | Rapport ZAP de la recette publié par erreur
 
 - #281 a inclus `.zap/rapports/rapport-zap.json` (adresse de la recette, en-têtes ; aucun secret) et `.zap/zap.yaml` ; retirés par #284. La CI de #282 a relu ce rapport périmé ; script corrigé (suppression préalable, droits du dossier). Voir [[lecons-apprises]], [[audit-zap]].
+
+## [2026-10-02] livraison | Recette redéployée et réanalysée
+
+- #281, #282, #283, #284 fusionnées ; recette redéployée sur `e799ced` (POST `/deploy`). Analyse ZAP passive : COEP et cache corrigés, 1 faux positif 10015 justifié (#285). Voir [[audit-zap]], [[recette-coolify]].
