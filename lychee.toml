@@ -2,10 +2,10 @@
 # En PR : liens internes seulement (--offline) ; chaque lundi : liens externes aussi (security.yml).
 no_progress = true
 include_fragments = false
-exclude_path = ["node_modules", "vault de développement/local"]
+exclude_path = ['node_modules', 'vault de développement/local']
 exclude = [
-  # Adresses d'exemple et locales, jamais joignables depuis la CI.
-  "^https?://(localhost|127\.0\.0\.1|pv-app)",
-  "exemple\.fr",
-  "example\.org",
+  # Adresses d'exemple et locales, jamais joignables depuis la CI (chaînes littérales : pas d'échappement TOML).
+  '^https?://(localhost|127\.0\.0\.1|pv-app)',
+  'exemple\.fr',
+  'example\.org',
 ]
