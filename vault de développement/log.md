@@ -111,3 +111,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] livraison | Première publication de la documentation
 
 - `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
+
+## [2026-10-02] ingestion | L0-23 client HTTP résilient (1/3)
+
+- `createHttpClient` dans OPS (délai, reprises bornées, disjoncteur), 5 tests ; règle Semgrep `pv-appel-sortant-direct`. Suites : idempotence obligatoire (428, 24 h), limitation de débit. Audits dans la CI (Docker indisponible). Voir [[ops]].
