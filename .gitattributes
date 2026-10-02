@@ -1,5 +1,1 @@
-* text=auto eol=lf
-*.png binary
-*.jpg binary
-*.ico binary
-*.woff2 binary
+vault de développement/log.md merge=union
