@@ -111,3 +111,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] livraison | Première publication de la documentation
 
 - `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
+
+## [2026-10-02] ingestion | Tests des règles d'identité
+
+- 6 tests unitaires de la couche fonctionnelle d'identity (RG-ORG-001, RG-ORG-002, RG-IAM-005), avec dépendances simulées pour la désactivation. Suivi #297. Voir [[identity]].
