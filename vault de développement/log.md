@@ -101,6 +101,9 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 
 - #281, #282, #283, #284 fusionnées ; recette redéployée sur `e799ced` (POST `/deploy`). Analyse ZAP passive : COEP et cache corrigés, 1 faux positif 10015 justifié (#285). Voir [[audit-zap]], [[recette-coolify]].
 
+## [2026-10-02] ingestion | L0-18 publication (release.yml, docs.yml)
+
+- Image GHCR multi-plateforme signée (cosign sans clé), SBOM CycloneDX et provenance attestés, environnement `release` à protéger par le mainteneur ; `docs.yml` vérifie la documentation et publiera sur Pages après activation. Voir [[processus-github]].
 ## [2026-10-02] incident | Journal collé après la fusion de #286 et #287
 
 - Deuxième occurrence (après #275) : markdownlint échouait sur `main`. Tolérance MD022/MD032 dans `log.md`, `merge=union` dans `.gitattributes`. Voir [[lecons-apprises]].

@@ -10,8 +10,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 
 | Lot | Done | In progress | Backlog |
 |---|---|---|---|
-| Hors lot | 28 | 0 | 0 |
-| Lot 00 — Socle | 31 | 5 | 10 |
+| Hors lot | 29 | 0 | 1 |
+| Lot 00 — Socle | 32 | 6 | 8 |
 | Lot 01 — Identité et accès | 15 | 3 | 9 |
 | Lot 02 — Projets et équipes | 16 | 1 | 3 |
 | Lot 03 — Éléments et workflows | 21 | 3 | 9 |
@@ -60,6 +60,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#283](https://github.com/ailgorbot/pajavamba/issues/283) | docs(socle): vault — audit DAST OWASP ZAP (L0-39) | Done |
 | [#284](https://github.com/ailgorbot/pajavamba/issues/284) | fix(socle): retirer le rapport ZAP de la recette commité par erreur | Done |
 | [#286](https://github.com/ailgorbot/pajavamba/issues/286) | ci(socle): justifier l'alerte ZAP 10015 relevée sur la recette | Done |
+| [#287](https://github.com/ailgorbot/pajavamba/issues/287) | ci(socle): vérifier les titres de PR et préparer release-please | Done |
+| [#288](https://github.com/ailgorbot/pajavamba/issues/288) | fix(docs): rendre le journal du vault robuste aux fusions parallèles | Backlog |
 
 ## Lot 00 — Socle
 
@@ -77,6 +79,7 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#14](https://github.com/ailgorbot/pajavamba/issues/14) | [L0-14] Installer gitleaks, cspell et markdownlint | Done |
 | [#15](https://github.com/ailgorbot/pajavamba/issues/15) | [L0-15] Mettre en place la CI minimale (ci.yml) | Done |
 | [#16](https://github.com/ailgorbot/pajavamba/issues/16) | [L0-16] Ajouter le workflow de sécurité (security.yml) | Done |
+| [#17](https://github.com/ailgorbot/pajavamba/issues/17) | [L0-17] Contrôler les Conventional Commits et automatiser les versions (release-please) | Done |
 | [#19](https://github.com/ailgorbot/pajavamba/issues/19) | [L0-19] Créer packages/kernel (identifiants typés, Result, ExecutionContext) | Done |
 | [#20](https://github.com/ailgorbot/pajavamba/issues/20) | [L0-20] OPS : configuration validée au démarrage | Done |
 | [#21](https://github.com/ailgorbot/pajavamba/issues/21) | [L0-21] OPS : journal structuré catalogué, masquage et valeurs sentinelles | Done |
@@ -96,6 +99,7 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#278](https://github.com/ailgorbot/pajavamba/issues/278) | [ZAP] Ajouter l'en-tête Cross-Origin-Embedder-Policy | Done |
 | [#279](https://github.com/ailgorbot/pajavamba/issues/279) | [ZAP] Mettre en cache les ressources versionnées de l'interface | Done |
 | [#285](https://github.com/ailgorbot/pajavamba/issues/285) | [ZAP] Justifier l'alerte 10015 (directives de cache) relevée sur la recette | Done |
+| [#18](https://github.com/ailgorbot/pajavamba/issues/18) | [L0-18] Créer les squelettes docs.yml et release.yml | In progress |
 | [#23](https://github.com/ailgorbot/pajavamba/issues/23) | [L0-23] OPS : client HTTP résilient, pool PostgreSQL, idempotence et limitation de débit | In progress |
 | [#27](https://github.com/ailgorbot/pajavamba/issues/27) | [L0-27] Générer la référence, le registre des règles et la traçabilité (tools/) | In progress |
 | [#34](https://github.com/ailgorbot/pajavamba/issues/34) | [L0-34] Déployer automatiquement la recette sur Coolify et poser v0.1.0 | In progress |
@@ -105,8 +109,6 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#2](https://github.com/ailgorbot/pajavamba/issues/2) | [L0-02] Activer la sécurité du dépôt GitHub | Backlog |
 | [#10](https://github.com/ailgorbot/pajavamba/issues/10) | [L0-10] Créer la GitHub App des agents de développement | Backlog |
 | [#12](https://github.com/ailgorbot/pajavamba/issues/12) | [L0-12] Outiller le workspace Rust (Cargo, clippy, rustfmt, cargo-deny) | Backlog |
-| [#17](https://github.com/ailgorbot/pajavamba/issues/17) | [L0-17] Contrôler les Conventional Commits et automatiser les versions (release-please) | Backlog |
-| [#18](https://github.com/ailgorbot/pajavamba/issues/18) | [L0-18] Créer les squelettes docs.yml et release.yml | Backlog |
 | [#25](https://github.com/ailgorbot/pajavamba/issues/25) | [L0-25] Créer crates/pv-ops (équivalent Rust de OPS) | Backlog |
 | [#32](https://github.com/ailgorbot/pajavamba/issues/32) | [L0-32] Créer le squelette de la commande pajavamba (pv-supervisor) | Backlog |
 | [#35](https://github.com/ailgorbot/pajavamba/issues/35) | [L0-35] Publier le site de documentation VitePress | Backlog |

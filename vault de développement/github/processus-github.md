@@ -43,6 +43,11 @@ Actions épinglées par SHA (checkout, setup-node, pnpm/action-setup), `permissi
 
 `release-please.yml` ouvre une PR de version `chore(socle): publier la version X.Y.Z` (changelog français, `bump-minor-pre-major`, départ au commit `e799ced`, manifeste à 0.4.0). **Inactif** tant que la variable de dépôt `RELEASE_PLEASE_ACTIF` ne vaut pas `true` et que GitHub Actions n'est pas autorisé à créer des PR (Settings → Actions → General) — réglages du mainteneur ; un jeton de GitHub App (L0-10) permettrait aussi à la CI de tourner sur la PR de version. Aucun tag `v0.4.0` n'existe encore : à poser par le mainteneur à la publication (L0-34).
 
+## Publication (L0-18)
+
+- `release.yml` (étiquette `v*`) : image `ghcr.io/ailgorbot/pajavamba/pv-app` amd64 + arm64, signée sans clé par cosign (OIDC), SBOM CycloneDX et provenance attestés et poussés au registre ; job dans l'environnement `release`. **À faire par le mainteneur** : créer l'environnement `release` avec un approbateur obligatoire (Settings → Environments), sinon GitHub le crée sans protection au premier tag.
+- `docs.yml` (`main`, `docs/**`) : référence, Markdown et orthographe vérifiés, site assemblé ; publication Pages seulement si la variable `PAGES_ACTIF` vaut `true` et que Pages est activé avec la source « GitHub Actions ». Le site VitePress (L0-35) remplacera l'assemblage brut.
+
 ## À venir
 
-`docs.yml`/`release.yml` (L0-18), GitHub App des agents (L0-10).
+GitHub App des agents (L0-10).
