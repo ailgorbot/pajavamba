@@ -34,6 +34,7 @@ jobs:
         run: |
           pnpm reference:check
           pnpm lint:md
+          pnpm docs:front-matter
           pnpm spell
       - name: Assemblage des sources (README en page d'accueil, liens réécrits, sommaire des ADR)
         run: |

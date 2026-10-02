@@ -111,3 +111,11 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] livraison | Première publication de la documentation
 
 - `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
+
+## [2026-10-02] décision | VitePress 2 alpha pour le site de documentation
+
+- La politique de confiance pnpm refuse `vite@5.4.21` (VitePress 1.6.4) ; choix du mainteneur : VitePress 2.0.0-alpha.20 (Vite 8), sans exception de sécurité. Installation repoussée au 03/10 au soir : `bare-fs` 4.8.2, déjà verrouillé, n'a pas encore 7 jours (`minimumReleaseAge`). Voir [[journal-des-decisions]].
+
+## [2026-10-02] ingestion | L0-35 front-matter obligatoire (1/n)
+
+- `tools/docs/check-front-matter.ts` en CI ; front-matter ajouté aux règles immuables et aux spécifications. Voir [[outillage]].
