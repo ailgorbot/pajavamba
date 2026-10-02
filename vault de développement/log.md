@@ -115,3 +115,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] ingestion | L0-27 références générées (1/2)
 
 - `docs/reference/erreurs.md` (70 codes), `journal.md`, `configuration.md` générés depuis le code, contrôlés par `pnpm reference:check` ; métadonnées `.meta()` sur les schémas de configuration. Suite : matrice de traçabilité des règles. Voir [[outillage]].
+
+## [2026-10-02] ingestion | L0-27 matrice de traçabilité (2/2)
+
+- `docs/reference/tracabilite.md` générée : 24 règles citées, 4 testées ; une règle déclarée dans `fonctionnel/src/regles/` sans test fait échouer `reference:check`. Voir [[outillage]], [[lecons-apprises]].
