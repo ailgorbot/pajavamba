@@ -9,8 +9,9 @@
 import type { ActionCall, ActionDefinition, ActionResponse, AuthenticatedPrincipal, IdentityClient, RegisteredAction } from '@pajavamba/contracts';
 import { toEntityId, type ExecutionContext } from '@pajavamba/kernel';
 import type {} from '@fastify/cookie';
-import { HttpProblem, UNAUTHENTICATED, type Logger } from '@pajavamba/ops';
+import { createRateLimiter, HttpProblem, UNAUTHENTICATED, type Logger, type RateLimiter } from '@pajavamba/ops';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { enforceRateLimit, rateBuckets } from './rate-limit.ts';
 
 /** Options de la passerelle. */
 export interface GatewayOptions {
@@ -19,6 +20,8 @@ export interface GatewayOptions {
   readonly logger: Logger;
   /** Vrai en HTTPS : cookie `__Host-` sécurisé ; faux uniquement en développement local. */
   readonly secureCookies: boolean;
+  /** Limiteur de débit partagé par toutes les routes (créé par défaut). */
+  readonly rateLimiter?: RateLimiter;
 }
 
 const API_PREFIX = '/api/v1';
@@ -26,9 +29,19 @@ const TOKEN_PATTERN = /pvb_[a-z]+_/u;
 const ETAG_PATTERN = /^(?:W\/)?"?(\d+)"?$/u;
 const IDEMPOTENCY_PATTERN = /^[A-Za-z0-9-]{8,100}$/u;
 
-const TOKEN_IN_URL = new HttpProblem({ status: 400, code: 'api.token_in_url', title: 'Jeton dans l’URL', detail: "Un jeton ne doit jamais figurer dans l'URL. Transmettez-le dans l'en-tête Authorization." });
+const TOKEN_IN_URL = new HttpProblem({
+  status: 400,
+  code: 'api.token_in_url',
+  title: 'Jeton dans l’URL',
+  detail: "Un jeton ne doit jamais figurer dans l'URL. Transmettez-le dans l'en-tête Authorization.",
+});
 const CSRF_INVALID = new HttpProblem({ status: 403, code: 'api.csrf_invalid', title: 'Jeton CSRF invalide', detail: 'Rechargez la page puis réessayez.' });
-const IDEMPOTENCY_REQUIRED = new HttpProblem({ status: 428, code: 'api.idempotency_key_required', title: 'En-tête Idempotency-Key requis', detail: 'Fournissez un en-tête Idempotency-Key (UUID) pour toute écriture POST.' });
+const IDEMPOTENCY_REQUIRED = new HttpProblem({
+  status: 428,
+  code: 'api.idempotency_key_required',
+  title: 'En-tête Idempotency-Key requis',
+  detail: 'Fournissez un en-tête Idempotency-Key (UUID) pour toute écriture POST.',
+});
 
 /**
  * Nom du cookie de session : `__Host-` exige HTTPS ; le nom court sert au développement local.
@@ -56,7 +69,10 @@ function header(request: FastifyRequest, name: string): string | null {
  * @param request requête
  * @returns principal, canal et secret de session
  */
-async function authenticate(options: GatewayOptions, request: FastifyRequest): Promise<{ readonly principal: AuthenticatedPrincipal | undefined; readonly channel: 'ui' | 'api'; readonly sessionSecret: string | null }> {
+async function authenticate(
+  options: GatewayOptions,
+  request: FastifyRequest,
+): Promise<{ readonly principal: AuthenticatedPrincipal | undefined; readonly channel: 'ui' | 'api'; readonly sessionSecret: string | null }> {
   const authorization = header(request, 'authorization');
   if (authorization?.startsWith('Bearer ') === true) {
     const principal = await options.identity.authenticateApiKey(authorization.slice('Bearer '.length).trim());
@@ -96,7 +112,11 @@ function buildCall(request: FastifyRequest, context: ExecutionContext | undefine
     params: request.params as Record<string, string>,
     query,
     body: request.body,
-    headers: { idempotencyKey: idempotencyKey !== null && IDEMPOTENCY_PATTERN.test(idempotencyKey) ? idempotencyKey : null, ifMatch: ifMatch?.[1] === undefined ? null : Number(ifMatch[1]), dryRun: query['dryRun'] === 'true' },
+    headers: {
+      idempotencyKey: idempotencyKey !== null && IDEMPOTENCY_PATTERN.test(idempotencyKey) ? idempotencyKey : null,
+      ifMatch: ifMatch?.[1] === undefined ? null : Number(ifMatch[1]),
+      dryRun: query['dryRun'] === 'true',
+    },
     sessionSecret,
     clientIp: request.ip,
     userAgent: header(request, 'user-agent') ?? '',
@@ -169,14 +189,25 @@ function contextOf(request: FastifyRequest, authentication: Authentication): Exe
  * @param options options
  * @param action action
  */
-function registerAction(app: FastifyInstance, options: GatewayOptions, action: RegisteredAction): void {
+function registerAction(app: FastifyInstance, options: GatewayOptions & { readonly rateLimiter: RateLimiter }, action: RegisteredAction): void {
   const { definition } = action;
+  const limiter = options.rateLimiter;
   app.route({
     method: definition.method,
     url: `${API_PREFIX}${definition.path}`,
     handler: async (request, reply) => {
       rejectTokenInUrl(options, request);
       const authentication = await authenticate(options, request);
+      const { principal } = authentication;
+      enforceRateLimit(
+        limiter,
+        reply,
+        rateBuckets({
+          method: definition.method,
+          ip: request.ip,
+          ...(principal === undefined ? {} : { userId: principal.userId, credentialKind: principal.credential.kind, organisationId: principal.organisationId }),
+        }),
+      );
       guardAccess(definition, request, authentication);
       const call = buildCall(request, contextOf(request, authentication), authentication.sessionSecret);
       guardIdempotency(definition, call);
@@ -191,7 +222,8 @@ function registerAction(app: FastifyInstance, options: GatewayOptions, action: R
  * @param options options
  */
 export function registerGateway(app: FastifyInstance, options: GatewayOptions): void {
+  const withLimiter = { ...options, rateLimiter: options.rateLimiter ?? createRateLimiter() };
   for (const action of options.actions) {
-    registerAction(app, options, action);
+    registerAction(app, withLimiter, action);
   }
 }
