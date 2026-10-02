@@ -77,3 +77,15 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] audit | Audit Semgrep de contrôle sur main
 
 - `main` = `1a53b40` : 0 constat, 0 erreur d'analyse. Jeux officiels ajoutés à la CI planifiée (#273). Voir [[audit-semgrep]].
+
+## [2026-10-01] décision | Audit DAST OWASP ZAP (RI-SEC-15)
+
+- Le mainteneur demande le même parcours que Semgrep avec ZAP ; choix : pile locale et CI, analyse passive de la recette à chaque livraison de lot. ADR-0010, story [#277](https://github.com/ailgorbot/pajavamba/issues/277). Voir [[audit-zap]].
+
+## [2026-10-01] audit | Premier audit ZAP (local et recette)
+
+- Local : COEP absent (#278), cache `max-age=0` (#279), régression 500 détectée pendant la correction ; 0 constat après corrections. Recette (passif) : COEP et cache, couverts par les mêmes corrections. Suite : parcours authentifiés (#280). Rapport : [[2026-10-01-audit-zap-initial]].
+
+## [2026-10-01] incident | Rapport ZAP de la recette publié par erreur
+
+- #281 a inclus `.zap/rapports/rapport-zap.json` (adresse de la recette, en-têtes ; aucun secret) et `.zap/zap.yaml` ; retirés par #284. La CI de #282 a relu ce rapport périmé ; script corrigé (suppression préalable, droits du dossier). Voir [[lecons-apprises]], [[audit-zap]].

@@ -1,0 +1,4 @@
+# Faux positifs ZAP par paramètre (RI-SEC-15) : identifiant<TAB>paramètre<TAB>justification.
+# La règle reste active pour tout autre paramètre.
+120000	scheme	Préférence de thème clair ou sombre écrite par le DSFR ; aucune donnée sensible.
+120000	scheme-website-config-default	Configuration de thème par défaut du DSFR ; aucune donnée sensible.

@@ -1,5 +1,5 @@
 # Sécurité bloquante : SAST Semgrep (règles du projet, en conteneur) et vulnérabilités des dépendances ;
-# chaque lundi, audit complet avec les jeux de règles officiels (ADR-0008).
+# chaque lundi, audit complet avec les jeux de règles officiels (ADR-0008) et DAST ZAP actif sur pile éphémère (ADR-0010).
 # Règles : RI-SEC-09 (SAST et dépendances bloquants), RI-COD-09 (SQL paramétré), H10 (Semgrep en conteneur),
 # RI-GIT-03 (actions et image épinglées par empreinte, permissions minimales, aucun pull_request_target).
 name: security
@@ -45,6 +45,24 @@ jobs:
           node-version: 24
       - name: Règles du projet et jeux officiels (image épinglée, même liste qu'en local)
         run: node tools/semgrep/audit-semgrep.ts
+
+  dast-actif:
+    name: DAST OWASP ZAP actif (planifié, pile éphémère, RI-SEC-15)
+    if: github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Pile éphémère (HTTP interne, cookies non sécurisés)
+        env:
+          PV_APP_SECURE_COOKIES: "false"
+          PV_APP_HTTPS: "false"
+        run: docker compose -p dast -f deploy/compose/compose.yaml up -d --build --wait
+      - name: Analyse active (attaques simulées, jamais sur la recette)
+        run: node tools/zap/audit-zap.ts --cible http://pv-app:8080 --reseau dast_default --actif
 
   dependances:
     name: Vulnérabilités des dépendances

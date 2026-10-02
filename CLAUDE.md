@@ -14,11 +14,15 @@
 
 Avant de pousser du code : `pnpm audit:semgrep` (Docker requis). Trier chaque constat : confirmé → issue « [Semgrep] … » puis correction (avec test) ; faux positif → `// nosemgrep: <règle>` précédé de la justification, consigné dans une issue ; vulnérabilité exploitable → avis de sécurité privé (RI-SEC-12), jamais d'issue publique. Une erreur d'analyse est un constat. Consigner l'audit dans `log.md` du vault.
 
+## Audit DAST OWASP ZAP avant chaque livraison (RI-SEC-15, ADR-0010)
+
+Si la poussée modifie du code exécuté (`apps/`, `services/`, `packages/`, `deploy/`) : `pnpm audit:zap` (pile locale éphémère, analyse passive). Même triage que Semgrep : issue « [ZAP] … » puis correction ; faux positif justifié dans `.zap/regles.tsv` ou `.zap/faux-positifs.tsv` ; vulnérabilité exploitable → avis privé. À chaque livraison de lot : analyse **passive** de la recette (`pnpm audit:zap -- --cible <adresse de vault de développement/local/recette.md>`) ; jamais d'analyse active sur la recette. Si le port 18080 est pris (pile `pvtest`), choisir un autre port pour les tests de fumée locaux.
+
 ## Règles du dépôt
 
 - [`docs/regles-immuables.md`](docs/regles-immuables.md) prévaut sur tout le reste.
 - Une PR = une story ou un correctif, ≤ 400 lignes hors fichiers générés ; branche `<type>/<n° issue>-<description>` ; Conventional Commits (type en anglais, description en français), commits signés ; modèle de PR entièrement rempli.
-- Avant de pousser : `pnpm format:modifies` (Prettier sur les fichiers modifiés, ADR-0009), puis `pnpm audit:semgrep`.
+- Avant de pousser : `pnpm format:modifies` (Prettier sur les fichiers modifiés, ADR-0009), puis `pnpm audit:semgrep`, puis `pnpm audit:zap` si du code exécuté change.
 - Un agent ne peut ni approuver ni fusionner (RI-REV-06).
 - Aucun secret dans le dépôt, le vault, les journaux ou les messages.
 

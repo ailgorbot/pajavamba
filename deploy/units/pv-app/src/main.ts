@@ -21,6 +21,7 @@ import { createWorkflowService } from '@pajavamba/workflow-structure';
 import { createWorkItemService } from '@pajavamba/workitem-structure';
 import type { FastifyInstance } from 'fastify';
 import { APP_SETTINGS, connectionString, type AppSettings } from './settings.ts';
+import { cacheControlFor } from './web-cache.ts';
 
 const RELAYED_SCHEMAS = ['identity', 'policy', 'portfolio', 'workflow', 'workitem', 'query', 'audit'];
 const MINUTE_MS = 60_000;
@@ -52,7 +53,14 @@ async function wire(settings: AppSettings, logger: Logger, pool: ReturnType<type
   const secrets = createSecretService({ pepper: settings.pepper, setupCode: settings.setupCode, dummyPasswordHash: await hashPassword(randomSecret(32)) });
   const identity = createIdentityService(createIdentityRuntime({ ...common, secrets, fieldKey: deriveKey(settings.fieldKey) }));
   const portfolio = createPortfolioService(common);
-  const services = [identity, portfolio, createWorkflowService(common), createWorkItemService(common), createQueryService({ pool, policy: policy.accessPolicy }), createAuditService({ pool, policy: policy.accessPolicy, auditTypes: [AUDIT_ENTRY_TYPE], notify })];
+  const services = [
+    identity,
+    portfolio,
+    createWorkflowService(common),
+    createWorkItemService(common),
+    createQueryService({ pool, policy: policy.accessPolicy }),
+    createAuditService({ pool, policy: policy.accessPolicy, auditTypes: [AUDIT_ENTRY_TYPE], notify }),
+  ];
   const consumers = [...policy.consumers, ...services.flatMap((service) => service.consumers)];
   const relay = createEventRelay({ pool, schemas: RELAYED_SCHEMAS, consumers, logger });
   relayHolder.relay = relay;
@@ -66,7 +74,15 @@ async function wire(settings: AppSettings, logger: Logger, pool: ReturnType<type
  */
 async function serveWeb(app: FastifyInstance, webDir: string): Promise<void> {
   if (webDir === '') return;
-  await app.register(fastifyStatic, { root: webDir, wildcard: false, index: ['index.html'] });
+  await app.register(fastifyStatic, {
+    root: webDir,
+    wildcard: false,
+    index: ['index.html'],
+    cacheControl: false,
+    setHeaders: (reply, path) => {
+      reply.header('cache-control', cacheControlFor(path));
+    },
+  });
   app.get('/*', async (request, reply) => {
     if (request.url.startsWith('/api/')) throw API_NOT_FOUND;
     // Nom de fichier constant, servi depuis la racine fixée par `@fastify/static` : aucun chemin issu de la requête.
