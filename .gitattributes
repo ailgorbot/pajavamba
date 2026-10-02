@@ -1,1 +1,8 @@
-vault de développement/log.md merge=union
+* text=auto eol=lf
+*.png binary
+*.jpg binary
+*.ico binary
+*.woff2 binary
+
+# Journal du vault : plusieurs PR y ajoutent une entrée ; les fusions locales gardent les deux côtés.
+vault[[:space:]]de[[:space:]]développement/log.md merge=union
