@@ -26,9 +26,19 @@ const TOKEN_PATTERN = /pvb_[a-z]+_/u;
 const ETAG_PATTERN = /^(?:W\/)?"?(\d+)"?$/u;
 const IDEMPOTENCY_PATTERN = /^[A-Za-z0-9-]{8,100}$/u;
 
-const TOKEN_IN_URL = new HttpProblem({ status: 400, code: 'api.token_in_url', title: 'Jeton dans l’URL', detail: "Un jeton ne doit jamais figurer dans l'URL. Transmettez-le dans l'en-tête Authorization." });
+const TOKEN_IN_URL = new HttpProblem({
+  status: 400,
+  code: 'api.token_in_url',
+  title: 'Jeton dans l’URL',
+  detail: "Un jeton ne doit jamais figurer dans l'URL. Transmettez-le dans l'en-tête Authorization.",
+});
 const CSRF_INVALID = new HttpProblem({ status: 403, code: 'api.csrf_invalid', title: 'Jeton CSRF invalide', detail: 'Rechargez la page puis réessayez.' });
-const IDEMPOTENCY_REQUIRED = new HttpProblem({ status: 428, code: 'api.idempotency_key_required', title: 'En-tête Idempotency-Key requis', detail: 'Fournissez un en-tête Idempotency-Key (UUID) pour toute écriture POST.' });
+const IDEMPOTENCY_REQUIRED = new HttpProblem({
+  status: 428,
+  code: 'request.precondition_required',
+  title: 'En-tête Idempotency-Key requis',
+  detail: 'Fournissez un en-tête Idempotency-Key (UUID) pour toute écriture POST.',
+});
 
 /**
  * Nom du cookie de session : `__Host-` exige HTTPS ; le nom court sert au développement local.
@@ -56,7 +66,10 @@ function header(request: FastifyRequest, name: string): string | null {
  * @param request requête
  * @returns principal, canal et secret de session
  */
-async function authenticate(options: GatewayOptions, request: FastifyRequest): Promise<{ readonly principal: AuthenticatedPrincipal | undefined; readonly channel: 'ui' | 'api'; readonly sessionSecret: string | null }> {
+async function authenticate(
+  options: GatewayOptions,
+  request: FastifyRequest,
+): Promise<{ readonly principal: AuthenticatedPrincipal | undefined; readonly channel: 'ui' | 'api'; readonly sessionSecret: string | null }> {
   const authorization = header(request, 'authorization');
   if (authorization?.startsWith('Bearer ') === true) {
     const principal = await options.identity.authenticateApiKey(authorization.slice('Bearer '.length).trim());
@@ -96,7 +109,11 @@ function buildCall(request: FastifyRequest, context: ExecutionContext | undefine
     params: request.params as Record<string, string>,
     query,
     body: request.body,
-    headers: { idempotencyKey: idempotencyKey !== null && IDEMPOTENCY_PATTERN.test(idempotencyKey) ? idempotencyKey : null, ifMatch: ifMatch?.[1] === undefined ? null : Number(ifMatch[1]), dryRun: query['dryRun'] === 'true' },
+    headers: {
+      idempotencyKey: idempotencyKey !== null && IDEMPOTENCY_PATTERN.test(idempotencyKey) ? idempotencyKey : null,
+      ifMatch: ifMatch?.[1] === undefined ? null : Number(ifMatch[1]),
+      dryRun: query['dryRun'] === 'true',
+    },
     sessionSecret,
     clientIp: request.ip,
     userAgent: header(request, 'user-agent') ?? '',
