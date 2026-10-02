@@ -115,3 +115,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] incident | Docker Desktop indisponible
 
 - Le moteur Docker ne démarre plus ; le mainteneur le répare et demande de continuer sans Docker. Audits RI-SEC-14 et RI-SEC-15 lancés dans la CI sur la branche avant d'ouvrir la PR. Voir [[poste-de-developpement]], [[audit-semgrep]].
+
+## [2026-10-03] compactage | Point avant compactage du contexte
+
+- `main` = `1701a44` ; 11 PR ouvertes (#292 à #296, #298 à #303). Docker de nouveau opérationnel (images à retélécharger) ; **Node.js absent du poste** (installé sur le disque D: défaillant) : pnpm, tests et audits locaux impossibles jusqu'à sa réinstallation. VitePress repoussé (délai de 7 jours sur `bare-fs`). Synthèse réécrite. Voir [[etat-du-projet]], [[poste-de-developpement]].
