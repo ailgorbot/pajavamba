@@ -1,6 +1,6 @@
 ---
 type: généré
-mise_a_jour: 2026-10-01
+mise_a_jour: 2026-10-02
 source: projet GitHub n° 2 (gh project item-list)
 ---
 
@@ -10,8 +10,8 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 
 | Lot | Done | In progress | Backlog |
 |---|---|---|---|
-| Hors lot | 23 | 0 | 1 |
-| Lot 00 — Socle | 27 | 8 | 10 |
+| Hors lot | 28 | 0 | 0 |
+| Lot 00 — Socle | 31 | 5 | 10 |
 | Lot 01 — Identité et accès | 15 | 3 | 9 |
 | Lot 02 — Projets et équipes | 16 | 1 | 3 |
 | Lot 03 — Éléments et workflows | 21 | 3 | 9 |
@@ -55,7 +55,11 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#274](https://github.com/ailgorbot/pajavamba/issues/274) | ci(socle): jeux de règles Semgrep officiels chaque lundi en CI | Done |
 | [#275](https://github.com/ailgorbot/pajavamba/issues/275) | ci(socle): couches (dependency-cruiser), sentinelles et Prettier progressif | Done |
 | [#276](https://github.com/ailgorbot/pajavamba/issues/276) | [Semgrep] Injection de github.base_ref dans une commande run (PR #275) | Done |
-| [#281](https://github.com/ailgorbot/pajavamba/issues/281) | fix(docs): rétablir l'espacement du journal du vault après la fusion de #275 | Backlog |
+| [#281](https://github.com/ailgorbot/pajavamba/issues/281) | fix(docs): rétablir l'espacement du journal du vault après la fusion de #275 | Done |
+| [#282](https://github.com/ailgorbot/pajavamba/issues/282) | ci(socle): audit DAST OWASP ZAP à chaque livraison (RI-SEC-15) | Done |
+| [#283](https://github.com/ailgorbot/pajavamba/issues/283) | docs(socle): vault — audit DAST OWASP ZAP (L0-39) | Done |
+| [#284](https://github.com/ailgorbot/pajavamba/issues/284) | fix(socle): retirer le rapport ZAP de la recette commité par erreur | Done |
+| [#286](https://github.com/ailgorbot/pajavamba/issues/286) | ci(socle): justifier l'alerte ZAP 10015 relevée sur la recette | Done |
 
 ## Lot 00 — Socle
 
@@ -88,14 +92,15 @@ Générée par `outils/instantane-github.mjs`. Synthèse et interprétation : [[
 | [#267](https://github.com/ailgorbot/pajavamba/issues/267) | [Semgrep] Traiter les faux positifs et erreurs d'analyse de l'audit | Done |
 | [#271](https://github.com/ailgorbot/pajavamba/issues/271) | [L0-38] Auditer le code avec Semgrep à chaque livraison et traiter chaque constat | Done |
 | [#273](https://github.com/ailgorbot/pajavamba/issues/273) | [Semgrep] Exécuter les jeux de règles officiels en CI planifiée | Done |
+| [#277](https://github.com/ailgorbot/pajavamba/issues/277) | [L0-39] Auditer l'application avec OWASP ZAP (DAST) à chaque livraison | Done |
+| [#278](https://github.com/ailgorbot/pajavamba/issues/278) | [ZAP] Ajouter l'en-tête Cross-Origin-Embedder-Policy | Done |
+| [#279](https://github.com/ailgorbot/pajavamba/issues/279) | [ZAP] Mettre en cache les ressources versionnées de l'interface | Done |
+| [#285](https://github.com/ailgorbot/pajavamba/issues/285) | [ZAP] Justifier l'alerte 10015 (directives de cache) relevée sur la recette | Done |
 | [#23](https://github.com/ailgorbot/pajavamba/issues/23) | [L0-23] OPS : client HTTP résilient, pool PostgreSQL, idempotence et limitation de débit | In progress |
 | [#27](https://github.com/ailgorbot/pajavamba/issues/27) | [L0-27] Générer la référence, le registre des règles et la traçabilité (tools/) | In progress |
 | [#34](https://github.com/ailgorbot/pajavamba/issues/34) | [L0-34] Déployer automatiquement la recette sur Coolify et poser v0.1.0 | In progress |
 | [#265](https://github.com/ailgorbot/pajavamba/issues/265) | [Semgrep] Imposer la longueur de l'étiquette AES-GCM au déchiffrement des champs | In progress |
 | [#266](https://github.com/ailgorbot/pajavamba/issues/266) | [Semgrep] Durcir la chaîne d'approvisionnement pnpm et npm | In progress |
-| [#277](https://github.com/ailgorbot/pajavamba/issues/277) | [L0-39] Auditer l'application avec OWASP ZAP (DAST) à chaque livraison | In progress |
-| [#278](https://github.com/ailgorbot/pajavamba/issues/278) | [ZAP] Ajouter l'en-tête Cross-Origin-Embedder-Policy | In progress |
-| [#279](https://github.com/ailgorbot/pajavamba/issues/279) | [ZAP] Mettre en cache les ressources versionnées de l'interface | In progress |
 | [#1](https://github.com/ailgorbot/pajavamba/issues/1) | [L0-01] Protéger la branche main par des rulesets | Backlog |
 | [#2](https://github.com/ailgorbot/pajavamba/issues/2) | [L0-02] Activer la sécurité du dépôt GitHub | Backlog |
 | [#10](https://github.com/ailgorbot/pajavamba/issues/10) | [L0-10] Créer la GitHub App des agents de développement | Backlog |

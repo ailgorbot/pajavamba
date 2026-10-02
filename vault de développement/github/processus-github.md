@@ -17,6 +17,7 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 ## Branches, commits, PR
 
 - Branche `<type>/<n° issue>-<description>` ; Conventional Commits (type anglais, description française, portées d'ADR-0003) ; commits **signés SSH** (voir [[poste-de-developpement]]) avec le pied `Co-Authored-By` de l'agent.
+- Titre de PR `type(portée): description` (types et portées d'ADR-0003, minuscule initiale, sans point final) : vérifié par le workflow `pr`, relancé à chaque modification du titre ou de la description.
 - Modèle de PR à 7 sections obligatoires (Story, Règles, Documentation, Sécurité, Données, Accessibilité, Migration) vérifié par le job CI « Modèle de PR complet » ; le corps se termine par la mention « Generated with Claude Code ».
 - Avant toute poussée qui modifie du code exécuté : `pnpm audit:zap` ([[audit-zap]], RI-SEC-15).
 - Avant toute poussée de code : `pnpm audit:semgrep` et triage des constats ([[audit-semgrep]], RI-SEC-14).
@@ -28,7 +29,7 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 
 | Job | Contrôles |
 |---|---|
-| Modèle de PR complet | `tools/ci/check-pr-body.ts` (PR seulement ; relancé au push, pas à l'édition de la description) |
+| Conformité de la PR (`pr.yml`) | `tools/ci/check-pr-title.ts` et `tools/ci/check-pr-body.ts`, relancés aussi à l'édition du titre ou de la description |
 | Qualité | Fichiers de gouvernance présents, `pnpm typecheck`, `pnpm test`, `pnpm reference:check`, `pnpm lint`, `pnpm layers` (dependency-cruiser), sentinelles qualité, Prettier sur les fichiers modifiés (PR, ADR-0009), construction de l'interface |
 | Pile conteneurisée | `docker compose up` avec secrets générés, migrations, tests de fumée, journaux en cas d'échec |
 
@@ -38,6 +39,10 @@ sources: [.github/, CONTRIBUTING.md, GOVERNANCE.md, ADR-0003, projet GitHub n° 
 
 Actions épinglées par SHA (checkout, setup-node, pnpm/action-setup), `permissions: contents: read`, aucun `pull_request_target`.
 
+## Versions (L0-17)
+
+`release-please.yml` ouvre une PR de version `chore(socle): publier la version X.Y.Z` (changelog français, `bump-minor-pre-major`, départ au commit `e799ced`, manifeste à 0.4.0). **Inactif** tant que la variable de dépôt `RELEASE_PLEASE_ACTIF` ne vaut pas `true` et que GitHub Actions n'est pas autorisé à créer des PR (Settings → Actions → General) — réglages du mainteneur ; un jeton de GitHub App (L0-10) permettrait aussi à la CI de tourner sur la PR de version. Aucun tag `v0.4.0` n'existe encore : à poser par le mainteneur à la publication (L0-34).
+
 ## À venir
 
-release-please (L0-17), `docs.yml`/`release.yml` (L0-18), GitHub App des agents (L0-10).
+`docs.yml`/`release.yml` (L0-18), GitHub App des agents (L0-10).

@@ -89,3 +89,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-01] incident | Rapport ZAP de la recette publié par erreur
 
 - #281 a inclus `.zap/rapports/rapport-zap.json` (adresse de la recette, en-têtes ; aucun secret) et `.zap/zap.yaml` ; retirés par #284. La CI de #282 a relu ce rapport périmé ; script corrigé (suppression préalable, droits du dossier). Voir [[lecons-apprises]], [[audit-zap]].
+
+## [2026-10-02] ingestion | L0-17 titres de PR et release-please
+
+- Workflow `pr` (titre Conventional Commits + modèle, relancé à l'édition), release-please configuré en français mais inactif tant que le mainteneur n'a pas autorisé Actions à créer des PR et posé `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].

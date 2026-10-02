@@ -22,6 +22,8 @@ Merci de votre intérêt ! Les [règles immuables](docs/regles-immuables.md) pr�
 | Périmètre | Une PR = une story ou un correctif, ≤ 400 lignes hors fichiers générés (RI-REV-02) |
 | Branche | `<type>/<n° issue>-<description>` (ex. `feat/91-creer-element`) |
 | Commits | Conventional Commits, type en anglais, description en français, **signés** ([ADR-0003](docs/adr/0003-conventions-git.md)) |
+| Titre de PR | `type(portée): description` — devient le message du commit de fusion ; vérifié par le workflow `pr` (types et portées d'ADR-0003, description en minuscule, sans point final) |
+| Versions | release-please propose une PR de version (changelog en français, SemVer) ; sa fusion reste une décision du mainteneur |
 | Langue | Identifiants en anglais ; commentaires, documentation, messages et tests en français (RI-NOM-01) |
 | Architecture | Couches `fonctionnel` → `structure` → OPS, aucun import entre services (RI-ARC-01 à RI-ARC-04, RI-SRV-02) |
 | Qualité | Fonctions ≤ 30 lignes, ≤ 3 paramètres, complexité ≤ 10 (RI-COD-03) ; aucun `any`, `enum`, `export default` |
