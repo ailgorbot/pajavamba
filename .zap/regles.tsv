@@ -4,3 +4,6 @@
 # 10049 : classement informatif du cache ; politique voulue et testée (deploy/units/pv-app/src/web-cache.ts : ressources
 # versionnées immuables, point d'entrée revalidé ; API non stockable).
 10049	IGNORE	(Non-Storable / Storable Content)
+# 10015 : directives de cache voulues (#285) : point d'entrée public revalidé (no-cache, non sensible), API jamais
+# stockée (no-store suffit, RFC 9111). Alerte émise seulement en HTTPS (recette).
+10015	IGNORE	(Re-examine Cache-control Directives)
