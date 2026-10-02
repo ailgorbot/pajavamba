@@ -1,0 +1,28 @@
+# Versionnement automatique : release-please ouvre une PR de version (changelog en français, SemVer) à partir
+# des commits Conventional Commits fusionnés sur main. La publication reste une décision humaine (RI-VER-06).
+# Activation : variable de dépôt RELEASE_PLEASE_ACTIF = true, après avoir autorisé GitHub Actions à créer
+# des PR (Settings → Actions → General) ou fourni un jeton de GitHub App (L0-10).
+# Règles : RI-VER-01, RI-NOM-09, RI-GIT-03 (action épinglée, permissions limitées à ce job).
+name: release-please
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  release-please:
+    name: Proposition de version
+    if: vars.RELEASE_PLEASE_ACTIF == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json

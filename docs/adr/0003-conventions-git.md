@@ -23,4 +23,6 @@ mise_a_jour: 2026-09-30
 
 ## Conséquences
 
+- Le titre de chaque PR suit le même format (il devient le commit de fusion) ; il est vérifié par le workflow `pr` (`tools/ci/check-pr-title.ts`, L0-17).
+
 Le changelog et les étiquettes de version sont générés à partir des messages de commit.

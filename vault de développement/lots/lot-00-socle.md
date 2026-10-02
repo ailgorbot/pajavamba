@@ -28,11 +28,12 @@ sources: [PR #249, #255, #256, #257, docs/developpeur/contribuer/decomposition-d
 
 | Story | Reste à faire |
 |---|---|
+| L0-17 (#17) | PR en cours : titres de PR vérifiés (workflow `pr`), release-please prêt mais inactif (réglages du mainteneur) |
 | L0-13 (#13) | dependency-cruiser, sentinelles et Prettier progressif (ADR-0009) en CI — PR #275 |
 | L0-23 (#23) | Client HTTP résilient (disjoncteur), limitation de débit |
 | L0-27 (#27) | Registre des règles et traçabilité générés (seule la référence des actions l'est) |
 | L0-34 (#34) | Livraison automatique, images GHCR signées, tag `v0.1.0` (aujourd'hui : construction sur le VPS, ADR-0004) |
-| Backlog | L0-01 rulesets, L0-02 sécurité du dépôt, L0-10 GitHub App des agents, L0-12 et L0-25 Rust (non introduit, RI-ARC-13), L0-17 release-please, L0-18 `docs.yml`/`release.yml`, L0-32 superviseur `pajavamba`, L0-35 site VitePress |
+| Backlog | L0-01 rulesets, L0-02 sécurité du dépôt, L0-10 GitHub App des agents, L0-12 et L0-25 Rust (non introduit, RI-ARC-13), L0-18 `docs.yml`/`release.yml`, L0-32 superviseur `pajavamba`, L0-35 site VitePress |
 | L0-14 (#14) | Livré (#263) |
 | L0-16 (#16) | Livré (#264) : Semgrep (règles du projet), audit des dépendances ; CodeQL et analyse d'images restent à faire (L0-02, L0-34) |
 | L0-37 (#258) | Livré (#259 à #262) |

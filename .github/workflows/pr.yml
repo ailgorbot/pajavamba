@@ -1,0 +1,35 @@
+# Conformité de la PR : titre Conventional Commits (message du commit de fusion) et modèle de PR complet.
+# Relancé aussi quand le titre ou la description change, sans rejouer toute la CI.
+# Règles : RI-NOM-09, RI-VER-01, RI-REV-05, RI-GIT-03 (actions épinglées, permissions minimales, valeurs de la PR
+# passées par l'environnement, aucun pull_request_target).
+name: pr
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pr-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  conformite:
+    name: Titre et modèle de PR (RI-NOM-09, RI-REV-05)
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: 24
+      - name: Titre Conventional Commits
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: node tools/ci/check-pr-title.ts
+      - name: Sections du modèle renseignées
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: node tools/ci/check-pr-body.ts
