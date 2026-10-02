@@ -8,4 +8,6 @@ exclude = [
   '^https?://(localhost|127\.0\.0\.1|pv-app)',
   'exemple\.fr',
   'example\.org',
+  # Tableau du projet : privé, 404 pour un visiteur anonyme (à rendre public ou à retirer de la documentation).
+  '^https://github\.com/users/ailgorbot/projects/2',
 ]
