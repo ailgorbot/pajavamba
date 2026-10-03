@@ -10,6 +10,15 @@ import { withTransaction, type SqlExecutor, type TransactionScope } from './data
 import { HttpProblem } from './problem.ts';
 import { uuidv7 } from './secrets.ts';
 
+/** Durée pendant laquelle une réponse est rejouée pour la même clé d'idempotence (RI-API-05, L0-23). */
+export const IDEMPOTENCY_TTL = '24 hours';
+
+/** Enregistre la réponse ; une clé expirée peut être réutilisée, une clé encore valide n'est jamais écrasée. */
+const STORE_IDEMPOTENT_RESPONSE = `INSERT INTO idempotency_keys (organisation_id, key, request_hash, status_code, response) VALUES ($1, $2, $3, $4, $5)
+  ON CONFLICT (key) DO UPDATE SET organisation_id = EXCLUDED.organisation_id, request_hash = EXCLUDED.request_hash,
+    status_code = EXCLUDED.status_code, response = EXCLUDED.response, created_at = now()
+  WHERE idempotency_keys.created_at <= now() - interval '${IDEMPOTENCY_TTL}'`;
+
 /** Message écrit dans l'outbox du service. */
 export interface OutboxMessage {
   readonly kind: 'event' | 'audit';
@@ -62,7 +71,17 @@ export async function insertOutbox(tx: SqlExecutor, request: Pick<WriteRequest, 
     await tx.query(
       `INSERT INTO outbox_events (id, organisation_id, kind, type, aggregate_id, aggregate_version, correlation_id, actor_id, payload)
        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`,
-      [uuidv7(Date.now()), request.scope.organisationId ?? null, message.kind, message.type, message.aggregateId, message.aggregateVersion, request.correlationId, request.scope.actorId ?? null, JSON.stringify(message.payload)],
+      [
+        uuidv7(Date.now()),
+        request.scope.organisationId ?? null,
+        message.kind,
+        message.type,
+        message.aggregateId,
+        message.aggregateVersion,
+        request.correlationId,
+        request.scope.actorId ?? null,
+        JSON.stringify(message.payload),
+      ],
     );
   }
 }
@@ -77,10 +96,17 @@ async function findReplay(tx: SqlExecutor, request: WriteRequest): Promise<Store
   if (request.idempotencyKey === null) {
     return undefined;
   }
-  const rows = await tx.query<StoredResponse>('SELECT request_hash, status_code, response FROM idempotency_keys WHERE key = $1', [request.idempotencyKey]);
+  const rows = await tx.query<StoredResponse>(`SELECT request_hash, status_code, response FROM idempotency_keys WHERE key = $1 AND created_at > now() - interval '${IDEMPOTENCY_TTL}'`, [
+    request.idempotencyKey,
+  ]);
   const stored = rows[0];
   if (stored !== undefined && stored.request_hash !== request.requestHash) {
-    throw new HttpProblem({ status: 422, code: 'ops.idempotency_key_reused', title: "Clé d'idempotence déjà utilisée", detail: "Cette clé d'idempotence a déjà servi pour une requête différente. Générez une nouvelle clé." });
+    throw new HttpProblem({
+      status: 422,
+      code: 'ops.idempotency_key_reused',
+      title: "Clé d'idempotence déjà utilisée",
+      detail: "Cette clé d'idempotence a déjà servi pour une requête différente. Générez une nouvelle clé.",
+    });
   }
   return stored;
 }
@@ -95,7 +121,13 @@ async function auditFailure(request: WriteRequest, problem: HttpProblem): Promis
   if (messages.length === 0) {
     return;
   }
-  await withTransaction(request.pool, request.scope, (tx) => insertOutbox(tx, request, messages.map((message) => ({ ...message, aggregateVersion: 0 }))));
+  await withTransaction(request.pool, request.scope, (tx) =>
+    insertOutbox(
+      tx,
+      request,
+      messages.map((message) => ({ ...message, aggregateVersion: 0 })),
+    ),
+  );
   request.onCommitted();
 }
 
@@ -115,7 +147,7 @@ export async function executeWrite<B>(request: WriteRequest, handler: (tx: SqlEx
       const outcome = await handler(tx);
       await insertOutbox(tx, request, outcome.outbox);
       if (request.idempotencyKey !== null && !request.dryRun) {
-        await tx.query('INSERT INTO idempotency_keys (organisation_id, key, request_hash, status_code, response) VALUES ($1, $2, $3, $4, $5)', [request.scope.organisationId ?? null, request.idempotencyKey, request.requestHash, outcome.status, JSON.stringify(outcome.body)]);
+        await tx.query(STORE_IDEMPOTENT_RESPONSE, [request.scope.organisationId ?? null, request.idempotencyKey, request.requestHash, outcome.status, JSON.stringify(outcome.body)]);
       }
       return { status: outcome.status, body: outcome.body, replayed: false };
     });
