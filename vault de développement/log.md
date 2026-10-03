@@ -119,6 +119,31 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] ingestion | L0-35 front-matter obligatoire (1/n)
 
 - `tools/docs/check-front-matter.ts` en CI ; front-matter ajouté aux règles immuables et aux spécifications. Voir [[outillage]].
+## [2026-10-02] ingestion | Tests des règles d'identité
+
+- 6 tests unitaires de la couche fonctionnelle d'identity (RG-ORG-001, RG-ORG-002, RG-IAM-005), avec dépendances simulées pour la désactivation. Suivi #297. Voir [[identity]].
+## [2026-10-02] ingestion | Tests des règles des workflows
+
+- 8 tests unitaires de la couche fonctionnelle de workflow (RG-WF-001, RG-WF-002) et vérification de validité de tous les packs livrés. Suivi #297. Voir [[workflow]].
+## [2026-10-02] ingestion | Tests des règles des éléments de travail
+
+- 11 tests unitaires de la couche fonctionnelle de workitem (RG-WI-001, 002, 003, 005, RG-WF-004), dont un test de propriété sur le rang ; restent RG-WI-007, 008, 009 (cas d'usage, à tester avec des dépendances simulées). Suivi #297. Voir [[workitem]].
+## [2026-10-02] ingestion | Tests des règles du cycle de vie des projets
+
+- 12 tests unitaires de la couche fonctionnelle de portfolio (RG-PRJ-001, 003, 004, 005, 006, 007), dont un test de propriété sur la clé ; suivi #297. Voir [[portfolio]].
+## [2026-10-02] ingestion | L0-27 références générées (1/2)
+
+- `docs/reference/erreurs.md` (70 codes), `journal.md`, `configuration.md` générés depuis le code, contrôlés par `pnpm reference:check` ; métadonnées `.meta()` sur les schémas de configuration. Suite : matrice de traçabilité des règles. Voir [[outillage]].
+
+## [2026-10-02] ingestion | L0-27 matrice de traçabilité (2/2)
+
+- `docs/reference/tracabilite.md` générée : 24 règles citées, 4 testées ; une règle déclarée dans `fonctionnel/src/regles/` sans test fait échouer `reference:check`. Voir [[outillage]], [[lecons-apprises]].
+## [2026-10-02] ingestion | L0-23 limitation de débit (3/3)
+
+- `createRateLimiter` (OPS, fenêtre fixe) et `enforceRateLimit` (passerelle) : limites du §10.2, en-têtes `RateLimit-*`, 429 `request.rate_limited`. Voir [[api-gateway]].
+## [2026-10-02] ingestion | L0-23 client HTTP résilient (1/3)
+
+- `createHttpClient` dans OPS (délai, reprises bornées, disjoncteur), 5 tests ; règle Semgrep `pv-appel-sortant-direct`. Suites : idempotence obligatoire (428, 24 h), limitation de débit. Audits dans la CI (Docker indisponible). Voir [[ops]].
 ## [2026-10-02] ingestion | L0-23 idempotence (2/3)
 
 - Rejeu limité à 24 h (`IDEMPOTENCY_TTL`), clé expirée réutilisable ; 428 aligné sur `request.precondition_required` ; tests de fumée des deux scénarios. Voir [[chaine-d-ecriture]].
@@ -141,3 +166,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-03] incident | Avis de sécurité sur `braces` sans correctif
 
 - GHSA-vfj7-8cjw-p6xm (élevé) sur `braces` <= 3.0.3, via `markdownlint-cli2` seulement : audit des dépendances en échec sur toutes les PR. Exception nominative `auditConfig.ignoreGhsas` justifiée (#305), à retirer dès qu'un correctif paraît. Voir [[processus-github]].
+
+## [2026-10-03] incident | Référence des erreurs désynchronisée sur main
+
+- #295 générée avant la fusion de #292 (`system.unavailable`) et #294 (`request.rate_limited`) : `reference:check` en échec sur `main`. Référence régénérée. Voir [[lecons-apprises]].
