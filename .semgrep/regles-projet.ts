@@ -23,4 +23,6 @@ export async function exemples(db: { query: <R>(text: string, params?: unknown[]
   await db.query<Ligne>(`SELECT ${COLUMNS} FROM identity.users WHERE email = $1 LIMIT ${String(BATCH_SIZE)}`, [nom]);
   // ruleid: pv-evaluation-dynamique
   eval(nom);
+  // ruleid: pv-appel-sortant-direct
+  await fetch(nom);
 }
