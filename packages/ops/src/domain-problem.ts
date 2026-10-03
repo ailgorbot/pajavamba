@@ -13,7 +13,8 @@ export interface DomainErrorShape {
   readonly message: string;
 }
 
-const STATUS_BY_KIND: Readonly<Record<DomainErrorShape['kind'], number>> = {
+/** Statut HTTP de chaque nature d'erreur métier (repris par la référence générée des erreurs). */
+export const STATUS_BY_KIND: Readonly<Record<DomainErrorShape['kind'], number>> = {
   not_found: 404,
   conflict: 409,
   forbidden: 403,
