@@ -40,5 +40,6 @@ Les alertes « Information » comptent aussi : elles se trient comme les autres.
 | 01/10/2026 | Pile locale | 3 alertes, puis une régression 500 détectée pendant la correction ; 0 après corrections | #278, #279 ; faux positifs justifiés. Détail : [[2026-10-01-audit-zap-initial]] |
 | 01/10/2026 | Recette (passif) | 2 alertes (COEP, cache) sur la version déployée | Couvertes par #278 et #279 ; à réanalyser après déploiement |
 | 02/10/2026 | Recette (passif), après redéploiement de `e799ced` | COEP et cache corrigés ; 1 alerte 10015 (directives de cache, HTTPS seulement) | Faux positif justifié (#285) |
+| 03/10/2026 | Pile locale, branches #292 à #295 (code exécuté modifié) | 0 constat sur chacune | Résultats commentés sur chaque PR |
 
 Voir aussi [[interface-dsfr]], [[pv-app-et-compose]], [[recette-coolify]], [[lecons-apprises]].
