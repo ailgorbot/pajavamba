@@ -15,6 +15,7 @@ export * from './log-catalog.ts';
 export * from './logger.ts';
 export * from './migrator.ts';
 export * from './problem.ts';
+export * from './rate-limiter.ts';
 export * from './secrets.ts';
 export * from './service-runtime.ts';
 export * from './write-pipeline.ts';
