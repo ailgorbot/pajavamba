@@ -38,7 +38,7 @@ const TOKEN_IN_URL = new HttpProblem({
 const CSRF_INVALID = new HttpProblem({ status: 403, code: 'api.csrf_invalid', title: 'Jeton CSRF invalide', detail: 'Rechargez la page puis réessayez.' });
 const IDEMPOTENCY_REQUIRED = new HttpProblem({
   status: 428,
-  code: 'api.idempotency_key_required',
+  code: 'request.precondition_required',
   title: 'En-tête Idempotency-Key requis',
   detail: 'Fournissez un en-tête Idempotency-Key (UUID) pour toute écriture POST.',
 });
