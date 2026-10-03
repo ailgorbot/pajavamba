@@ -18,6 +18,8 @@ Règle **RI-SEC-14** (ADR-0008) : aucun code n'est poussé sur GitHub sans audit
 
 Commande : `pnpm audit:semgrep` (Docker ; image `semgrep/semgrep:1.178.0` épinglée par empreinte, déjà présente sur [[poste-de-developpement]]).
 
+Sans Docker sur le poste : même script dans la CI (`gh workflow run security.yml --ref <branche>`, job « Audit Semgrep officiel ») avant d'ouvrir la PR.
+
 ## Triage d'un constat
 
 1. **Confirmé** → issue « [Semgrep] … » (jalon, étiquettes, projet n° 2) → PR de correction avec test.
