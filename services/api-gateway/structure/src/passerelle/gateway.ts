@@ -9,8 +9,9 @@
 import type { ActionCall, ActionDefinition, ActionResponse, AuthenticatedPrincipal, IdentityClient, RegisteredAction } from '@pajavamba/contracts';
 import { toEntityId, type ExecutionContext } from '@pajavamba/kernel';
 import type {} from '@fastify/cookie';
-import { HttpProblem, UNAUTHENTICATED, type Logger } from '@pajavamba/ops';
+import { createRateLimiter, HttpProblem, UNAUTHENTICATED, type Logger, type RateLimiter } from '@pajavamba/ops';
 import type { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
+import { enforceRateLimit, rateBuckets } from './rate-limit.ts';
 
 /** Options de la passerelle. */
 export interface GatewayOptions {
@@ -19,6 +20,8 @@ export interface GatewayOptions {
   readonly logger: Logger;
   /** Vrai en HTTPS : cookie `__Host-` sécurisé ; faux uniquement en développement local. */
   readonly secureCookies: boolean;
+  /** Limiteur de débit partagé par toutes les routes (créé par défaut). */
+  readonly rateLimiter?: RateLimiter;
 }
 
 const API_PREFIX = '/api/v1';
@@ -186,14 +189,25 @@ function contextOf(request: FastifyRequest, authentication: Authentication): Exe
  * @param options options
  * @param action action
  */
-function registerAction(app: FastifyInstance, options: GatewayOptions, action: RegisteredAction): void {
+function registerAction(app: FastifyInstance, options: GatewayOptions & { readonly rateLimiter: RateLimiter }, action: RegisteredAction): void {
   const { definition } = action;
+  const limiter = options.rateLimiter;
   app.route({
     method: definition.method,
     url: `${API_PREFIX}${definition.path}`,
     handler: async (request, reply) => {
       rejectTokenInUrl(options, request);
       const authentication = await authenticate(options, request);
+      const { principal } = authentication;
+      enforceRateLimit(
+        limiter,
+        reply,
+        rateBuckets({
+          method: definition.method,
+          ip: request.ip,
+          ...(principal === undefined ? {} : { userId: principal.userId, credentialKind: principal.credential.kind, organisationId: principal.organisationId }),
+        }),
+      );
       guardAccess(definition, request, authentication);
       const call = buildCall(request, contextOf(request, authentication), authentication.sessionSecret);
       guardIdempotency(definition, call);
@@ -208,7 +222,8 @@ function registerAction(app: FastifyInstance, options: GatewayOptions, action: R
  * @param options options
  */
 export function registerGateway(app: FastifyInstance, options: GatewayOptions): void {
+  const withLimiter = { ...options, rateLimiter: options.rateLimiter ?? createRateLimiter() };
   for (const action of options.actions) {
-    registerAction(app, options, action);
+    registerAction(app, withLimiter, action);
   }
 }
