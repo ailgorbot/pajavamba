@@ -115,6 +115,21 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] ingestion | L0-23 client HTTP résilient (1/3)
 
 - `createHttpClient` dans OPS (délai, reprises bornées, disjoncteur), 5 tests ; règle Semgrep `pv-appel-sortant-direct`. Suites : idempotence obligatoire (428, 24 h), limitation de débit. Audits dans la CI (Docker indisponible). Voir [[ops]].
+## [2026-10-02] ingestion | L0-23 idempotence (2/3)
+
+- Rejeu limité à 24 h (`IDEMPOTENCY_TTL`), clé expirée réutilisable ; 428 aligné sur `request.precondition_required` ; tests de fumée des deux scénarios. Voir [[chaine-d-ecriture]].
 ## [2026-10-02] incident | Docker Desktop indisponible
 
 - Le moteur Docker ne démarre plus ; le mainteneur le répare et demande de continuer sans Docker. Audits RI-SEC-14 et RI-SEC-15 lancés dans la CI sur la branche avant d'ouvrir la PR. Voir [[poste-de-developpement]], [[audit-semgrep]].
+
+## [2026-10-03] compactage | Point avant compactage du contexte
+
+- `main` = `1701a44` ; 11 PR ouvertes (#292 à #296, #298 à #303). Docker de nouveau opérationnel (images à télécharger de nouveau) ; **Node.js absent du poste** (installé sur le disque D: défaillant) : pnpm, tests et audits locaux impossibles jusqu'à sa réinstallation. VitePress repoussé (délai de 7 jours sur `bare-fs`). Synthèse réécrite. Voir [[etat-du-projet]], [[poste-de-developpement]].
+
+## [2026-10-03] incident | Node.js réinstallé sur le disque G
+
+- Le mainteneur a installé Node.js dans `G:\nodejs` (v26.4.0) ; pnpm et les contrôles locaux refonctionnent. Voir [[poste-de-developpement]].
+
+## [2026-10-03] audit | Contrôles locaux repris sur les PR ouvertes
+
+- Docker et Node.js de nouveau disponibles ; images Semgrep et ZAP téléchargées de nouveau. Semgrep complet sur les 12 branches (#292 à #304) : 0 constat. ZAP local sur #292 à #295 : 0 constat. Résultats commentés sur chaque PR. Voir [[audit-semgrep]], [[audit-zap]].
