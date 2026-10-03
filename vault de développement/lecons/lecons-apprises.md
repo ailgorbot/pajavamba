@@ -1,6 +1,6 @@
 ---
 type: leçons
-mise_a_jour: 2026-10-01
+mise_a_jour: 2026-10-03
 sources: [PR #255, sessions du 30/09 et du 01/10/2026]
 ---
 
@@ -39,4 +39,5 @@ sources: [PR #255, sessions du 30/09 et du 01/10/2026]
 | 02/10 | Lecture du mauvais run d'audit après ouverture d'une PR | `gh run list --limit 1` renvoie aussi le run déclenché par la PR | Filtrer avec `--event workflow_dispatch` |
 | 03/10 | Node.js disparu du poste, images Docker perdues | Disque D: défaillant (Node y était installé) ; réparation de Docker Desktop | Outils sur C: ou G: uniquement ; images épinglées téléchargées de nouveau à la demande |
 | 03/10 | `main` rouge : référence des erreurs désynchronisée après la fusion de #292, #294 puis #295 | Chaque PR n'est testée que contre le `main` de son moment ; une référence générée dépend du code fusionné après elle | Exiger des branches à jour avant fusion (règle de protection, L0-01) ; à défaut, régénérer les références après une série de fusions |
+| 03/10 | Matrice de traçabilité ni générée ni contrôlée sur `main` | Fusion par squash de #296 sans le branchement dans `generate-catalogs.ts` | Après une fusion, vérifier que le contrôle livré s'exécute vraiment (sentinelle ou chiffre attendu dans la sortie) |
 | 01/10 | Règle `sonarjs/super-linear-regex` | Expressions régulières à retour arrière | Préférer `startsWith`, `slice`, découpage par ligne |
