@@ -115,3 +115,6 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] ingestion | L0-23 client HTTP résilient (1/3)
 
 - `createHttpClient` dans OPS (délai, reprises bornées, disjoncteur), 5 tests ; règle Semgrep `pv-appel-sortant-direct`. Suites : idempotence obligatoire (428, 24 h), limitation de débit. Audits dans la CI (Docker indisponible). Voir [[ops]].
+## [2026-10-02] incident | Docker Desktop indisponible
+
+- Le moteur Docker ne démarre plus ; le mainteneur le répare et demande de continuer sans Docker. Audits RI-SEC-14 et RI-SEC-15 lancés dans la CI sur la branche avant d'ouvrir la PR. Voir [[poste-de-developpement]], [[audit-semgrep]].
