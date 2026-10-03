@@ -123,3 +123,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-03] incident | Node.js réinstallé sur le disque G
 
 - Le mainteneur a installé Node.js dans `G:\nodejs` (v26.4.0) ; pnpm et les contrôles locaux refonctionnent. Voir [[poste-de-developpement]].
+
+## [2026-10-03] audit | Contrôles locaux repris sur les PR ouvertes
+
+- Docker et Node.js de nouveau disponibles ; images Semgrep et ZAP téléchargées de nouveau. Semgrep complet sur les 12 branches (#292 à #304) : 0 constat. ZAP local sur #292 à #295 : 0 constat. Résultats commentés sur chaque PR. Voir [[audit-semgrep]], [[audit-zap]].
