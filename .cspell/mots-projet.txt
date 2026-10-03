@@ -138,6 +138,8 @@ PVQL
 query
 React
 redistribuables
+rejouable
+rejouables
 releases
 Releases
 réplicas

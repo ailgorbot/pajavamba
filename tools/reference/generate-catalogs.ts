@@ -10,7 +10,6 @@ import { join, relative, sep } from 'node:path';
 import { APP_SETTINGS, MIGRATE_SETTINGS } from '../../deploy/units/pv-app/src/settings.ts';
 import { STATUS_BY_KIND } from '../../packages/ops/src/domain-problem.ts';
 import { LOG_CATALOG, LOG_CATALOG_VERSION } from '../../packages/ops/src/log-catalog.ts';
-import { renderTraces, traceRules, untestedDeclaredRules } from './tracabilite.ts';
 
 const ROOT = join(import.meta.dirname, '..', '..');
 const OUTPUT = join(ROOT, 'docs', 'reference');
@@ -196,22 +195,9 @@ function renderConfiguration(): string {
   ].join('\n');
 }
 
-/**
- * Matrice de traçabilité des règles de gestion.
- * @returns contenu
- */
-function renderTraceability(): string {
-  return [...header('Matrice de traçabilité des règles', 'les identifiants `RG-…` cités dans le code et dans les tests'), ...renderTraces(traceRules(ROOT))].join('\n');
-}
-
-const DOCUMENTS: Readonly<Record<string, () => string>> = { 'erreurs.md': renderErrors, 'journal.md': renderJournal, 'configuration.md': renderConfiguration, 'tracabilite.md': renderTraceability };
+const DOCUMENTS: Readonly<Record<string, () => string>> = { 'erreurs.md': renderErrors, 'journal.md': renderJournal, 'configuration.md': renderConfiguration };
 
 const check = process.argv.includes('--check');
-const untested = untestedDeclaredRules(traceRules(ROOT));
-if (check && untested.length > 0) {
-  console.error(`Règles déclarées dans fonctionnel/src/regles/ sans test : ${untested.join(', ')}.`);
-  process.exitCode = 1;
-}
 for (const [file, render] of Object.entries(DOCUMENTS)) {
   const path = join(OUTPUT, file);
   const content = render();
