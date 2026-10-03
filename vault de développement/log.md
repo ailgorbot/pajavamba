@@ -112,6 +112,9 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 
 - `docs.yml` lancé manuellement à la demande du mainteneur : publié, mais en Markdown brut (racine en 404). Correctif : rendu HTML par `jekyll-build-pages`. Réglages vérifiés : Actions peut créer des PR, Pages actif ; restent l'environnement `release` et `RELEASE_PLEASE_ACTIF`. Voir [[processus-github]].
 
+## [2026-10-02] ingestion | Tests des règles des éléments de travail
+
+- 11 tests unitaires de la couche fonctionnelle de workitem (RG-WI-001, 002, 003, 005, RG-WF-004), dont un test de propriété sur le rang ; restent RG-WI-007, 008, 009 (cas d'usage, à tester avec des dépendances simulées). Suivi #297. Voir [[workitem]].
 ## [2026-10-02] ingestion | Tests des règles du cycle de vie des projets
 
 - 12 tests unitaires de la couche fonctionnelle de portfolio (RG-PRJ-001, 003, 004, 005, 006, 007), dont un test de propriété sur la clé ; suivi #297. Voir [[portfolio]].
