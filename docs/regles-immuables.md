@@ -1,3 +1,11 @@
+---
+titre: Règles immuables
+public: tous les contributeurs, agents compris
+statut: en vigueur
+version_min: 0.1.0
+mise_a_jour: 2026-10-01
+---
+
 # PajaVamba — Règles immuables
 
 | Élément | Valeur |

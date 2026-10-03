@@ -19,14 +19,15 @@
     "dev": "node --watch deploy/units/pv-app/src/main.ts",
     "start": "node deploy/units/pv-app/src/main.ts",
     "migrate": "node deploy/units/pv-app/src/migrate.ts",
-    "reference": "node tools/reference/generate-actions-reference.ts",
-    "reference:check": "node tools/reference/generate-actions-reference.ts --check",
+    "reference": "node tools/reference/generate-actions-reference.ts && node tools/reference/generate-catalogs.ts",
+    "reference:check": "node tools/reference/generate-actions-reference.ts --check && node tools/reference/generate-catalogs.ts --check",
     "smoke": "node tools/smoke/smoke-test.ts",
     "spell": "cspell --no-progress \"**/*.{md,ts,tsx,mjs}\"",
     "lint:md": "markdownlint-cli2",
     "audit:semgrep": "node tools/semgrep/audit-semgrep.ts",
     "format:modifies": "node tools/ci/format-modifies.ts origin/main --write",
-    "audit:zap": "node tools/zap/audit-zap.ts"
+    "audit:zap": "node tools/zap/audit-zap.ts",
+    "docs:front-matter": "node tools/docs/check-front-matter.ts"
   },
   "devDependencies": {
     "@cspell/dict-fr-fr": "2.3.2",

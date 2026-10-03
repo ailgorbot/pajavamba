@@ -25,6 +25,7 @@ Choix pris en conversation, avec leur conséquence durable. Source brute : [[202
 | 01/10 | Constat AES-GCM classé « durcissement » (issue publique) et non « vulnérabilité » (avis privé) | Agent | Exploitation conditionnée à un accès en écriture à la base ; à revoir avec le mainteneur si désaccord |
 | 01/10 | Prettier adopté progressivement, largeur 200 : seuls les fichiers modifiés par une PR sont vérifiés et formatés (question posée avec grill-me) | Mainteneur | ADR-0009 ; `pnpm format:modifies` avant poussée ; fonctions découpées au passage |
 | 01/10 | DAST OWASP ZAP sur pile locale et CI, plus analyse passive de la recette à chaque livraison de lot (jamais d'analyse active sur la recette) ; téléchargement de l'image ZAP autorisé | Mainteneur | ADR-0010, RI-SEC-15, `pnpm audit:zap`, [[audit-zap]] |
+| 02/10 | Site de documentation sous VitePress 2 alpha (Vite 8) plutôt qu'une exception à la politique de confiance pour VitePress 1.6.4 (question posée avec grill-me) | Mainteneur | Aucune exception de sécurité ; montée vers VitePress 2.0 finale dès sa sortie |
 | 01/10 | Infrastructure de recette (adresse, identifiants Coolify) hors du dépôt public | Agent | Notes dans `vault de développement/local/` (non versionné) |
 
 Questions ouvertes pour le mainteneur (à poser avec grill-me le moment venu) : rendre public le tableau du projet n° 2 (404 pour les lecteurs, lien exclu de lychee) ; validation d'ADR-0006 ; activation des rulesets et de la sécurité du dépôt (L0-01, L0-02) ; création de la GitHub App des agents (L0-10).
