@@ -1,0 +1,13 @@
+# Contrôle des liens de la documentation (L0-35, RI-DOC-06).
+# En PR : liens internes seulement (--offline) ; chaque lundi : liens externes aussi (security.yml).
+# Ancres (#…) non vérifiées : option par défaut de lychee 0.24 (valeurs : voir lychee.example.toml).
+no_progress = true
+exclude_path = ['node_modules', 'vault de développement/local']
+exclude = [
+  # Adresses d'exemple et locales, jamais joignables depuis la CI (chaînes littérales : pas d'échappement TOML).
+  '^https?://(localhost|127\.0\.0\.1|pv-app)',
+  'exemple\.fr',
+  'example\.org',
+  # Tableau du projet : privé, 404 pour un visiteur anonyme (à rendre public ou à retirer de la documentation).
+  '^https://github\.com/users/ailgorbot/projects/2',
+]

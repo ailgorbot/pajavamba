@@ -46,6 +46,12 @@ jobs:
           if "$RUNNER_TEMP/gitleaks" dir --redact --no-banner --config .gitleaks.toml "$RUNNER_TEMP/sentinelle"; then echo "::error::gitleaks n'a pas détecté le jeton fictif"; exit 1; fi
       - name: Orthographe française (cspell)
         run: pnpm spell
+      - name: Liens internes de la documentation (lychee 0.24.2, empreinte vérifiée)
+        run: |
+          curl -sSfL -o "$RUNNER_TEMP/lychee.tar.gz" https://github.com/lycheeverse/lychee/releases/download/lychee-v0.24.2/lychee-x86_64-unknown-linux-gnu.tar.gz
+          echo "1f4e0ef7f6554a6ed33dd7ac144fb2e1bbed98598e7af973042fc5cd43951c9a  $RUNNER_TEMP/lychee.tar.gz" | sha256sum -c -
+          tar -xzf "$RUNNER_TEMP/lychee.tar.gz" -C "$RUNNER_TEMP"
+          "$(find "$RUNNER_TEMP" -name lychee -type f | head -n 1)" --config lychee.toml --offline 'docs/**/*.md' README.md CONTRIBUTING.md SECURITY.md GOVERNANCE.md CODE_OF_CONDUCT.md 'vault de développement/**/*.md'
       - name: Sentinelle — un commentaire en anglais est signalé
         run: |
           printf '// This function returns the value\nexport const sentinel = 1;\n' > tools/ci/sentinelle-anglais.ts
