@@ -1,46 +1,51 @@
 ---
 type: synthèse
-mise_a_jour: 2026-10-01
-sources: [CHANGELOG.md, docs/adr/, projet GitHub n° 2, historique Git de main]
+mise_a_jour: 2026-10-03
+sources: [CHANGELOG.md, docs/adr/, projet GitHub n° 2, historique Git de main, PR ouvertes]
 ---
 
 # État du projet
 
 ## En une phrase
 
-Le **MVP 0.4.0** (lots 0 à 3) est fusionné sur `main`, déployé en recette sur Coolify et validé par le mainteneur ; on complète maintenant, story par story, ce qui a été simplifié ou reporté dans les lots 0 à 3 avant d'attaquer le lot 4 (planification).
+Le **MVP 0.4.0** (lots 0 à 3) est en recette sur Coolify et validé ; le socle de qualité et de sécurité est en place (Semgrep, ZAP, gitleaks, couches, traçabilité, publication), et l'on termine les stories du lot 0 et la dette de tests avant le lot 4.
 
-## Ce qui existe
+## Ce qui existe sur `main` (`1701a44`, 03/10/2026)
 
-- Produit utilisable de bout en bout : initialisation, connexion (TOTP), rôles, projets (cycle de vie complet), équipes, workflows Scrum/Kanban/Scrumban/Personnalisé, éléments et hiérarchie, backlog, board accessible au clavier, recherche plein texte, journal d'activité, audit chaîné. Détails : [[lot-00-socle]], [[lot-01-identite-acces]], [[lot-02-projets-equipes]], [[lot-03-elements-workflows]].
-- 9 services TypeScript dans une seule unité `pv-app` (voir [[pv-app-et-compose]]), 56 actions d'API générées depuis le registre (voir [[chaine-d-ecriture]]).
-- CI verte : types, tests unitaires, référence synchronisée, lint aux seuils, construction de l'interface, pile conteneurisée + tests de fumée, présence des fichiers de gouvernance, modèle de PR complet. Voir [[processus-github]].
-- Écarts assumés du MVP consignés dans ADR-0006 (**proposée, à valider par le mainteneur**). Voir [[registre-des-adr]].
+- Produit utilisable de bout en bout : voir [[lot-00-socle]], [[lot-01-identite-acces]], [[lot-02-projets-equipes]], [[lot-03-elements-workflows]].
+- Contrôles en CI : types, tests, lint et seuils, couches (dependency-cruiser), Prettier progressif, référence des actions, gitleaks, cspell, markdownlint, titre et modèle de PR, Semgrep (règles du projet, officiels chaque lundi), ZAP passif sur pile éphémère (actif chaque lundi), dépendances. Voir [[processus-github]], [[audit-semgrep]], [[audit-zap]].
+- Règles immuables 1.3.0 (RI-DOC-10 vault, RI-SEC-14 Semgrep, RI-SEC-15 ZAP) ; ADR-0001 à 0010 ([[registre-des-adr]]).
+- Publication : `release.yml` (image GHCR signée, SBOM, provenance) et documentation en ligne en HTML (Jekyll) sur <https://ailgorbot.github.io/pajavamba/>.
 
-## En cours (01/10/2026)
+## PR ouvertes, en attente du mainteneur (03/10/2026)
 
-| Sujet | État |
-|---|---|
-| Vault de développement ([#258](https://github.com/ailgorbot/pajavamba/issues/258)) | Livré (#259 à #262) ; tenu à jour dans chaque PR de story |
-| L0-14 ([#14](https://github.com/ailgorbot/pajavamba/issues/14)) | Livré (#263) : gitleaks, cspell, markdownlint |
-| L0-16 ([#16](https://github.com/ailgorbot/pajavamba/issues/16)) | Livré (#264) |
-| Audit Semgrep | Constats initiaux corrigés (#268 à #270), règle RI-SEC-14 livrée (#272) ; `main` à 0 constat. En cours : jeux officiels en CI planifiée ([#273](https://github.com/ailgorbot/pajavamba/issues/273)). Voir [[audit-semgrep]] |
-| L0-16 ([#16](https://github.com/ailgorbot/pajavamba/issues/16)) | Branche `ci/16-securite` : `security.yml` (Semgrep en conteneur, règles `.semgrep/`, audit pnpm) |
-| Stories partielles du lot 0 | L0-13 (Prettier, dependency-cruiser), L0-23 (client HTTP résilient, limitation de débit), L0-27 (registre des règles, traçabilité), L0-34 (livraison automatique, tag v0.1.0) |
-| Stories partielles des lots 1 à 3 | L1-10 (groupes), L1-19 (WebAuthn, politique MFA), L3-12 (observateurs, étiquettes), L3-14 (mentions), documentation des lots (L1-27, L2-20, L3-33) |
+| PR | Contenu | Remarque |
+|---|---|---|
+| #292, #293, #294 | L0-23 : client HTTP résilient, idempotence 24 h et 428 du catalogue, limitation de débit | Fusionner dans l'ordre |
+| #295, #296 | L0-27 : références générées (erreurs, journal, configuration) et matrice de traçabilité | #296 est construite sur #295 |
+| #298 à #301 | #297 : tests des règles RG-* (portfolio, workitem, workflow, identity) → 21 règles sur 24 testées | Après #296 : régénérer `docs/reference/tracabilite.md` sur ces branches |
+| #302, #303 | L0-35 : front-matter obligatoire, liens (lychee) | Le lien vers le tableau du projet (privé, 404) est exclu en attendant une décision |
 
-Statuts à jour : [[etat-des-stories]].
+## Travail suspendu et pourquoi
 
-| DAST OWASP ZAP (L0-39, [#277](https://github.com/ailgorbot/pajavamba/issues/277)) | PR en cours : `pnpm audit:zap`, CI passive et active, RI-SEC-15 ; corrections #278 (COEP) et #279 (cache) ; recette à réanalyser après déploiement. Voir [[audit-zap]] |
+| Sujet | Blocage | Reprise |
+|---|---|---|
+| VitePress (L0-35) | `minimumReleaseAge` : `bare-fs` 4.8.2 verrouillé, publié le 25/09 | À partir du 03/10 vers 19 h 25 ; VitePress 2.0.0-alpha.20 (choix du mainteneur) |
+| Audits locaux Semgrep et ZAP | Docker et Node.js sur G: de nouveau disponibles le 03/10 | Repris : 12 branches à 0 constat Semgrep, 4 branches à 0 constat ZAP |
+| Règles RG-PRJ-002, RG-WI-009, RG-IA-002 | Cas d'usage à tester avec davantage de dépendances simulées | Suite de #297 |
 
 ## Prochaines étapes proposées
 
-1. Après #273, reprise des stories du lot 0 dans l'ordre : L0-13, L0-17 (release-please), L0-01/L0-02 (rulesets, sécurité du dépôt : actions du mainteneur dans GitHub).
-2. Validation d'ADR-0006 par le mainteneur.
-3. Compléter les stories partielles des lots 1 à 3, puis lot 4 ([[lots-04-a-15]]).
+1. Après fusion des PR : régénérer la matrice de traçabilité, puis VitePress, validation Mermaid, versionnement du site et accessibilité (fin de L0-35).
+2. Stories du lot 0 restantes : L0-32 (superviseur), L0-34 (livraison automatique et tag), et celles qui dépendent du mainteneur : L0-01 (rulesets), L0-02 (sécurité du dépôt), L0-10 (GitHub App).
+3. Stories partielles des lots 1 à 3 (L1-10, L1-19, L3-12, L3-14, documentation L1-27, L2-20, L3-33), puis lot 4 ([[lots-04-a-15]]).
+
+## Décisions attendues du mainteneur
+
+Valider ADR-0006 ; rendre public le tableau du projet n° 2 (ou retirer le lien) ; créer l'environnement `release` avec approbateur et la variable `RELEASE_PLEASE_ACTIF` ; supprimer ou non la pile locale `pvtest`. Voir [[journal-des-decisions]].
 
 ## Points d'attention
 
-- Une PR = une story, ≤ 400 lignes ; un agent ne fusionne jamais : le mainteneur fusionne.
-- Le poste de développement a des contournements (disque D:) : [[poste-de-developpement]].
-- Leçons à ne pas répéter : [[lecons-apprises]].
+- Une PR = une story, ≤ 400 lignes ; un agent ne fusionne jamais. Indexer les fichiers nommément, `set -o pipefail` avant de chaîner les contrôles.
+- Fichiers contenant des antislashs (TOML, expressions régulières) : les écrire avec l'outil d'écriture, jamais via le shell.
+- Poste : [[poste-de-developpement]] ; leçons : [[lecons-apprises]].
