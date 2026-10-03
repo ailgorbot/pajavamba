@@ -7,7 +7,7 @@
  * Variables : PV_SMOKE_EMAIL et PV_SMOKE_PASSWORD_FILE pour réutiliser un compte existant.
  */
 import { readFileSync } from 'node:fs';
-import { randomBytes } from 'node:crypto';
+import { randomBytes, randomUUID } from 'node:crypto';
 import { createApiClient, type ApiClient } from './api-client.ts';
 
 const [baseUrl = 'http://127.0.0.1:8080', setupCodeFile = '-'] = process.argv.slice(2);
@@ -51,7 +51,16 @@ async function login(api: ApiClient): Promise<boolean> {
   const passwordFile = process.env['PV_SMOKE_PASSWORD_FILE'];
   const password = passwordFile === undefined ? `Recette-${randomBytes(9).toString('base64url')}` : readFileSync(passwordFile, 'utf8').trim();
   if (status.body['initialized'] === false && setupCodeFile !== '-') {
-    const setup = await api.call('POST', '/setup', { body: { setupCode: readFileSync(setupCodeFile, 'utf8').trim(), organisationName: 'Organisation de recette', organisationSlug: 'recette', email, displayName: 'Propriétaire de recette', password } });
+    const setup = await api.call('POST', '/setup', {
+      body: {
+        setupCode: readFileSync(setupCodeFile, 'utf8').trim(),
+        organisationName: 'Organisation de recette',
+        organisationSlug: 'recette',
+        email,
+        displayName: 'Propriétaire de recette',
+        password,
+      },
+    });
     check('initialisation de l’instance', setup.status === 201, setup.body);
   }
   const session = await api.call('POST', '/sessions', { body: { email, password } });
@@ -80,7 +89,10 @@ async function securityChecks(anonymous: ApiClient): Promise<void> {
  * @param api client connecté
  */
 async function projectJourney(api: ApiClient): Promise<void> {
-  const key = `R${randomBytes(3).toString('hex').toUpperCase().replaceAll(/[^A-Z0-9]/gu, 'X')}`.slice(0, 8);
+  const key = `R${randomBytes(3)
+    .toString('hex')
+    .toUpperCase()
+    .replaceAll(/[^A-Z0-9]/gu, 'X')}`.slice(0, 8);
   const created = await api.call('POST', '/projects', { body: { key, name: `Projet de recette ${key}`, methodologyPackKey: 'scrum' } });
   check('création d’un projet en brouillon', created.status === 201 && created.body['status'] === 'draft', created.body);
   check('configuration du pack Scrum prête', await eventually(async () => (await api.call('GET', `/projects/${key}`)).body['configurationReady'] === true));
@@ -102,6 +114,22 @@ async function projectJourney(api: ApiClient): Promise<void> {
   check('recherche plein texte française (« inscription »)', await eventually(async () => ((await api.call('GET', '/search?q=inscriptions')).body['data'] as unknown[] | undefined)?.length === 2));
   const closing = await api.call('POST', `/projects/${key}/actions/close`, { body: { text: 'Bilan' } });
   check('clôture refusée tant que des éléments sont ouverts (RG-PRJ-005)', closing.status === 409, closing.body);
+  await idempotencyChecks(api, key);
+}
+
+/**
+ * Idempotence des écritures (RI-API-05, L0-23) : rejeu sans nouvel effet, clé obligatoire.
+ * @param api client connecté
+ * @param key clé du projet de recette
+ */
+async function idempotencyChecks(api: ApiClient, key: string): Promise<void> {
+  const body = { typeKey: 'bug', title: 'Rejeu idempotent', parentKey: `${key}-1` };
+  const headers = { 'idempotency-key': randomUUID() };
+  const first = await api.call('POST', `/projects/${key}/work-items`, { body, headers });
+  const replay = await api.call('POST', `/projects/${key}/work-items`, { body, headers });
+  check('rejeu idempotent : même réponse, aucun nouvel élément', first.status === 201 && replay.status === 201 && replay.body['key'] === first.body['key'], replay.body);
+  const missing = await api.call('POST', `/projects/${key}/work-items`, { body, headers: { 'idempotency-key': '' } });
+  check('écriture sans Idempotency-Key refusée (428)', missing.status === 428 && missing.body['code'] === 'request.precondition_required', missing.body);
 }
 
 const anonymous = createApiClient(baseUrl);
