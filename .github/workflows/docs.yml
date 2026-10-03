@@ -39,7 +39,11 @@ jobs:
         run: |
           mkdir -p _source
           cp -r docs/. _source/
-          cp CONTRIBUTING.md SECURITY.md GOVERNANCE.md CODE_OF_CONDUCT.md _source/
+          cp SECURITY.md GOVERNANCE.md _source/
+          # Jekyll ne rend pas CONTRIBUTING ni CODE_OF_CONDUCT sans en-tête YAML : on leur en ajoute un.
+          for f in CONTRIBUTING CODE_OF_CONDUCT; do
+            { printf -- '---\ntitle: %s\n---\n\n' "$(sed -n 's/^# //p' "$f.md" | head -n 1)"; cat "$f.md"; } > "_source/$f.md"
+          done
           cp LICENSE _source/LICENSE.txt
           sed -e 's#](docs/#](#g' -e 's#"docs/#"#g' -e 's#](LICENSE)#](LICENSE.txt)#g' README.md > _source/index.md
           {
