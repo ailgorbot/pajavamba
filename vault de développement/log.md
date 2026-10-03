@@ -147,3 +147,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-03] incident | Avis de sécurité sur `braces` sans correctif
 
 - GHSA-vfj7-8cjw-p6xm (élevé) sur `braces` <= 3.0.3, via `markdownlint-cli2` seulement : audit des dépendances en échec sur toutes les PR. Exception nominative `auditConfig.ignoreGhsas` justifiée (#305), à retirer dès qu'un correctif paraît. Voir [[processus-github]].
+
+## [2026-10-03] incident | Référence des erreurs désynchronisée sur main
+
+- #295 générée avant la fusion de #292 (`system.unavailable`) et #294 (`request.rate_limited`) : `reference:check` en échec sur `main`. Référence régénérée. Voir [[lecons-apprises]].
