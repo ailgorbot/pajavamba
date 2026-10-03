@@ -39,3 +39,13 @@ rules:
     pattern-either:
       - pattern: eval(...)
       - pattern: new Function(...)
+
+  - id: pv-appel-sortant-direct
+    languages: [typescript]
+    severity: ERROR
+    message: >-
+      Appel HTTP sortant direct : passer par le client d'OPS (createHttpClient : délai, reprises bornées,
+      disjoncteur), RI-SRV-12. L'interface web et l'outillage ne sont pas concernés.
+    paths:
+      exclude: [apps/, tools/, tests/, packages/ops/src/http-client.ts]
+    pattern: fetch(...)
