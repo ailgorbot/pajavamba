@@ -14,7 +14,8 @@ mise_a_jour: 2026-09-30
 packages/kernel       identifiants typés, Result, ExecutionContext, ports communs, AccessPolicy
 packages/contracts    catalogue des permissions, registre d'actions, types d'événements, client identity
 packages/ops          configuration, journal catalogué, serveur HTTP (RFC 9457), base, migrateur,
-                      secrets, chaîne d'écriture (outbox, idempotence, simulation)
+                      secrets, chaîne d'écriture (outbox, idempotence, simulation), client HTTP sortant
+                      (délai, reprises bornées, disjoncteur : seul moyen d'appeler un service voisin, RI-SRV-12)
 packages/ui           façade DSFR (seul point d'import du système de design)
 services/<s>/fonctionnel   couche basse : domaine, ports, cas d'usage (aucune entrée/sortie)
 services/<s>/structure     couche moyenne : migrations, dépôts, actions, consommateurs, composition
