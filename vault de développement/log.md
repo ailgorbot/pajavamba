@@ -173,3 +173,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-03] incident | Référence des erreurs désynchronisée sur main
 
 - #295 générée avant la fusion de #292 (`system.unavailable`) et #294 (`request.rate_limited`) : `reference:check` en échec sur `main`. Référence régénérée. Voir [[lecons-apprises]].
+
+## [2026-10-03] incident | Matrice de traçabilité plus générée sur main
+
+- La fusion par squash de #296 a perdu le branchement de `tools/reference/tracabilite.ts` dans `generate-catalogs.ts` : `tracabilite.md` n'était plus régénéré ni contrôlé (4 règles testées affichées au lieu de 21). Branchement rétabli, contrôle des règles déclarées sans test vérifié par sentinelle locale ; Semgrep : 0 constat. Voir [[lecons-apprises]].
