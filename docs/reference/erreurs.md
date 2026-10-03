@@ -9,7 +9,7 @@ version_min: 0.4.0
 
 > Document **généré** par `tools/reference/generate-catalogs.ts` depuis les erreurs métier (`domainError`) et les problèmes HTTP déclarés dans le code (RI-DOC-03). Ne pas modifier à la main.
 
-Toutes les erreurs sont renvoyées au format RFC 9457 (`application/problem+json`), avec le code stable ci-dessous. Nombre de codes : 69.
+Toutes les erreurs sont renvoyées au format RFC 9457 (`application/problem+json`), avec le code stable ci-dessous. Nombre de codes : 71.
 
 | Code | Statut HTTP | Message ou titre | Origine |
 |---|---|---|---|
@@ -64,6 +64,8 @@ Toutes les erreurs sont renvoyées au format RFC 9457 (`application/problem+json
 | `portfolio.text_required` | 422 | Ce texte est obligatoire. | portfolio |
 | `portfolio.text_too_long` | 422 | Le texte ne doit pas dépasser 10 000 caractères. | portfolio |
 | `request.precondition_required` | 428 | En-tête If-Match requis | api-gateway, ops |
+| `request.rate_limited` | 429 | Trop de requêtes | ops |
+| `system.unavailable` | 503 | Service momentanément indisponible | ops |
 | `workflow.invalid_key` | 422 | La clé du workflow doit être au format a-z, 0-9, « _ » (2 à 41 caractères). | workflow |
 | `workflow.project_read_only` | 409 | Ce projet est en lecture seule. | workflow |
 | `workflow.unknown_pack` | 422 | Modèle méthodologique inconnu. | workflow |
