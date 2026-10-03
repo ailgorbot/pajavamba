@@ -9,6 +9,7 @@ export * from './config.ts';
 export * from './database.ts';
 export * from './domain-problem.ts';
 export * from './event-consumption.ts';
+export * from './http-client.ts';
 export * from './http-server.ts';
 export * from './log-catalog.ts';
 export * from './logger.ts';
