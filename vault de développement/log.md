@@ -119,3 +119,9 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-02] ingestion | L0-35 front-matter obligatoire (1/n)
 
 - `tools/docs/check-front-matter.ts` en CI ; front-matter ajouté aux règles immuables et aux spécifications. Voir [[outillage]].
+## [2026-10-02] ingestion | L0-23 idempotence (2/3)
+
+- Rejeu limité à 24 h (`IDEMPOTENCY_TTL`), clé expirée réutilisable ; 428 aligné sur `request.precondition_required` ; tests de fumée des deux scénarios. Voir [[chaine-d-ecriture]].
+## [2026-10-02] incident | Docker Desktop indisponible
+
+- Le moteur Docker ne démarre plus ; le mainteneur le répare et demande de continuer sans Docker. Audits RI-SEC-14 et RI-SEC-15 lancés dans la CI sur la branche avant d'ouvrir la PR. Voir [[poste-de-developpement]], [[audit-semgrep]].

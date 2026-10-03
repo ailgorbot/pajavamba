@@ -66,7 +66,7 @@ export function checkIfMatch(ifMatch: number | null, current: number): void {
  */
 export function requireIfMatch(ifMatch: number | null): number {
   if (ifMatch === null) {
-    throw new HttpProblem({ status: 428, code: 'ops.if_match_required', title: 'En-tête If-Match requis', detail: "Fournissez l'en-tête If-Match avec la version (ETag) de la ressource." });
+    throw new HttpProblem({ status: 428, code: 'request.precondition_required', title: 'En-tête If-Match requis', detail: "Fournissez l'en-tête If-Match avec la version (ETag) de la ressource." });
   }
   return ifMatch;
 }
