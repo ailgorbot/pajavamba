@@ -133,3 +133,7 @@ Ajout seul. Format : `## [AAAA-MM-JJ] opération | titre` (voir [[SCHEMA]]).
 ## [2026-10-03] audit | Contrôles locaux repris sur les PR ouvertes
 
 - Docker et Node.js de nouveau disponibles ; images Semgrep et ZAP téléchargées de nouveau. Semgrep complet sur les 12 branches (#292 à #304) : 0 constat. ZAP local sur #292 à #295 : 0 constat. Résultats commentés sur chaque PR. Voir [[audit-semgrep]], [[audit-zap]].
+
+## [2026-10-03] incident | Avis de sécurité sur `braces` sans correctif
+
+- GHSA-vfj7-8cjw-p6xm (élevé) sur `braces` <= 3.0.3, via `markdownlint-cli2` seulement : audit des dépendances en échec sur toutes les PR. Exception nominative `auditConfig.ignoreGhsas` justifiée (#305), à retirer dès qu'un correctif paraît. Voir [[processus-github]].
