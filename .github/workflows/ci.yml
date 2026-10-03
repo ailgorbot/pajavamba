@@ -52,6 +52,8 @@ jobs:
           if pnpm exec cspell --no-progress tools/ci/sentinelle-anglais.ts; then echo "::error::cspell n'a pas signalé le commentaire en anglais"; exit 1; fi
       - name: Markdown (markdownlint)
         run: pnpm lint:md
+      - name: Front-matter de la documentation (RI-DOC-06)
+        run: pnpm docs:front-matter
 
   qualite:
     name: Types, lint, couches, tests unitaires, référence

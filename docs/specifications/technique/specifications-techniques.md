@@ -1,3 +1,11 @@
+---
+titre: Spécifications techniques
+public: développeurs, mainteneurs, exploitants
+statut: référence
+version_min: 0.1.0
+mise_a_jour: 2026-09-29
+---
+
 # PajaVamba — Spécifications techniques
 
 | Élément | Valeur |

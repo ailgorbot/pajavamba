@@ -26,7 +26,8 @@
     "lint:md": "markdownlint-cli2",
     "audit:semgrep": "node tools/semgrep/audit-semgrep.ts",
     "format:modifies": "node tools/ci/format-modifies.ts origin/main --write",
-    "audit:zap": "node tools/zap/audit-zap.ts"
+    "audit:zap": "node tools/zap/audit-zap.ts",
+    "docs:front-matter": "node tools/docs/check-front-matter.ts"
   },
   "devDependencies": {
     "@cspell/dict-fr-fr": "2.3.2",
