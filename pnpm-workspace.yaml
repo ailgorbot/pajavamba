@@ -11,3 +11,9 @@ onlyBuiltDependencies:
 minimumReleaseAge: 10080
 blockExoticSubdeps: true
 trustPolicy: no-downgrade
+# Avis ignorés nommément (#305, RI-SEC-09) — à retirer dès qu'une version corrigée est publiée.
+# GHSA-vfj7-8cjw-p6xm (braces <= 3.0.3, aucun correctif) : seul chemin markdownlint-cli2 > micromatch > braces,
+# outil de développement qui ne traite que nos propres motifs de fichiers ; rien n'est livré dans le produit.
+auditConfig:
+  ignoreGhsas:
+    - GHSA-vfj7-8cjw-p6xm
