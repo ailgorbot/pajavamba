@@ -9,14 +9,13 @@ version_min: 0.4.0
 
 > Document **généré** par `tools/reference/generate-catalogs.ts` depuis les erreurs métier (`domainError`) et les problèmes HTTP déclarés dans le code (RI-DOC-03). Ne pas modifier à la main.
 
-Toutes les erreurs sont renvoyées au format RFC 9457 (`application/problem+json`), avec le code stable ci-dessous. Nombre de codes : 70.
+Toutes les erreurs sont renvoyées au format RFC 9457 (`application/problem+json`), avec le code stable ci-dessous. Nombre de codes : 69.
 
 | Code | Statut HTTP | Message ou titre | Origine |
 |---|---|---|---|
 | `access.forbidden` | 403 | Vous n'avez pas les droits nécessaires pour cette action. | kernel |
 | `access.not_found` | 404 | La ressource demandée n'existe pas ou n'est pas accessible. | kernel, portfolio, query, workflow, workitem |
 | `api.csrf_invalid` | 403 | Jeton CSRF invalide | api-gateway |
-| `api.idempotency_key_required` | 428 | En-tête Idempotency-Key requis | api-gateway |
 | `api.token_in_url` | 400 | Jeton dans l’URL | api-gateway |
 | `identity.already_initialized` | 409 | L'instance est déjà initialisée. | identity |
 | `identity.api_key_not_found` | 404 | Vous n'avez pas de clé API active. | identity |
@@ -44,7 +43,6 @@ Toutes les erreurs sont renvoyées au format RFC 9457 (`application/problem+json
 | `identity.unknown_role` | 422 | Ce rôle n'existe pas pour cette portée. | identity |
 | `identity.user_not_found` | 404 | Utilisateur introuvable. | identity |
 | `ops.idempotency_key_reused` | 422 | Clé d'idempotence déjà utilisée | ops |
-| `ops.if_match_required` | 428 | En-tête If-Match requis | ops |
 | `ops.internal_error` | 500 | Erreur interne | ops |
 | `ops.not_found` | 404 | Ressource introuvable | ops, pv-app |
 | `ops.unauthenticated` | 401 | Authentification requise | ops |
@@ -65,6 +63,7 @@ Toutes les erreurs sont renvoyées au format RFC 9457 (`application/problem+json
 | `portfolio.team_not_found` | 404 | Équipe introuvable dans ce projet. | portfolio |
 | `portfolio.text_required` | 422 | Ce texte est obligatoire. | portfolio |
 | `portfolio.text_too_long` | 422 | Le texte ne doit pas dépasser 10 000 caractères. | portfolio |
+| `request.precondition_required` | 428 | En-tête If-Match requis | api-gateway, ops |
 | `workflow.invalid_key` | 422 | La clé du workflow doit être au format a-z, 0-9, « _ » (2 à 41 caractères). | workflow |
 | `workflow.project_read_only` | 409 | Ce projet est en lecture seule. | workflow |
 | `workflow.unknown_pack` | 422 | Modèle méthodologique inconnu. | workflow |

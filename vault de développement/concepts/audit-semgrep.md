@@ -45,5 +45,6 @@ Tests : `semgrep --test --config .semgrep/regles-projet.yml .semgrep/regles-proj
 |---|---|---|
 | 01/10/2026 | 6 constats, 2 erreurs d'analyse (jeux officiels) ; 11 interpolations SQL (règles du projet) | #265, #266, #267 ; requêtes littérales dans #264. Détail : [[2026-10-01-audit-semgrep-initial]] |
 | 01/10/2026 (après #264 à #272) | 0 constat, 0 erreur d'analyse sur `main` (`1a53b40`) | — |
+| 03/10/2026 | Audit local des 12 branches de PR ouvertes (#292 à #304) après le retour de Docker : 0 constat, 0 erreur d'analyse | Résultats commentés sur chaque PR |
 
 Voir aussi [[base-et-rls]], [[processus-github]], [[lecons-apprises]].
